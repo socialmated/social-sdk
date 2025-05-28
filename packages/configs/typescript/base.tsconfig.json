@@ -1,0 +1,14 @@
+{
+  "extends": ["@tsconfig/recommended/tsconfig.json", "@tsconfig/strictest/tsconfig.json"],
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "noImplicitAny": false,
+    "exactOptionalPropertyTypes": false,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "stripInternal": true,
+    "customConditions": ["development"]
+  }
+}

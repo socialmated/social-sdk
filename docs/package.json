@@ -1,0 +1,71 @@
+{
+  "name": "docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Documentation for the Social SDK, built with FumaDocs.",
+  "homepage": "https://social-sdk.js.org",
+  "bugs": {
+    "url": "https://github.com/socialmated/social-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socialmated/social-sdk.git",
+    "directory": "docs"
+  },
+  "license": "MIT",
+  "author": "SocialMated",
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "e2e": "playwright test",
+    "e2e:codegen": "playwright codegen",
+    "e2e:debug": "playwright test --debug",
+    "e2e:report": "playwright test --report=html",
+    "e2e:ui": "playwright test --ui",
+    "format": "prettier --write",
+    "postinstall": "fumadocs-mdx",
+    "lint": "eslint --fix",
+    "next": "next",
+    "start": "next start",
+    "test": "vitest run",
+    "test:ci": "CI=1 vitest run --coverage",
+    "test:coverage": "vitest run --coverage",
+    "test:preview": "vitest-preview",
+    "test:snapshot": "vitest run --update",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest watch"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "fumadocs-core": "15.3.4",
+    "fumadocs-mdx": "11.6.5",
+    "fumadocs-ui": "15.3.4",
+    "next": "15.3.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@social-sdk/configs": "workspace:*",
+    "@tailwindcss/postcss": "4.1.7",
+    "@types/mdx": "2.0.13",
+    "@types/node": "22.15.21",
+    "@types/react": "19.1.5",
+    "@types/react-dom": "19.1.5",
+    "postcss": "8.5.3",
+    "tailwindcss": "4.1.7",
+    "typescript": "5.8.3"
+  }
+}

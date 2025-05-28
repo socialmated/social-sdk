@@ -1,0 +1,33 @@
+{
+  "extends": [
+    "./tsconfig.json",
+    "@social-sdk/configs/typescript/vitest.tsconfig.json"
+  ],
+  "compilerOptions": {
+    "types": [
+      "node",
+      "vitest/globals",
+      "vitest/jsdom",
+      "@types/golang-wasm-exec"
+    ],
+    "outDir": "dist",
+    "baseUrl": "src",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ],
+  "exclude": [
+    "**/*.config.ts"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

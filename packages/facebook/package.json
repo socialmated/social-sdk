@@ -1,0 +1,48 @@
+{
+  "name": "@social-sdk/facebook",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Facebook integration for the Social SDK",
+  "homepage": "https://social-sdk.js.org",
+  "bugs": {
+    "url": "https://github.com/socialmated/social-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socialmated/social-sdk.git",
+    "directory": "packages/facebook"
+  },
+  "license": "MIT",
+  "author": "SocialMated",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    "./*": {
+      "development": "./src/*/index.js",
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.js",
+      "default": "./dist/*/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.lib.json",
+    "dev": "rm -rf dist && tsc -p tsconfig.lib.json --watch",
+    "format": "prettier --write",
+    "lint": "eslint --fix",
+    "test": "vitest run",
+    "test:ci": "CI=1 vitest run --coverage",
+    "test:coverage": "vitest run --coverage",
+    "test:snapshot": "vitest run --update",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@social-sdk/configs": "workspace:*"
+  }
+}

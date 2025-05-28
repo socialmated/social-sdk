@@ -1,0 +1,59 @@
+{
+  "name": "@social-sdk/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Core library for the Social SDK, providing common utilities and integrations.",
+  "homepage": "https://social-sdk.js.org",
+  "bugs": {
+    "url": "https://github.com/socialmated/social-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socialmated/social-sdk.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "SocialMated",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    "./*": {
+      "development": "./src/*/index.js",
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.js",
+      "default": "./dist/*/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.lib.json",
+    "dev": "rm -rf dist && tsc -p tsconfig.lib.json --watch",
+    "format": "prettier --write",
+    "lint": "eslint --fix",
+    "test": "vitest run",
+    "test:ci": "CI=1 vitest run --coverage",
+    "test:coverage": "vitest run --coverage",
+    "test:snapshot": "vitest run --update",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@denostack/shim-webstore": "0.1.1",
+    "@hono/node-server": "1.14.1",
+    "camoufox-js": "0.3.5",
+    "got": "14.4.7",
+    "got-scraping": "4.1.1",
+    "header-generator": "2.1.66",
+    "hono": "4.7.9",
+    "jose": "6.0.11",
+    "open": "10.1.2",
+    "openid-client": "6.5.0",
+    "playwright": "1.52.0",
+    "tough-cookie": "5.1.2",
+    "type-fest": "4.41.0"
+  },
+  "devDependencies": {
+    "@social-sdk/configs": "workspace:*"
+  }
+}

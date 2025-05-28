@@ -1,0 +1,32 @@
+{
+  "name": "social-sdk",
+  "shutdownAction": "none",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "runArgs": ["--name", "social-sdk"],
+  "postStartCommand": "pnpm install --frozen-lockfile",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-playwright.playwright",
+        "vitest.explorer",
+        "bradlc.vscode-tailwindcss",
+        "ms-vsliveshare.vsliveshare",
+        "postman.postman-for-vscode",
+        "streetsidesoftware.code-spell-checker",
+        "mikestead.dotenv",
+        "editorconfig.editorconfig",
+        "mhutchie.git-graph",
+        "donjayamanne.githistory",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "github.remotehub",
+        "codezombiech.gitignore",
+        "redhat.vscode-yaml",
+        "wix.vscode-import-cost",
+        "fill-labs.dependi"
+      ]
+    }
+  }
+}

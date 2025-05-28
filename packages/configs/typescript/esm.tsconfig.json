@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "ESM",
+  "compilerOptions": {
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true
+  }
+}

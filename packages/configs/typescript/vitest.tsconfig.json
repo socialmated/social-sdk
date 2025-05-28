@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "types": ["node", "vitest/globals", "vitest/jsdom"],
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true
+  }
+}

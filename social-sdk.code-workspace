@@ -1,0 +1,111 @@
+{
+  "folders": [
+    {
+      "name": "docs",
+      "path": "docs"
+    },
+    {
+      "name": "configs",
+      "path": "packages/configs"
+    },
+    {
+      "name": "core",
+      "path": "packages/core"
+    },
+    {
+      "name": "x",
+      "path": "packages/x"
+    },
+    {
+      "name": "facebook",
+      "path": "packages/facebook"
+    },
+    {
+      "name": "rednote",
+      "path": "packages/rednote"
+    },
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      {
+        "mode": "auto"
+      }
+    ],
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "never",
+        "source.fixAll": "explicit",
+      }
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "never",
+        "source.fixAll": "explicit",
+      }
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "never",
+        "source.fixAll": "never",
+      },
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "never",
+        "source.fixAll": "explicit",
+      }
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+      }
+    },
+    "search.followSymlinks": false,
+    "files.autoSave": "onFocusChange",
+    "files.exclude": {
+      "node_modules/": true,
+      "dist/": true,
+      "coverage/": true,
+      "generated/": true,
+      ".turbo/": true,
+      ".pnpm-store/": true
+    },
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "jest.runMode": "deferred",
+    "jest.jestCommandLine": "pnpm run test",
+    "files.associations": {
+      "*.css": "tailwindcss"
+    },
+    "liveServer.settings.multiRootWorkspaceName": "interface",
+    "cSpell.words": [
+      "astro",
+      "clsx",
+      "favoriters",
+      "hashfetti",
+      "Hashflag",
+      "hashflags",
+      "Millis",
+      "ondemand",
+      "openapi",
+      "PKCE",
+      "Promisable",
+      "rednote",
+      "retweeters",
+      "rweb",
+      "sonarjs",
+      "svgs",
+      "tipjar",
+      "webmsxyw"
+    ],
+    "git.openRepositoryInParentFolders": "always",
+    "vitest.workspaceConfig": "${workspaceFolder}/vitest.config.ts",
+    "javascript.validate.enable": false,
+  }
+}

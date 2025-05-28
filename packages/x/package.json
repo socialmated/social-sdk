@@ -1,0 +1,60 @@
+{
+  "name": "@social-sdk/x",
+  "version": "0.0.0",
+  "private": true,
+  "description": "X integration for the Social SDK",
+  "homepage": "https://social-sdk.js.org",
+  "bugs": {
+    "url": "https://github.com/socialmated/social-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socialmated/social-sdk.git",
+    "directory": "packages/x"
+  },
+  "license": "MIT",
+  "author": "SocialMated",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    "./*": {
+      "development": "./src/*/index.js",
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.js",
+      "default": "./dist/*/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.lib.json",
+    "dev": "rm -rf dist && tsc -p tsconfig.lib.json --watch",
+    "format": "prettier --write",
+    "lint": "eslint --fix",
+    "test": "vitest run",
+    "test:ci": "CI=1 vitest run --coverage",
+    "test:coverage": "vitest run --coverage",
+    "test:snapshot": "vitest run --update",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@social-sdk/core": "workspace:*",
+    "acorn": "8.14.1",
+    "acorn-walk": "8.3.4",
+    "fingerprint-injector": "2.1.66",
+    "got": "14.4.7",
+    "got-scraping": "4.1.1",
+    "header-generator": "2.1.66",
+    "jsdom": "26.1.0",
+    "playwright": "1.52.0",
+    "sdp": "3.2.0",
+    "tough-cookie": "5.1.2",
+    "type-fest": "4.41.0"
+  },
+  "devDependencies": {
+    "@social-sdk/configs": "workspace:*",
+    "@types/golang-wasm-exec": "1.15.2",
+    "@types/jsdom": "21.1.7"
+  }
+}

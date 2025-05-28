@@ -1,0 +1,12 @@
+{
+  "extends": ["config:base"],
+  "baseBranches": ["dev"],
+  "dependencyDashboardAutoclose": false,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    }
+  ],
+  "reviewers": ["AustinZhu"]
+}

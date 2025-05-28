@@ -1,0 +1,9 @@
+{
+  "extends": ["./base.tsconfig.json", "@tsconfig/node23/tsconfig.json"],
+  "compilerOptions": {
+    "types": ["node"],
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true
+  }
+}

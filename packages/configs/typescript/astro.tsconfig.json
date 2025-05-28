@@ -1,0 +1,13 @@
+{
+  "extends": ["./base.tsconfig.json", "astro/tsconfigs/base"],
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "plugins": [
+      {
+        "name": "@astrojs/ts-plugin"
+      }
+    ]
+  }
+}

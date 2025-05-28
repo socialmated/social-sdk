@@ -1,0 +1,4 @@
+{
+  "extends": ["./packages/configs/typescript/node.tsconfig.json", "./packages/configs/typescript/esm.tsconfig.json"],
+  "include": ["**/*.config.ts", "**/*.config.mts", "**/*.config.cts", "**/*.config.mjs", "**/*.config.cjs", "**/*.config.js"],
+}

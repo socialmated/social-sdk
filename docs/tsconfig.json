@@ -1,0 +1,25 @@
+{
+  "extends": "@social-sdk/configs/typescript/next.tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "."
+  },
+  "include": [
+    "**/*"
+  ],
+  "exclude": [
+    "src",
+    "e2e",
+    "dist",
+    "build",
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}
