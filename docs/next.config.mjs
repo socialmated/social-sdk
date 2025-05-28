@@ -8,6 +8,7 @@ const config = {
   typescript: {
     tsconfigPath: './tsconfig.app.json',
   },
+  output: 'export',
 };
 
 export default withMDX(config);
