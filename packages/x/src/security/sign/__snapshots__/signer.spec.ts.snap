@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TransactionIdSigner > sign > should generate a transaction ID 1`] = `"gLJqtv8MTyPOysRGn4mtXOL7q5dOGkOK4K3QKPY5/P5QvUHSu0Wk2tU+W1w+Y0JgdpCipYM95wwfOZbw/oksIO/Ur942gw"`;
