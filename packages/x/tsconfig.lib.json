@@ -17,7 +17,7 @@
     }
   },
   "include": [
-    "src",
+    "src/**/*.ts",
     "vendors/tinygo@v0.37.0/targets/wasm_exec.cjs"
   ],
   "exclude": [
