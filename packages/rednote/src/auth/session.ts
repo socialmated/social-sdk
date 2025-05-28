@@ -1,0 +1,31 @@
+import { WebStoreCookieSession } from '@social-sdk/core/auth/session';
+import { type CookieJar } from 'tough-cookie';
+import { type LocalStorage, type SessionStorage } from '@denostack/shim-webstore';
+
+export class RednoteCookieSession extends WebStoreCookieSession {
+  /**
+   * Creates an instance of the session class.
+   *
+   * @param url - The base URL for the session. Defaults to 'https://xiaohongshu.com' if not provided.
+   * @param jar - An optional `CookieJar` instance to manage cookies for the session.
+   * @param localStorage - An optional `LocalStorage` instance for managing local storage.
+   * @param sessionStorage - An optional `SessionStorage` instance for managing session storage.
+   */
+  constructor(jar?: CookieJar, localStorage?: LocalStorage, sessionStorage?: SessionStorage) {
+    super(new URL('https://xiaohongshu.com'), jar, localStorage, sessionStorage);
+  }
+
+  /**
+   * Wraps a given `WebStoreCookieSession` into a `RednoteCookieSession` instance.
+   *
+   * @param session - The session object to wrap. Must have an issuer with hostname 'xiaohongshu.com'.
+   * @returns A new instance of `RednoteCookieSession` initialized with the provided session's cookie jar, local storage, and session storage.
+   * @throws If the session's issuer hostname is not 'xiaohongshu.com'.
+   */
+  public static wrap(session: WebStoreCookieSession): RednoteCookieSession {
+    if (session.issuer.hostname !== 'xiaohongshu.com') {
+      throw new Error('Invalid session host. Expected xiaohongshu.com.');
+    }
+    return new RednoteCookieSession(session.cookieJar, session.localStorage, session.sessionStorage);
+  }
+}
