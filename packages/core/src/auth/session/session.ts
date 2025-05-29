@@ -23,9 +23,9 @@ export interface Session {
    *
    * @param key - The key to refresh. If not provided, refreshes all keys.
    *
-   * @returns A promise that resolves when the session is refreshed.
+   * @returns A promise that resolves to the refreshed value as a string.
    */
-  refresh: (key?: string) => Promise<void>;
+  refresh: (key?: string) => Promise<string>;
 
   /**
    * Revokes the session, typically by invalidating access tokens or clearing session data.

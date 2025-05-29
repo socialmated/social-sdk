@@ -9,21 +9,21 @@ import {
 import { type Session } from './session.js';
 
 /**
- * Represents an OAuth2 session, encapsulating token management and session metadata.
+ * Represents an OAuth session, encapsulating token management and session metadata.
  *
- * The `OAuthSession` class provides methods for storing, retrieving, and managing OAuth2 tokens
+ * The `OAuthSession` class provides methods for storing, retrieving, and managing OAuth tokens
  * and associated session metadata. It supports refreshing and revoking tokens, as well as
  * accessing claims and token details such as expiration, scope, and authorization details.
  *
  * @remarks
- * This class is designed to be used as part of an OAuth2 authentication flow, handling
+ * This class is designed to be used as part of an OAuth authentication flow, handling
  * the lifecycle of access, refresh, and ID tokens, and providing utility methods for
  * interacting with token endpoint responses.
  *
  * @example
  * ```typescript
  * const session = new OAuthSession(config, tokens);
- * const accessToken = session.accessToken;
+ * const accessToken = session.get('access_token');
  * await session.refresh();
  * ```
  *
@@ -113,15 +113,15 @@ export class OAuthSession implements Session {
   }
 
   /**
-   * Refreshes the current session's tokens using the OAuth2 refresh token grant.
+   * Refreshes the current session's tokens using the OAuth refresh token grant.
    *
    * @param key - The key to refresh. Only `'access_token'` is supported.
    * @param parameters - Optional additional parameters to include in the refresh request.
    *                     Can be a URLSearchParams object or a plain record of key-value pairs.
    * @throws If no refresh token is available in the current session.
-   * @returns A promise that resolves when the tokens have been successfully refreshed.
+   * @returns A promise that resolves to the new access token as a string.
    */
-  public async refresh(key = 'access_token', parameters?: URLSearchParams | Record<string, string>): Promise<void> {
+  public async refresh(key = 'access_token', parameters?: URLSearchParams | Record<string, string>): Promise<string> {
     // Check if the refresh token is available
     if (!this.tokens.refresh_token) {
       throw new Error('No refresh token available');
@@ -132,6 +132,8 @@ export class OAuthSession implements Session {
 
     // Update the tokens using the refresh token grant
     this.tokens = await refreshTokenGrant(this.config, this.tokens.refresh_token, parameters);
+    // Return the new access token
+    return this.tokens.access_token;
   }
 
   /**
@@ -156,7 +158,7 @@ export class OAuthSession implements Session {
   }
 
   /**
-   * Retrieves the expiration time of the current OAuth2 session's tokens.
+   * Retrieves the expiration time of the current OAuth session's tokens.
    *
    * @returns The expiration time in seconds since the epoch, or `NaN` if not available.
    */
@@ -165,7 +167,7 @@ export class OAuthSession implements Session {
   }
 
   /**
-   * Gets the OAuth2 scope associated with the current session tokens.
+   * Gets the OAuth scope associated with the current session tokens.
    *
    * @returns The scope as a space-delimited string, or `undefined` if no scope is set.
    */

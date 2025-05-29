@@ -115,7 +115,7 @@ export class CookieSession implements Session {
    * Removes all cookies from the internal cookie jar, effectively clearing any stored session data.
    */
   public clear(): void {
-    this.cookieJar.store.removeAllCookies();
+    this.cookieJar.removeAllCookiesSync();
   }
 
   /**
@@ -124,11 +124,10 @@ export class CookieSession implements Session {
    * @remarks
    * This method is a placeholder for any additional logic that may be needed to refresh the session.
    *
-   * @returns A promise that resolves when the refresh operation is complete.
+   * @returns A promise that resolves to the refreshed cookie value.
    */
-  public async refresh(_?: string): Promise<void> {
-    // Implement any necessary logic to refresh the session if needed
-    return Promise.resolve();
+  public refresh(_?: string): Promise<string> {
+    return Promise.reject(new Error('Not implemented.'));
   }
 
   /**
@@ -141,7 +140,7 @@ export class CookieSession implements Session {
    */
   public async revoke(_?: string): Promise<void> {
     // Implement any necessary logic to revoke the session if needed
-    return Promise.resolve();
+    return Promise.reject(new Error('Not implemented.'));
   }
 
   /**
@@ -157,7 +156,10 @@ export class CookieSession implements Session {
     });
 
     const found = cookies.find((c) => c.key === key);
-    if (!found?.expires) {
+    if (!found) {
+      return -Infinity;
+    }
+    if (!found.expires) {
       return NaN;
     }
     if (found.expires === 'Infinity') {
@@ -237,7 +239,7 @@ export class WebStoreCookieSession extends CookieSession {
    * @returns A promise that resolves to a {@link WebStoreCookieSession} containing the session,
    *          localStorage, and sessionStorage data.
    */
-  public async fromPage(page: Page): Promise<WebStoreCookieSession> {
+  public static override async fromPage(page: Page): Promise<WebStoreCookieSession> {
     const session = await CookieSession.fromPage(page);
     const localStorage = new LocalStorage(`.data/${new URL(session.issuer).hostname}/localstorage.json`);
     const sessionStorage = new SessionStorage();

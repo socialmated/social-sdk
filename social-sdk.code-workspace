@@ -91,6 +91,7 @@
       "hashfetti",
       "Hashflag",
       "hashflags",
+      "homefeed",
       "Millis",
       "ondemand",
       "openapi",
@@ -102,7 +103,11 @@
       "sonarjs",
       "svgs",
       "tipjar",
-      "webmsxyw"
+      "traceid",
+      "webmsxyw",
+      "XAPI",
+      "xsec",
+      "Rednote"
     ],
     "git.openRepositoryInParentFolders": "always",
     "vitest.workspaceConfig": "${workspaceFolder}/vitest.config.ts",
