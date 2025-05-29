@@ -9,20 +9,20 @@ function setRequestHeader(
 function setRequestHeader(header: string, value: ValueOf<Headers>): BeforeRequestHook;
 function setRequestHeader(
   header: string,
-  valueOrGetValue: ValueOf<Headers> | ((options: Options) => Promisable<ValueOf<Headers>>),
+  valueOrGetValue: Promisable<ValueOf<Headers>> | ((options: Options) => Promisable<ValueOf<Headers>>),
 ): BeforeRequestHook {
   return async (options) => {
-    const value = typeof valueOrGetValue === 'function' ? await valueOrGetValue(options) : valueOrGetValue;
+    const value = typeof valueOrGetValue === 'function' ? await valueOrGetValue(options) : await valueOrGetValue;
     if (value !== undefined) options.headers[header] = value;
   };
 }
 
 function setRequestHeaders(
-  headers: Record<string, ValueOf<Headers> | ((options: Options) => Promisable<ValueOf<Headers>>)>,
+  headers: Record<string, Promisable<ValueOf<Headers>> | ((options: Options) => Promisable<ValueOf<Headers>>)>,
 ): BeforeRequestHook {
   return async (options) => {
     for (const [key, valueOrGetValue] of Object.entries(headers)) {
-      const value = typeof valueOrGetValue === 'function' ? await valueOrGetValue(options) : valueOrGetValue;
+      const value = typeof valueOrGetValue === 'function' ? await valueOrGetValue(options) : await valueOrGetValue;
       if (value !== undefined) options.headers[key] = value;
     }
   };
