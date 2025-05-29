@@ -1,5 +1,5 @@
 import { type HttpClient } from '@social-sdk/core/client';
-import { API_ENDPOINTS, createXHttpClient, useGraphQLHttpClient, type GraphQLHttpClient } from './http.js';
+import { XAPIEndpoints, createXHttpClient, useGraphQLHttpClient, type GraphQLHttpClient } from './http.js';
 import { defaultTweetFeatures } from '@/constants/features.js';
 import { type XCookieSession } from '@/auth/session.js';
 import {
@@ -27,21 +27,19 @@ import {
 } from '@/types/response.js';
 
 /**
- * Provides a client for interacting with private X (formerly Twitter) API endpoints.
+ * A client for accessing X (Twitter) private API endpoints.
  *
- * This class wraps multiple API endpoints (REST v1.1, v2, and GraphQL) and exposes
- * methods for common actions such as searching, retrieving timelines, managing friendships,
- * liking, retweeting, bookmarking, and more.
+ * This class provides methods to interact with X API endpoints using authenticated HTTP clients.
+ * It supports operations for user management, timeline feeds, tweet interactions, and social features.
  *
  * @example
  * ```typescript
+ * const session = new XCookieSession(cookies);
  * const client = new XPrivateAPIClient(session);
- * const timeline = await client.homeTimeline();
- * ```
  *
- * @remarks
- * - This client is intended for internal/private use and may rely on undocumented or unstable endpoints.
- * - Query IDs for GraphQL endpoints are subject to change.
+ * const user = await client.userByScreenName('elonmusk');
+ * console.log(user);
+ * ```
  */
 class XPrivateAPIClient {
   /**
@@ -60,18 +58,14 @@ class XPrivateAPIClient {
   private graphql: GraphQLHttpClient;
 
   /**
-   * Creates an instance of `XPrivateAPIClient` with pre-configured API clients
-   * for different endpoints (v1.1, v2, and GraphQL). The clients are extended
-   * with custom headers and hooks for request and response handling.
+   * Creates a new instance of the API client with authenticated HTTP clients for different API versions.
    *
-   * @param session - The `CookieSession` instance used to manage session-related
-   *                  data such as CSRF tokens and guest tokens.
-   * @returns An instance of `XPrivateAPIClient` with configured API clients.
+   * @param session - The X (Twitter) cookie session used for authentication across all API endpoints
    */
   constructor(session: XCookieSession) {
-    this.v11 = createXHttpClient(API_ENDPOINTS.v11, session);
-    this.v2 = createXHttpClient(API_ENDPOINTS.v2, session);
-    this.graphql = useGraphQLHttpClient(createXHttpClient(API_ENDPOINTS.graphql, session));
+    this.v11 = createXHttpClient(XAPIEndpoints.V11, session);
+    this.v2 = createXHttpClient(XAPIEndpoints.V2, session);
+    this.graphql = useGraphQLHttpClient(createXHttpClient(XAPIEndpoints.GRAPHQL, session));
   }
 
   public async listFriendsFollowing(): Promise<unknown> {

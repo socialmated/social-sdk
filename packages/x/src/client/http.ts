@@ -3,8 +3,8 @@ import { debug } from '@social-sdk/core/hooks';
 import { createCookieHttpClient, type HttpClient } from '@social-sdk/core/client';
 import { TransactionIdSigner } from '@/security/sign/signer.js';
 import { type XCookieSession } from '@/auth/session.js';
-import { setSessionHeaders, signTransactionId } from '@/hooks/request.js';
-import { refreshSession } from '@/hooks/response.js';
+import { setupSession, signTransactionId } from '@/hooks/request.js';
+import { retryOnUnauthorized } from '@/hooks/response.js';
 
 /**
  * Represents a function that performs a GraphQL request, either a query or mutation.
@@ -117,17 +117,21 @@ const createXHttpClient = (url: string | URL, session: XCookieSession): HttpClie
 
   return http.extend({
     headers: {
-      accept: '*/*',
-      'content-type': 'application/json',
       origin: 'https://x.com',
       referer: 'https://x.com/home',
+      accept: '*/*',
+      'content-type': 'application/json',
       'x-twitter-client-language': 'en',
       'x-twitter-active-user': 'yes',
       'x-twitter-auth-type': 'OAuth2Session',
     },
+    sessionToken: {
+      gt: session.get('gt'),
+      auth_token: session.get('auth_token'),
+    },
     hooks: {
-      beforeRequest: [setSessionHeaders(session), signTransactionId(signer), debug],
-      afterResponse: [refreshSession(session), debug],
+      beforeRequest: [setupSession(session), signTransactionId(signer), debug],
+      afterResponse: [retryOnUnauthorized(session), debug],
     },
   });
 };
@@ -135,11 +139,20 @@ const createXHttpClient = (url: string | URL, session: XCookieSession): HttpClie
 /**
  * The API endpoints of X.
  */
-const API_ENDPOINTS = {
-  v11: 'https://x.com/i/api/1.1/',
-  v2: 'https://api.x.com/2/',
-  graphql: 'https://x.com/i/api/graphql/',
-} as const;
+enum XAPIEndpoints {
+  /**
+   * The base URL for X's v1.1 API endpoints.
+   */
+  V11 = 'https://x.com/i/api/1.1/',
+  /**
+   * The base URL for X's v2 API endpoints.
+   */
+  V2 = 'https://api.x.com/2/',
+  /**
+   * The base URL for X's GraphQL API endpoints.
+   */
+  GRAPHQL = 'https://x.com/i/api/graphql/',
+}
 
-export { useGraphQLHttpClient, createXHttpClient, API_ENDPOINTS };
+export { useGraphQLHttpClient, createXHttpClient, XAPIEndpoints };
 export type { GraphQLHttpClient, GraphQLRequestFunction };

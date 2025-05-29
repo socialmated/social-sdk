@@ -14,17 +14,16 @@ const signTransactionId = (signer: TransactionIdSigner): BeforeRequestHook =>
   setRequestHeader('x-client-transaction-id', (options) => signer.sign(options));
 
 /**
- * Creates a before-request hook that sets session headers for X's API requests.
- * Includes CSRF token, guest token, and bearer token.
+ * Creates a before-request hook that sets up authentication headers for X API requests.
  *
- * @param session - The X cookie session containing authentication cookies
- * @returns Before-request hook for HTTP clients
+ * @param session - The X cookie session containing authentication tokens
+ * @returns Before-request hook that applies authentication headers
  */
-const setSessionHeaders = (session: XCookieSession): BeforeRequestHook =>
+const setupSession = (session: XCookieSession): BeforeRequestHook =>
   setRequestHeaders({
-    'x-csrf-token': session.get('ct0'),
-    'x-guest-token': session.get('gt'),
+    'x-csrf-token': session.expiresIn('ct0') <= 0 ? session.refresh('ct0') : session.get('ct0'),
+    'x-guest-token': session.expiresIn('gt') <= 0 ? session.refresh('gt') : session.get('gt'),
     authorization: `Bearer ${getBearerToken()}`,
   });
 
-export { signTransactionId, setSessionHeaders };
+export { signTransactionId, setupSession };
