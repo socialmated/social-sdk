@@ -23,8 +23,8 @@ export class RednoteCookieSession extends WebStoreCookieSession {
    * @throws If the session's issuer hostname is not 'xiaohongshu.com'.
    */
   public static wrap(session: WebStoreCookieSession): RednoteCookieSession {
-    if (session.issuer.hostname !== 'xiaohongshu.com') {
-      throw new Error('Invalid session host. Expected xiaohongshu.com.');
+    if (session.issuer.hostname !== 'www.xiaohongshu.com') {
+      throw new Error('Invalid session host. Expected www.xiaohongshu.com.');
     }
     return new RednoteCookieSession(session.cookieJar, session.localStorage, session.sessionStorage);
   }

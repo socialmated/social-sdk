@@ -48,8 +48,8 @@ npm install @social-sdk/x
 
 ## Supported Platforms
 
-- [ ] X :construction:
-- [ ] Rednote :construction:
+- [ ] X (Twitter) :construction:
+- [ ] Rednote (Xiaohongshu) :construction:
 - [ ] Facebook
 - [ ] Instagram
 - [ ] TikTok
