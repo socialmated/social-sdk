@@ -3,6 +3,9 @@ name: gh-pages
 on:
   push:
     branches: [dev]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/gh-pages.yml'
   workflow_dispatch:
 
 permissions:
