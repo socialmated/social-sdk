@@ -1,30 +1,28 @@
-/* eslint-disable sonarjs/hashing -- expected */
+/* eslint-disable sonarjs/pseudo-random -- expected */
 
-import crypto from 'node:crypto';
 import Long from 'long';
 import { Int } from './utils.js';
 
 /**
- * Generates a B3 trace ID.
+ * Generates an X-Ray trace ID using timestamp and random values.
  *
- * @param timestamp - The timestamp in milliseconds. Defaults to `Date.now()`.
- * @returns A B3 trace ID string formatted as a 32-character hexadecimal string.
+ * @param timestamp - Timestamp for trace ID generation, defaults to current time
+ * @returns 32-character hexadecimal trace ID
  */
-function b3TraceId(timestamp = Date.now()): string {
+function xrayTraceId(timestamp = Date.now()): string {
   return ''
     .concat(Long.fromNumber(timestamp, true).shiftLeft(23).or(Int.seq()).toString(16).padStart(16, '0'))
     .concat(new Long(Int.random(32), Int.random(32), true).toString(16).padStart(16, '0'));
 }
 
 /**
- * Generates an X-Ray Trace ID from a B3 trace ID.
+ * Generates a B3 trace ID for distributed tracing.
  *
- * @param b3TraceId - The B3 trace ID to be converted.
- * @returns The X-Ray Trace ID as a 32-character hexadecimal string.
+ * @returns 16-character hexadecimal trace ID
  */
-// eslint-disable-next-line @typescript-eslint/no-shadow -- name clash
-function xrayTraceId(b3TraceId: string): string {
-  return crypto.createHash('md5').update(b3TraceId).digest('hex');
+function b3TraceId(): string {
+  const characters = 'abcdef0123456789';
+  return Array.from({ length: 16 }, () => characters[Math.floor(Math.random() * characters.length)]).join('');
 }
 
 export { b3TraceId, xrayTraceId };
