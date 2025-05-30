@@ -346,10 +346,11 @@ class LocalConsentPromptOpener implements ConsentPromptOpener {
    * @returns A promise that resolves with the redirect URL containing the authorization response.
    */
   public static async consent(authorizationUrl: URL, redirectUri: URL): Promise<URL> {
-    return new Promise((resolve, reject) => {
-      const opener = new LocalConsentPromptOpener(authorizationUrl, redirectUri, resolve, reject);
-      void opener.open();
-    });
+    const { promise, resolve, reject } = Promise.withResolvers<URL>();
+    const opener = new LocalConsentPromptOpener(authorizationUrl, redirectUri, resolve, reject);
+    void opener.open();
+
+    return promise;
   }
 
   /**

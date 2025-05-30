@@ -1,4 +1,4 @@
-import { canonicalDomain, Cookie, CookieJar } from 'tough-cookie';
+import { canonicalDomain, Cookie, CookieJar, type CreateCookieOptions } from 'tough-cookie';
 import { type Page } from 'playwright';
 import { LocalStorage, SessionStorage } from '@denostack/shim-webstore';
 import { type Session } from './session.js';
@@ -109,6 +109,19 @@ export class CookieSession implements Session {
     });
 
     return cookieMap;
+  }
+
+  public set(key: string, value: string, options?: Omit<CreateCookieOptions, 'key' | 'value'>): void {
+    const cookie = new Cookie({
+      key,
+      value,
+      ...options,
+      domain: canonicalDomain(options?.domain), // Normalize domain
+    });
+
+    this.cookieJar.setCookieSync(cookie, this.issuer.toString(), {
+      ignoreError: true, // Ignore errors for invalid cookies
+    });
   }
 
   /**
