@@ -22,14 +22,10 @@ const oauth2Server: ServerMetadata = {
 /**
  * Client authentication function that implements HTTP Basic Authentication for OAuth clients.
  *
- * This function adds an Authorization header with Basic authentication credentials
- * when a client secret is available. The credentials are base64-encoded in the format
- * "client_id:client_secret".
- *
- * @param _as - Authorization server configuration (unused)
- * @param client - OAuth client configuration containing client_id and optional client_secret
- * @param _body - Request body (unused)
- * @param headers - HTTP headers object to modify with authentication credentials
+ * @param _as - Authorization server configuration (unused).
+ * @param client - OAuth client configuration containing client credentials.
+ * @param _body - Request body (unused).
+ * @param headers - HTTP headers object to modify with authentication information.
  */
 const clientAuth: ClientAuth = (_as, client, _body, headers) => {
   if (client.client_secret) {
@@ -67,64 +63,151 @@ type OAuth2Scopes =
   | 'dm.read'
   | 'dm.write';
 
-// TODO: use function overloads to handle different auth methods
-type CreateAuthFlowArgs =
-  | {
-      method: 'oauth2:pkce';
-      clientId?: string;
-      clientSecret?: string;
-    }
-  | {
-      method: 'oauth2:client_credentials';
-      consumerKey?: string;
-      consumerSecret?: string;
-    }
-  | {
-      method: 'oauth1a';
-      consumerKey?: string;
-      consumerSecret?: string;
-    }
-  | {
-      method: 'basic';
-      username?: string;
-      password?: string;
-    };
+/**
+ * Configuration arguments for creating an OAuth 2.0 PKCE (Proof Key for Code Exchange) authentication flow.
+ */
+interface CreateOAuth2PKCEFlowArgs {
+  /**
+   * The type of authentication flow to create.
+   */
+  type: 'oauth2:pkce';
+  /**
+   * The client ID for the OAuth 2.0 application.
+   */
+  clientId: string;
+  /**
+   * The client secret for the OAuth 2.0 application, if applicable.
+   */
+  clientSecret?: string;
+}
 
-type AuthFlowMethods = CreateAuthFlowArgs['method'];
+/**
+ * Configuration arguments for creating an OAuth 2.0 Client Credentials authentication flow.
+ */
+interface CreateOAuth2ClientCredentialsFlowArgs {
+  /**
+   * The type of authentication flow to create.
+   */
+  type: 'oauth2:client_credentials';
+  /**
+   * The consumer key (client ID) for the OAuth 2.0 application.
+   */
+  consumerKey: string;
+  /**
+   * The consumer secret (client secret) for the OAuth 2.0 application, if applicable.
+   */
+  consumerSecret?: string;
+}
 
-type CreateAuthFlowReturnType<T extends AuthFlowMethods> = T extends 'oauth2:pkce'
-  ? OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>
-  : T extends 'oauth2:client_credentials'
-    ? OAuth2ClientCredentialFlow
-    : never;
+/**
+ * Configuration arguments for creating an OAuth 1a authentication flow.
+ */
+interface CreateOAuth1aFlowArgs {
+  /**
+   * The type of authentication flow to create.
+   */
+  type: 'oauth1a';
+  /**
+   * The consumer key (client ID) for the OAuth 1a application.
+   */
+  consumerKey?: string;
+  /**
+   * The consumer secret (client secret) for the OAuth 1a application, if applicable.
+   */
+  consumerSecret?: string;
+}
 
-const createAuthFlow = <T extends AuthFlowMethods>(
-  args: Extract<CreateAuthFlowArgs, { method: T }>,
-): CreateAuthFlowReturnType<T> => {
-  if (args.method === 'oauth2:pkce') {
-    const { clientId, clientSecret } = args as Extract<CreateAuthFlowArgs, { method: 'oauth2:pkce' }>;
-    return new OAuth2AuthorizationCodePKCEFlow(
-      oauth2Server,
-      clientId,
-      clientSecret,
-      clientAuth,
-    ) as CreateAuthFlowReturnType<T>;
+/**
+ * Configuration arguments for creating a Basic Authentication flow.
+ */
+interface CreateBasicAuthFlowArgs {
+  /**
+   * The type of authentication flow to create.
+   */
+  type: 'basic';
+  /**
+   * The username for Basic Authentication.
+   */
+  username?: string;
+  /**
+   * The password for Basic Authentication.
+   */
+  password?: string;
+}
+
+/**
+ * Creates an OAuth 2.0 PKCE (Proof Key for Code Exchange) authentication flow for X (formerly Twitter) API.
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code | X OAuth 2.0 Authorization Code with PKCE Documentation}
+ *
+ * @param args - Configuration object for OAuth 2.0 PKCE flow
+ * @returns An OAuth 2.0 Authorization Code PKCE flow instance configured for X API
+ *
+ * @example
+ * ```typescript
+ * const pkceFlow = createAuthFlow({
+ *   type: 'oauth2:pkce',
+ *   clientId: 'your-client-id',
+ *   clientSecret: 'optional-client-secret'
+ * });
+ * ```
+ */
+function createAuthFlow(args: CreateOAuth2PKCEFlowArgs): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
+/**
+ * Creates an OAuth 2.0 Client Credentials authentication flow for X (formerly Twitter) API.
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/application-only | X OAuth 2.0 Application-only Documentation}
+ *
+ * @param args - Configuration object for OAuth 2.0 Client Credentials flow
+ * @returns An OAuth 2.0 Client Credential flow instance configured for X API
+ *
+ * @example
+ * ```typescript
+ * const clientFlow = createAuthFlow({
+ *   type: 'oauth2:client_credentials',
+ *   consumerKey: 'your-consumer-key',
+ *   consumerSecret: 'your-consumer-secret'
+ * });
+ * ```
+ */
+function createAuthFlow(args: CreateOAuth2ClientCredentialsFlowArgs): OAuth2ClientCredentialFlow;
+/**
+ * OAuth 1a authentication flow creation - currently not supported.
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-1-0a/obtaining-user-access-tokens | X OAuth 1.0a User Access Tokens (3-legged OAuth) Documentation}
+ *
+ * @param args - Configuration object for OAuth 1a flow
+ * @returns Never returns - always throws an error
+ */
+function createAuthFlow(args: CreateOAuth1aFlowArgs): never;
+/**
+ * HTTP Basic authentication flow creation - currently not supported.
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/basic-auth | X Basic Auth Documentation}
+ *
+ * @param args - Configuration object for HTTP Basic Authentication flow
+ * @returns Never returns - always throws an error
+ */
+// eslint-disable-next-line @typescript-eslint/unified-signatures -- explicit overload
+function createAuthFlow(args: CreateBasicAuthFlowArgs): never;
+function createAuthFlow(
+  args:
+    | CreateOAuth2PKCEFlowArgs
+    | CreateOAuth2ClientCredentialsFlowArgs
+    | CreateOAuth1aFlowArgs
+    | CreateBasicAuthFlowArgs,
+): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow {
+  if (args.type === 'oauth2:pkce') {
+    return new OAuth2AuthorizationCodePKCEFlow(oauth2Server, args.clientId, args.clientSecret, clientAuth);
   }
-  if (args.method === 'oauth2:client_credentials') {
-    const { consumerKey, consumerSecret } = args as Extract<
-      CreateAuthFlowArgs,
-      { method: 'oauth2:client_credentials' }
-    >;
-    return new OAuth2ClientCredentialFlow(
-      oauth2Server,
-      consumerKey,
-      consumerSecret,
-      clientAuth,
-    ) as CreateAuthFlowReturnType<T>;
+  if (args.type === 'oauth2:client_credentials') {
+    return new OAuth2ClientCredentialFlow(oauth2Server, args.consumerKey, args.consumerSecret, clientAuth);
   }
 
-  throw new Error(`Unsupported auth method: ${args.method}`);
-};
+  throw new Error(`Unsupported auth method: ${args.type}`);
+}
 
 export { createAuthFlow };
-export type { CreateAuthFlowArgs, OAuth2Scopes };
+export type {
+  OAuth2Scopes,
+  CreateOAuth2PKCEFlowArgs,
+  CreateOAuth2ClientCredentialsFlowArgs,
+  CreateOAuth1aFlowArgs,
+  CreateBasicAuthFlowArgs,
+};
