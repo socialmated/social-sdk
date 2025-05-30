@@ -1,6 +1,8 @@
 import { WebStoreCookieSession } from '@social-sdk/core/auth/session';
-import { type CookieJar } from 'tough-cookie';
+import { Cookie, type CookieJar } from 'tough-cookie';
 import { type LocalStorage, type SessionStorage } from '@denostack/shim-webstore';
+import { addYear } from '@formkit/tempo';
+import { generateLocalId, generateWebId } from '@/security/token/token.js';
 
 export class RednoteCookieSession extends WebStoreCookieSession {
   /**
@@ -12,7 +14,7 @@ export class RednoteCookieSession extends WebStoreCookieSession {
    * @param sessionStorage - An optional `SessionStorage` instance for managing session storage.
    */
   constructor(jar?: CookieJar, localStorage?: LocalStorage, sessionStorage?: SessionStorage) {
-    super(new URL('https://xiaohongshu.com'), jar, localStorage, sessionStorage);
+    super(new URL('https://www.xiaohongshu.com'), jar, localStorage, sessionStorage);
   }
 
   /**
@@ -27,5 +29,46 @@ export class RednoteCookieSession extends WebStoreCookieSession {
       throw new Error('Invalid session host. Expected www.xiaohongshu.com.');
     }
     return new RednoteCookieSession(session.cookieJar, session.localStorage, session.sessionStorage);
+  }
+
+  public override async refresh(key: 'a1' | 'webId' | 'loadts' | 'xsecappid'): Promise<string> {
+    if (key === 'a1') {
+      const localId = generateLocalId('Mac OS');
+      const a1 = new Cookie({
+        key: 'a1',
+        value: localId,
+        expires: addYear(new Date(), 1),
+        path: '/',
+        domain: '.xiaohongshu.com',
+      });
+      await this.cookieJar.setCookie(a1, this.issuer.toString());
+      return localId;
+    }
+    if (key === 'loadts') {
+      const ts = String(Date.now());
+      this.set('loadts', ts, {
+        expires: addYear(new Date(), 1),
+        path: '/',
+        domain: '.xiaohongshu.com',
+      });
+      return ts;
+    }
+    if (key === 'webId') {
+      const webId = generateWebId(this.get('a1') ?? generateLocalId('Mac OS'));
+      this.set('webId', webId, {
+        expires: addYear(new Date(), 1),
+        path: '/',
+        domain: '.xiaohongshu.com',
+      });
+      return webId;
+    }
+
+    const appId = 'xhs-pc-web';
+    this.set('xsecappid', appId, {
+      expires: addYear(new Date(), 1),
+      path: '/',
+      domain: '.xiaohongshu.com',
+    });
+    return appId;
   }
 }

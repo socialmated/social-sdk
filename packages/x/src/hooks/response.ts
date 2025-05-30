@@ -14,11 +14,10 @@ export const retryOnUnauthorized =
     if (resp.statusCode !== 401 && resp.statusCode !== 403) {
       return resp;
     }
-    await session.refresh();
     return retry({
       headers: {
-        'x-csrf-token': session.get('ct0'),
-        'x-guest-token': session.get('gt'),
+        'x-csrf-token': await session.refresh('ct0'),
+        'x-guest-token': await session.refresh('gt'),
       },
     });
   };

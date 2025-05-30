@@ -39,6 +39,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@formkit/tempo": "0.1.2",
     "@social-sdk/core": "workspace:*",
     "acorn": "8.14.1",
     "acorn-walk": "8.3.4",

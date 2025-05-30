@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@denostack/shim-webstore": "0.1.1",
+    "@formkit/tempo": "0.1.2",
     "@social-sdk/core": "workspace:*",
     "crypto-js": "4.2.0",
     "got": "14.4.7",
