@@ -8,12 +8,11 @@ import { addFingerprint, setupTracing, signRequest } from '@/hooks/request.js';
 /**
  * Creates an HTTP client configured for making requests to Rednote (Xiaohongshu) API endpoints.
  *
- * @param url - The base URL for the Rednote API endpoints
- * @param session - The authenticated cookie session containing user credentials and tokens
- * @returns A configured HttpClient instance ready for making authenticated requests to Rednote API
+ * @param session - The authenticated cookie session containing user credentials and tokens.
+ * @returns A configured HttpClient instance ready for making authenticated requests to Rednote API.
  */
-function createRednoteHttpClient(url: string | URL, session: RednoteCookieSession): HttpClient {
-  const http = createCookieHttpClient(url, session);
+function createRednoteHttpClient(session: RednoteCookieSession): HttpClient {
+  const http = createCookieHttpClient(session);
   const signer = XhsSigner.fromSession(session);
   const generator = new XSCommonGenerator(session);
 
@@ -43,11 +42,15 @@ enum RednoteAPIEndpoints {
   /**
    * The base URL for Rednote's security API endpoints.
    */
-  AS = 'https://as.xiaohongshu.com/api',
+  SecV1 = 'https://as.xiaohongshu.com/api/sec/v1/',
   /**
-   * The base URL for Rednote's main API endpoints.
+   * The base URL for Rednote's SNS Web V1 API endpoints.
    */
-  EDITH = 'https://edith.xiaohongshu.com/api',
+  SnsWebV1 = 'https://edith.xiaohongshu.com/api/sns/web/v1/',
+  /**
+   * The base URL for Rednote's SNS Web V2 API endpoints.
+   */
+  SnsWebV2 = 'https://edith.xiaohongshu.com/api/sns/web/v2/',
 }
 
 export { createRednoteHttpClient, RednoteAPIEndpoints };

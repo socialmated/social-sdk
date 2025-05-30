@@ -63,9 +63,10 @@ class XPrivateAPIClient {
    * @param session - The X (Twitter) cookie session used for authentication across all API endpoints
    */
   constructor(session: XCookieSession) {
-    this.v11 = createXHttpClient(XAPIEndpoints.V11, session);
-    this.v2 = createXHttpClient(XAPIEndpoints.V2, session);
-    this.graphql = useGraphQLHttpClient(createXHttpClient(XAPIEndpoints.GRAPHQL, session));
+    const http = createXHttpClient(session);
+    this.v11 = http.extend({ prefixUrl: XAPIEndpoints.V11 });
+    this.v2 = http.extend({ prefixUrl: XAPIEndpoints.V2 });
+    this.graphql = useGraphQLHttpClient(http.extend({ prefixUrl: XAPIEndpoints.GraphQL }));
   }
 
   public async listFriendsFollowing(): Promise<unknown> {

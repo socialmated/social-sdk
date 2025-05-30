@@ -107,12 +107,11 @@ function useGraphQLHttpClient(base: HttpClient): GraphQLHttpClient {
 /**
  * Creates an HTTP client instance configured for X (Twitter) API requests with necessary headers and authentication.
  *
- * @param url - The base URL or URL object for the API endpoint.
  * @param session - An instance of `XCookieSession` used for managing authentication cookies and tokens.
  * @returns An `HttpClient` instance pre-configured with required headers, authentication, and request/response hooks.
  */
-const createXHttpClient = (url: string | URL, session: XCookieSession): HttpClient => {
-  const http = createCookieHttpClient(url, session);
+const createXHttpClient = (session: XCookieSession): HttpClient => {
+  const http = createCookieHttpClient(session);
   const signer = new TransactionIdSigner();
 
   return http.extend({
@@ -151,7 +150,7 @@ enum XAPIEndpoints {
   /**
    * The base URL for X's GraphQL API endpoints.
    */
-  GRAPHQL = 'https://x.com/i/api/graphql/',
+  GraphQL = 'https://x.com/i/api/graphql/',
 }
 
 export { useGraphQLHttpClient, createXHttpClient, XAPIEndpoints };

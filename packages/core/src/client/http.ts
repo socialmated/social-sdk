@@ -15,13 +15,11 @@ export type HttpClient = Got | GotScraping;
 /**
  * Creates an OAuth-enabled API client with automatic token refresh.
  *
- * @param baseUrl - The base URL for the API endpoints.
  * @param session - The OAuth session object containing access and refresh tokens.
  * @returns An API client instance configured with OAuth authentication and automatic token refresh.
  */
-export function createOAuthHttpClient(baseUrl: string | URL, session: OAuthSession): HttpClient {
+export function createOAuthHttpClient(session: OAuthSession): HttpClient {
   return got.extend({
-    prefixUrl: baseUrl,
     headers: {
       'user-agent': 'social-sdk/0.1.0',
       'content-type': 'application/json',
@@ -36,13 +34,11 @@ export function createOAuthHttpClient(baseUrl: string | URL, session: OAuthSessi
 /**
  * Creates an API client instance with cookie session support.
  *
- * @param baseUrl - The base URL for all API requests.
  * @param session - The cookie session object containing the cookie jar.
  * @returns An API client instance with cookie session capabilities.
  */
-export function createCookieHttpClient(baseUrl: string | URL, session: CookieSession): HttpClient {
+export function createCookieHttpClient(session: CookieSession): HttpClient {
   const client = gotScraping.extend({
-    prefixUrl: baseUrl,
     cookieJar: session.cookieJar,
     headers: {
       connection: 'keep-alive',
