@@ -14,9 +14,6 @@ export default defineConfig({
     typecheck: {
       tsconfig: path.resolve(import.meta.dirname, 'tsconfig.spec.json'),
     },
-  },
-  resolve: {
-    conditions: ['source'],
     alias: {
       '@': path.resolve(import.meta.dirname, 'src'),
     },
