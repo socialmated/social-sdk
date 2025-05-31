@@ -67,7 +67,7 @@ function encodeSignature(signature: string, appId = DEFAULT_APP_ID): string {
   const data = {
     signSvn: '56',
     signType: 'x2',
-    appID: appId,
+    appId,
     signVersion: '1',
     payload: base64ToHex(signature),
   };

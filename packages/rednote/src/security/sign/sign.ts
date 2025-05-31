@@ -59,10 +59,8 @@ function signNew(
   a1: string,
   timestamp: number = Date.now(),
 ): Omit<XhsSignOutput, 'X-Mns'> {
-  const urlHash = md5(encodeURIComponent(`url=${resource}${body ? JSON.stringify(body) : ''}`));
-  const ts = timestamp.toString();
-
-  const data = `x1=${urlHash};x2=0|0|0|1|0|0|1|0|0|0|1|0|0|0|0|1|0|0|0;x3=${a1};x4=${ts};`;
+  const urlHash = md5(`url=${resource}${body ? JSON.stringify(body) : ''}`);
+  const data = `x1=${urlHash};x2=0|0|0|1|0|0|1|0|0|0|1|0|0|0|0|1|0|0|0;x3=${a1};x4=${String(timestamp)};`;
   const encrypted = aes128cbc(
     DEFAULT_KEY_BYTES.toString('hex'),
     DEFAULT_IV.toString('hex'),
@@ -71,7 +69,7 @@ function signNew(
 
   return {
     'X-s': `XYW_${encodeSignature(encrypted)}`,
-    'X-t': ts,
+    'X-t': String(timestamp),
   };
 }
 
@@ -89,7 +87,7 @@ function signNew(
  */
 function signOld(resource: string, body: unknown, timestamp: number = Date.now()): Omit<XhsSignOutput, 'X-Mns'> {
   const data = [timestamp, DEFAULT_KEYWORD, resource, body ? JSON.stringify(body) : ''].join('');
-  const encrypted = md5(encodeURIComponent(data));
+  const encrypted = md5(data);
 
   return {
     'X-s': encodeBase64(encrypted),

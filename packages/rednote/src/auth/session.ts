@@ -31,6 +31,12 @@ export class RednoteCookieSession extends WebStoreCookieSession {
     return new RednoteCookieSession(session.cookieJar, session.localStorage, session.sessionStorage);
   }
 
+  /**
+   * Refreshes and returns a specific session key value.
+   *
+   * @param key - The session key to refresh ('a1', 'webId', 'loadts', or 'xsecappid')
+   * @returns Promise resolving to the refreshed key value
+   */
   public override async refresh(key: 'a1' | 'webId' | 'loadts' | 'xsecappid'): Promise<string> {
     if (key === 'a1') {
       const localId = generateLocalId('Mac OS');
