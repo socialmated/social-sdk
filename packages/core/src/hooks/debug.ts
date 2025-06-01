@@ -1,13 +1,31 @@
 import { type Options, type Response, type CancelableRequest } from 'got';
 
+/**
+ * Promisable type that can be either a value or a Promise of that value.
+ */
 type Promisable<T> = T | Promise<T>;
 
+/**
+ * Type guard to check if a value is a Response object.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a Response object, false otherwise.
+ */
 function isResponse(value: unknown): value is Response {
   return typeof value === 'object' && value !== null && 'statusCode' in value;
 }
 
+/**
+ * Debug utility for logging HTTP requests.
+ *
+ * @param options - The request options to log.
+ */
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type -- match the original function signature
 function debug(options: Options): Promisable<void | Response>;
+/**
+ * Debug utility for logging HTTP responses.
+ * @param response - The HTTP response to log.
+ */
 function debug(response: Response): Promisable<Response | CancelableRequest<Response>>;
 function debug(message: Options | Response): Promisable<void | Response | CancelableRequest<Response>> {
   // Log the HTTP response

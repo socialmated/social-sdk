@@ -1,8 +1,8 @@
 import got, { type Got } from 'got';
 import { type GotScraping, gotScraping } from 'got-scraping';
+import { setAuthorization } from '../hooks/auth.js';
 import { type CookieSession } from '@/auth/session/cookie.js';
 import { type OAuthSession } from '@/auth/session/oauth.js';
-import { setAuthorization } from '@/hooks/auth.js';
 
 /**
  * Represents the HTTP client interface
@@ -40,6 +40,12 @@ export function createOAuthHttpClient(session: OAuthSession): HttpClient {
 export function createCookieHttpClient(session: CookieSession): HttpClient {
   const client = gotScraping.extend({
     cookieJar: session.cookieJar,
+    headerGeneratorOptions: {
+      browsers: ['chrome'],
+      devices: ['desktop'],
+      operatingSystems: ['macos'],
+      locales: ['en-US'],
+    },
     headers: {
       connection: 'keep-alive',
       'sec-fetch-mode': 'cors',
