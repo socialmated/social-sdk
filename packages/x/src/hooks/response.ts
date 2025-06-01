@@ -11,13 +11,14 @@ export const retryOnUnauthorized =
   (session: XCookieSession): AfterResponseHook =>
   async (resp, retry) => {
     // Retry on 401 Unauthorized or 403 Forbidden
-    if (resp.statusCode !== 401 && resp.statusCode !== 403) {
-      return resp;
+    if (resp.statusCode === 401 || resp.statusCode === 403) {
+      return retry({
+        headers: {
+          'x-csrf-token': await session.refresh('ct0'),
+          'x-guest-token': await session.refresh('gt'),
+        },
+      });
     }
-    return retry({
-      headers: {
-        'x-csrf-token': await session.refresh('ct0'),
-        'x-guest-token': await session.refresh('gt'),
-      },
-    });
+
+    return resp;
   };

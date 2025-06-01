@@ -21,8 +21,8 @@ const signTransactionId = (signer: TransactionIdSigner): BeforeRequestHook =>
  */
 const setupSession = (session: XCookieSession): BeforeRequestHook =>
   setRequestHeaders({
-    'x-csrf-token': session.expiresIn('ct0') <= 0 ? session.refresh('ct0') : session.get('ct0'),
-    'x-guest-token': session.expiresIn('gt') <= 0 ? session.refresh('gt') : session.get('gt'),
+    'x-csrf-token': session.get('ct0') ?? session.refresh('ct0'),
+    'x-guest-token': session.get('gt') ?? session.refresh('gt'),
     authorization: `Bearer ${getBearerToken()}`,
   });
 
