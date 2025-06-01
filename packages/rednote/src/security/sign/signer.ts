@@ -60,55 +60,27 @@ class XhsSigner implements Signer<{ 'X-s': string; 'X-t': string; 'X-Mns': strin
   }
 
   /**
-   * Signs a request using the specified resource and body.
+   * Generates a signature for the given request.
    *
-   * @param resource - The API resource to be signed, e.g., '/api/v1/resource?param=value'.
-   * @param body - The request body.
-   * @param options - Optional signing options.
-   * @returns A promise that resolves to the signed output.
+   * @param request - The request options.
+   * @param options - Optional parameters for signing, including type and MNS support.
+   * @returns An object containing the signed headers, including 'X-s', 'X-t', and 'X-Mns'.
    */
-  public sign(resource: string, body: unknown, options?: XhsSignerOptions): Promise<XhsSignOutput>;
-  /**
-   * Signs a request using the provided `got` options.
-   *
-   * @param opts - The `got` request options.
-   * @param options - Optional signing options.
-   * @returns A promise that resolves to the signed output.
-   */
-  public sign(opts: Options, options?: XhsSignerOptions): Promise<XhsSignOutput>;
-  /**
-   * Signs a request using the provided `fetch` request.
-   *
-   * @param req - The `fetch` request object.
-   * @param options - Optional signing options.
-   * @returns A promise that resolves to the signed output.
-   */
-  // eslint-disable-next-line @typescript-eslint/unified-signatures -- explicitly overload
-  public sign(req: Request, options?: XhsSignerOptions): Promise<XhsSignOutput>;
-  public async sign(arg1: string | Options | Request, arg2?: unknown, arg3?: XhsSignerOptions): Promise<XhsSignOutput> {
-    let resource: string;
-    let body: unknown;
-    let options: XhsSignerOptions | undefined;
-    if (typeof arg1 === 'string') {
-      resource = arg1;
-      body = arg2;
-      options = arg3;
-    } else {
-      resource = arg1.url ? new URL(arg1.url).pathname + new URL(arg1.url).search : '';
-      body = typeof arg1.json === 'function' ? await (arg1.json as () => Promise<unknown>)() : arg1.json;
-      options = arg2 as XhsSignerOptions | undefined;
-    }
-
+  public sign(request: Options, options?: XhsSignerOptions): XhsSignOutput {
+    const fullPath = request.url ? new URL(request.url).pathname + new URL(request.url).search : '';
+    const body: unknown =
+      !request.json && typeof request.body === 'string' ? JSON.parse(request.body) : (request.json ?? request.body);
     let output: Omit<XhsSignOutput, 'X-Mns'>;
+
     if (options?.type === 'sign_old') {
-      output = signOld(resource, body);
+      output = signOld(fullPath, body);
     } else {
-      output = signNew(resource, body, this.a1);
+      output = signNew(fullPath, body, this.a1);
     }
 
     return {
       ...output,
-      'X-Mns': options?.mns ? generateMns(resource, body) : 'unload',
+      'X-Mns': options?.mns ? generateMns(fullPath, body) : 'unload',
     };
   }
 }

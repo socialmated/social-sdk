@@ -1,3 +1,4 @@
+import { Options } from 'got';
 import { XhsSigner } from './signer.js';
 
 describe('XhsSigner', () => {
@@ -12,11 +13,30 @@ describe('XhsSigner', () => {
   });
 
   describe('sign', () => {
-    it('should sign request and return signatures', async () => {
-      const sig = await signer.sign('/api/sns/web/v1/some-endpoint', {
-        key: 'value',
-        type: 'example',
+    it('should sign POST request with body and return signature', () => {
+      const req = new Options({
+        method: 'POST',
+        url: 'https://edith.xiaohongshu.com/api/sns/web/v1/resource',
+        json: {
+          key: 'value',
+          type: 'example',
+        },
       });
+      const sig = signer.sign(req);
+
+      expect(sig).toMatchSnapshot();
+    });
+
+    it('should sign GET request with query parameters and return signature', () => {
+      const req = new Options({
+        method: 'GET',
+        url: 'https://edith.xiaohongshu.com/api/sns/web/v1/resource',
+        searchParams: {
+          key: 'value',
+          type: 'example',
+        },
+      });
+      const sig = signer.sign(req);
 
       expect(sig).toMatchSnapshot();
     });

@@ -46,7 +46,7 @@ const DEFAULT_KEYWORD = 'test';
  *
  * @privateRemarks This is the `window._webmsxyw` sign method in Xiaohongshu(XHS) Web.
  *
- * @param resource - The API resource to be signed, e.g., '/api/v1/resource?param=value'.
+ * @param fullPath - The full path of the API endpoint, including query parameters.
  * @param body - The request body.
  * @param a1 - The a1 cookie value used for signing.
  * @param timestamp - The timestamp to use for the signature. Defaults to the current time.
@@ -54,12 +54,12 @@ const DEFAULT_KEYWORD = 'test';
  * @returns The signature string and timestamp.
  */
 function signNew(
-  resource: string,
+  fullPath: string,
   body: unknown,
   a1: string,
   timestamp: number = Date.now(),
 ): Omit<XhsSignOutput, 'X-Mns'> {
-  const urlHash = md5(`url=${resource}${body ? JSON.stringify(body) : ''}`);
+  const urlHash = md5(`url=${fullPath}${body ? JSON.stringify(body) : ''}`);
   const data = `x1=${urlHash};x2=0|0|0|1|0|0|1|0|0|0|1|0|0|0|0|1|0|0|0;x3=${a1};x4=${String(timestamp)};`;
   const encrypted = aes128cbc(
     DEFAULT_KEY_BYTES.toString('hex'),
@@ -78,15 +78,13 @@ function signNew(
  *
  * @privateRemarks This is the `encrypt_sign` sign method in Xiaohongshu(XHS) Web.
  *
- * @param resource - The API resource to be signed, e.g., '/api/v1/resource?param=value'.
+ * @param fullPath - The full path of the API endpoint, including query parameters.
  * @param body - The request body.
  * @param timestamp - The timestamp to use for the signature. Defaults to the current time.
  * @returns The signature string and timestamp.
- *
- * @deprecated Use `signNew` instead for new implementations.
  */
-function signOld(resource: string, body: unknown, timestamp: number = Date.now()): Omit<XhsSignOutput, 'X-Mns'> {
-  const data = [timestamp, DEFAULT_KEYWORD, resource, body ? JSON.stringify(body) : ''].join('');
+function signOld(fullPath: string, body: unknown, timestamp: number = Date.now()): Omit<XhsSignOutput, 'X-Mns'> {
+  const data = [timestamp, DEFAULT_KEYWORD, fullPath, body ? JSON.stringify(body) : ''].join('');
   const encrypted = md5(data);
 
   return {
@@ -102,8 +100,8 @@ function generateMns(resource: string, body: unknown): string {
   return getMnsToken(resource, body, hash);
 }
 
-function signV2(resource: string, body: unknown, a1: string): Omit<XhsSignOutput, 'X-Mns'> {
-  const data = [resource, body ? JSON.stringify(body) : ''].join('');
+function signV2(fullPath: string, body: unknown, a1: string): Omit<XhsSignOutput, 'X-Mns'> {
+  const data = [fullPath, body ? JSON.stringify(body) : ''].join('');
   const hash = md5(data);
   return mnsv2(data, hash);
 }
