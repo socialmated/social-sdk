@@ -1,5 +1,6 @@
 import { createCookieHttpClient, type HttpClient } from '@social-sdk/core/client';
 import { debug } from '@social-sdk/core/hooks';
+import { defaultCommonPatterns } from './config.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 import { XSCommonGenerator } from '@/security/fingerprint/generator.js';
 import { XhsSigner } from '@/security/sign/signer.js';
@@ -15,7 +16,7 @@ import { retryOnUnauthorized } from '@/hooks/response.js';
 function createRednoteHttpClient(session: RednoteCookieSession): HttpClient {
   const http = createCookieHttpClient(session);
   const signer = new XhsSigner(session);
-  const generator = new XSCommonGenerator(session);
+  const generator = new XSCommonGenerator(session, defaultCommonPatterns);
 
   return http.extend({
     headers: {

@@ -1,12 +1,9 @@
 import { type Options } from 'got';
 import { gotScraping } from 'got-scraping';
-import { defaultCommonPatterns, xsCommon } from './fingerprint.js';
-import { type defaultConfig } from '@/client/config.js';
+import { xsCommon } from './fingerprint.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 import { type ApiResponse } from '@/types/common.js';
 import { type SbtSource } from '@/types/security.js';
-
-type ClientConfig = typeof defaultConfig;
 
 /**
  * XSCommonGenerator is responsible for generating a common fingerprint signature
@@ -29,7 +26,7 @@ export class XSCommonGenerator {
    */
   constructor(
     private session: RednoteCookieSession,
-    private commonPatterns = defaultCommonPatterns,
+    private commonPatterns: (string | RegExp)[],
   ) {}
 
   /**
@@ -46,7 +43,7 @@ export class XSCommonGenerator {
     let count = Number(sessionStorage.getItem(key)) || 0;
     if (increment) {
       count++;
-      sessionStorage.setItem(key, count.toString());
+      sessionStorage.setItem(key, String(count));
     }
     return count;
   }
@@ -84,9 +81,8 @@ export class XSCommonGenerator {
    * @param request - The request options, including URL and headers.
    * @returns The generated fingerprint string, or `null` if the URL does not match path patterns.
    */
-  public generate(config: ClientConfig, request: Options): string | null {
+  public generate(platform: string, request: Options): string | null {
     const localStorage = this.session.localStorage;
-    const platform = config.platform;
 
     const url = request.url ? request.url.toString() : '';
     if (!this.commonPatterns.map((p) => new RegExp(p)).some((pattern) => pattern.test(url))) {
@@ -104,6 +100,6 @@ export class XSCommonGenerator {
     const b1 = localStorage.getItem('b1') ?? '';
     const b1b1 = localStorage.getItem('b1b1') ?? '1';
 
-    return xsCommon(platform, xt, xs, a1, b1, sc, b1b1);
+    return xsCommon(platform, a1, b1, b1b1, sc);
   }
 }

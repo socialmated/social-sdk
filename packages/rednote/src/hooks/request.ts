@@ -29,7 +29,7 @@ const signRequest =
 const addFingerprint =
   (generator: XSCommonGenerator): BeforeRequestHook =>
   (options) => {
-    const fingerprint = generator.generate(defaultConfig, options);
+    const fingerprint = generator.generate(defaultConfig.platform, options);
     if (fingerprint) {
       options.headers['X-S-Common'] = fingerprint;
     }
