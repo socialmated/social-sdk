@@ -1,15 +1,17 @@
+import { type Promisable } from 'type-fest';
+
 /**
  * Represents a session interface for managing session data, including retrieval,
  * refreshing, revocation, and expiration handling.
  */
-export interface Session {
+export interface ReadonlySession {
   /**
    * Retrieves the value associated with the specified key from the session.
    *
    * @param key - The key whose value should be retrieved.
-   * @returns A promise that resolves to the value as a string, or `undefined` if not found.
+   * @returns A promise that resolves to the value as a string, or `null` if the key does not exist.
    */
-  get: (key: string) => string | undefined;
+  get: (key: string) => string | null;
 
   /**
    * Retrieves all key-value pairs stored in the session.
@@ -21,44 +23,50 @@ export interface Session {
   /**
    * Refreshes the session, typically by updating access tokens or other session data.
    *
-   * @param key - The key to refresh. If not provided, refreshes all keys.
+   * @param key - The key to refresh.
    *
    * @returns A promise that resolves to the refreshed value as a string.
    */
-  refresh: (key?: string) => Promise<string>;
+  refresh: () => Promisable<string>;
 
   /**
    * Revokes the session, typically by invalidating access tokens or clearing session data.
    *
-   * @param key - The key to revoke. If not provided, revokes all keys.
-   *
    * @returns A promise that resolves when the session is revoked.
    */
-  revoke: (key?: string) => Promise<void>;
+  revoke: () => Promisable<void>;
 
   /**
    * Get the remaining time in seconds until the session expires.
    *
-   * @param key - The key to check for expiration.
    * @returns The remaining time in seconds until the session expires.
    */
-  expiresIn: (key?: string) => number;
+  expiresIn: () => number;
 
   /**
-   * Retrieves the scope associated with the specified key from the session.
+   * Retrieves the scope of the session.
    *
-   * @param key - The key whose scope should be retrieved. If not provided, retrieves the default scope.
    * @returns The scope as a string, or `undefined` if not found.
    */
-  scope: (key?: string) => string | undefined;
-
-  /**
-   * Clears the session data, effectively logging out the user or invalidating the session.
-   */
-  clear: () => void;
+  scope: () => string | undefined;
 
   /**
    * The issuer of the session, typically the base URL or domain.
    */
   issuer: URL | string;
+}
+
+export interface WritableSession {
+  /**
+   * Sets a value in the session for the specified key.
+   *
+   * @param key - The key under which the value should be stored.
+   * @param value - The value to store in the session.
+   */
+  set: (key: string, value: string) => void;
+
+  /**
+   * Clears the session data, effectively logging out the user or invalidating the session.
+   */
+  clear: () => void;
 }

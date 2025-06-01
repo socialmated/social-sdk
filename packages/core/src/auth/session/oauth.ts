@@ -4,9 +4,13 @@ import {
   type TokenEndpointResponse,
   type TokenEndpointResponseHelpers,
   tokenRevocation,
-  customFetch,
 } from 'openid-client';
-import { type Session } from './session.js';
+import { type ReadonlySession } from './session.js';
+
+/**
+ * Defines the type of metadata in an OAuth session.
+ */
+type MetadataType = 'server' | 'client' | 'tokens';
 
 /**
  * Represents an OAuth session, encapsulating token management and session metadata.
@@ -29,7 +33,7 @@ import { type Session } from './session.js';
  *
  * @public
  */
-export class OAuthSession implements Session {
+class OAuthSession implements ReadonlySession {
   /**
    * Creates an instance of `OAuthSession`.
    *
@@ -47,18 +51,18 @@ export class OAuthSession implements Session {
    * @param key - The key whose value should be retrieved.
    * @returns The value as a string, or `undefined` if not found.
    */
-  public get(key: string): string | undefined {
-    if (this.tokens[key]) {
+  public get(key: string, from?: MetadataType): string | null {
+    if ((!from || from === 'tokens') && this.tokens[key]) {
       return JSON.stringify(this.tokens[key]);
     }
-    if (this.config.serverMetadata()[key]) {
+    if ((!from || from === 'server') && this.config.serverMetadata()[key]) {
       return JSON.stringify(this.config.serverMetadata()[key]);
     }
-    if (this.config.clientMetadata()[key]) {
+    if ((!from || from === 'client') && this.config.clientMetadata()[key]) {
       return JSON.stringify(this.config.clientMetadata()[key]);
     }
 
-    return undefined;
+    return null;
   }
 
   /**
@@ -66,7 +70,7 @@ export class OAuthSession implements Session {
    *
    * @returns An object containing all metadata and tokens, where each value is a JSON string.
    */
-  public getAll(): Record<string, string> {
+  public getAll(from?: MetadataType): Record<string, string> {
     const expand = (obj: Record<string, unknown>): Record<string, string> => {
       return Object.entries(obj).reduce<Record<string, string>>((acc, [key, value]) => {
         if (typeof value === 'object' && value !== null) {
@@ -78,37 +82,14 @@ export class OAuthSession implements Session {
       }, {});
     };
 
-    const tokens = expand(this.tokens);
-    const serverMetadata = expand(this.config.serverMetadata());
-    const clientMetadata = expand(this.config.clientMetadata());
+    const tokens = !from || from === 'tokens' ? expand(this.tokens) : {};
+    const serverMetadata = !from || from === 'server' ? expand(this.config.serverMetadata()) : {};
+    const clientMetadata = !from || from === 'server' ? expand(this.config.clientMetadata()) : {};
 
     return {
       ...serverMetadata,
       ...clientMetadata,
       ...tokens,
-    };
-  }
-
-  /**
-   * Clears the session data, effectively logging out the user or invalidating the session.
-   */
-  public clear(): void {
-    this.tokens = {
-      access_token: '',
-      refresh_token: undefined,
-      id_token: undefined,
-      scope: undefined,
-      token_type: '',
-      claims: () => undefined,
-      expiresIn: () => undefined,
-    } as TokenEndpointResponse & TokenEndpointResponseHelpers;
-    this.config = {
-      serverMetadata: () => this.config.serverMetadata(),
-      clientMetadata: () => ({
-        client_id: '',
-      }),
-      timeout: undefined,
-      [customFetch]: undefined,
     };
   }
 
@@ -121,13 +102,10 @@ export class OAuthSession implements Session {
    * @throws If no refresh token is available in the current session.
    * @returns A promise that resolves to the new access token as a string.
    */
-  public async refresh(key = 'access_token', parameters?: URLSearchParams | Record<string, string>): Promise<string> {
+  public async refresh(parameters?: URLSearchParams | Record<string, string>): Promise<string> {
     // Check if the refresh token is available
     if (!this.tokens.refresh_token) {
       throw new Error('No refresh token available');
-    }
-    if (key !== 'access_token') {
-      throw new Error('Invalid key. Only "access_token" is supported for refresh.');
     }
 
     // Update the tokens using the refresh token grant
@@ -139,22 +117,23 @@ export class OAuthSession implements Session {
   /**
    * Revokes either the access token or the refresh token associated with the current session.
    *
-   * @param key - Specifies which token to revoke: either `'access_token'` or `'refresh_token'`.
+   * @param key - Specifies which token to revoke: either `'access_token'` or `'refresh_token'`,
+   *              or `undefined` to revoke both.
    * @param params - Optional additional parameters to include in the revocation request.
    * @returns A promise that resolves when the revocation process is complete.
    */
-  public async revoke(key?: string, params?: URLSearchParams | Record<string, string>): Promise<void> {
+  public async revoke(
+    key?: 'access_token' | 'refresh_token',
+    params?: URLSearchParams | Record<string, string>,
+  ): Promise<void> {
     // Revoke the access token
-    if (key === 'access_token') {
-      return tokenRevocation(this.config, this.tokens.access_token, params);
+    if (!key || key === 'access_token') {
+      await tokenRevocation(this.config, this.tokens.access_token, params);
     }
     // Optionally revoke the refresh token if available
-    if (key === 'refresh_token' && this.tokens.refresh_token) {
-      return tokenRevocation(this.config, this.tokens.refresh_token, params);
+    if ((!key || key === 'refresh_token') && this.tokens.refresh_token) {
+      await tokenRevocation(this.config, this.tokens.refresh_token, params);
     }
-
-    // If no key is provided, revoke both tokens
-    await Promise.all([this.revoke('access_token', params), this.revoke('refresh_token', params)]);
   }
 
   /**
@@ -189,3 +168,6 @@ export class OAuthSession implements Session {
     return this.tokens;
   }
 }
+
+export { OAuthSession };
+export type { MetadataType };

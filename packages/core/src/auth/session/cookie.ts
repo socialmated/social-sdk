@@ -1,7 +1,8 @@
-import { canonicalDomain, Cookie, CookieJar, type CreateCookieOptions } from 'tough-cookie';
+import { canonicalDomain, Cookie, CookieJar, type GetCookiesOptions, type CreateCookieOptions } from 'tough-cookie';
 import { type Page } from 'playwright';
 import { LocalStorage, SessionStorage } from '@denostack/shim-webstore';
-import { type Session } from './session.js';
+import { type Promisable } from 'type-fest';
+import { type WritableSession } from './session.js';
 
 /**
  * Manages session data using browser-like cookies.
@@ -24,7 +25,7 @@ import { type Session } from './session.js';
  *
  * @see {@link Session}
  */
-export class CookieSession implements Session {
+class CookieSession implements WritableSession {
   /**
    * Creates an instance of `CookieSession`.
    *
@@ -83,14 +84,14 @@ export class CookieSession implements Session {
    * @param key - The name of the cookie to retrieve.
    * @returns The value of the cookie as a string, or `undefined` if the cookie does not exist.
    */
-  public get(key: string): string | undefined {
+  public get(key: string, options?: GetCookiesOptions): string | null {
     const found = this.cookieJar.getCookiesSync(this.issuer.toString(), {
-      expire: false,
-      allPaths: true,
+      ...options,
+      allPaths: options?.allPaths ?? true,
     });
     const cookie = found.find((c) => c.key === key);
 
-    return cookie?.value;
+    return cookie?.value ?? null;
   }
 
   /**
@@ -98,10 +99,10 @@ export class CookieSession implements Session {
    *
    * @returns An object containing all cookies, where the keys are cookie names and the values are cookie values.
    */
-  public getAll(): Record<string, string> {
+  public getAll(options?: GetCookiesOptions): Record<string, string> {
     const cookies = this.cookieJar.getCookiesSync(this.issuer.toString(), {
-      expire: false,
-      allPaths: true,
+      ...options,
+      allPaths: options?.allPaths ?? true,
     });
     const cookieMap: Record<string, string> = {};
     cookies.forEach((cookie) => {
@@ -113,10 +114,10 @@ export class CookieSession implements Session {
 
   public set(key: string, value: string, options?: Omit<CreateCookieOptions, 'key' | 'value'>): void {
     const cookie = new Cookie({
+      ...options,
       key,
       value,
-      ...options,
-      domain: canonicalDomain(options?.domain), // Normalize domain
+      domain: options?.domain ? canonicalDomain(options.domain) : this.issuer.hostname,
     });
 
     this.cookieJar.setCookieSync(cookie, this.issuer.toString(), {
@@ -137,10 +138,10 @@ export class CookieSession implements Session {
    * @remarks
    * This method is a placeholder for any additional logic that may be needed to refresh the session.
    *
-   * @returns A promise that resolves to the refreshed cookie value.
+   * @returns A promise that resolves to the refreshed value as a string.
    */
-  public refresh(_?: string): Promise<string> {
-    return Promise.reject(new Error('Not implemented.'));
+  public refresh(_?: string): Promisable<string> {
+    throw new Error('Not implemented.');
   }
 
   /**
@@ -151,9 +152,8 @@ export class CookieSession implements Session {
    *
    * @returns A promise that resolves when the revoke operation is complete.
    */
-  public async revoke(_?: string): Promise<void> {
-    // Implement any necessary logic to revoke the session if needed
-    return Promise.reject(new Error('Not implemented.'));
+  public revoke(_?: string): Promisable<void> {
+    throw new Error('Not implemented.');
   }
 
   /**
@@ -207,6 +207,11 @@ export class CookieSession implements Session {
 }
 
 /**
+ * Defines the storage types available for session management.
+ */
+type StorageType = 'cookie' | 'local' | 'session';
+
+/**
  * Extends {@link CookieSession} to provide unified management of cookies, localStorage, and sessionStorage
  * for web sessions, with persistent storage for localStorage data.
  *
@@ -223,7 +228,7 @@ export class CookieSession implements Session {
  *
  * @public
  */
-export class WebStoreCookieSession extends CookieSession {
+class WebStoreCookieSession extends CookieSession {
   /**
    * Creates an instance of `WebStoreCookieSession`.
    *
@@ -283,14 +288,27 @@ export class WebStoreCookieSession extends CookieSession {
    * @param from - The storage type to retrieve the value from. Can be `'cookie'`, `'local'`, or `'session'`. Defaults to `'cookie'`.
    * @returns The value associated with the key if it exists, otherwise `undefined`.
    */
-  public override get(key: string, from: 'cookie' | 'local' | 'session' = 'cookie'): string | undefined {
-    if (from === 'cookie') {
-      return super.get(key);
+  public override get(key: string, options?: { from?: StorageType } & GetCookiesOptions): string | null {
+    if (!options?.from || options.from === 'cookie') {
+      const value = super.get(key, options);
+      if (value) {
+        return value;
+      }
     }
-    if (from === 'local') {
-      return this.localStorage.getItem(key) ?? undefined;
+    if (!options?.from || options.from === 'local') {
+      const value = this.localStorage.getItem(key);
+      if (value) {
+        return value;
+      }
     }
-    return this.sessionStorage.getItem(key) ?? undefined;
+    if (!options?.from || options.from === 'session') {
+      const value = this.sessionStorage.getItem(key);
+      if (value) {
+        return value;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -299,14 +317,41 @@ export class WebStoreCookieSession extends CookieSession {
    * @param from - The storage type to retrieve data from. Can be 'cookie', 'local', or 'session'.
    * @returns An object containing all key-value pairs from the selected storage.
    */
-  public override getAll(from: 'cookie' | 'local' | 'session' = 'cookie'): Record<string, string> {
-    if (from === 'cookie') {
-      return super.getAll();
+  public override getAll(options?: { from?: StorageType } & GetCookiesOptions): Record<string, string> {
+    const cookies = !options?.from || options.from === 'cookie' ? super.getAll(options) : {};
+    const localStorageData = !options?.from || options.from === 'local' ? this.localStorage._readData() : {};
+    const sessionStorageData = !options?.from || options.from === 'session' ? this.sessionStorage._data : {};
+
+    return {
+      ...cookies,
+      ...localStorageData,
+      ...sessionStorageData,
+    };
+  }
+
+  /**
+   * Sets a value in the specified storage type.
+   *
+   * @param key - The key under which the value should be stored.
+   * @param value - The value to store.
+   * @param options - Optional parameters for cookie storage, such as expiration and path.
+   * @param to - The storage type to set the value in. Can be 'cookie', 'local', or 'session'. Defaults to 'cookie'.
+   */
+  public override set(
+    key: string,
+    value: string,
+    options?: { to?: StorageType } & Omit<CreateCookieOptions, 'key' | 'value'>,
+  ): void {
+    if (!options?.to || options.to === 'cookie') {
+      super.set(key, value, options);
+      return;
     }
-    if (from === 'local') {
-      return this.localStorage._readData();
+    if (options.to === 'local') {
+      this.localStorage.setItem(key, value);
+      return;
     }
-    return this.sessionStorage._data;
+
+    this.sessionStorage.setItem(key, value);
   }
 
   /**
@@ -318,3 +363,6 @@ export class WebStoreCookieSession extends CookieSession {
     this.sessionStorage.clear();
   }
 }
+
+export { CookieSession, WebStoreCookieSession };
+export type { StorageType };
