@@ -3,6 +3,7 @@ import { setRequestHeader, setRequestHeaders } from '@social-sdk/core/hooks';
 import { type TransactionIdSigner } from '@/security/sign/signer.js';
 import { type XCookieSession } from '@/auth/session.js';
 import { getBearerToken } from '@/security/token/index.js';
+import { type XPFwdForGenerator } from '@/security/fingerprint/generator.js';
 
 /**
  * Creates a before-request hook that signs the transaction ID for X's API requests.
@@ -26,4 +27,10 @@ const setupSession = (session: XCookieSession): BeforeRequestHook =>
     authorization: `Bearer ${getBearerToken()}`,
   });
 
-export { signTransactionId, setupSession };
+const addForwardedFor = (generator: XPFwdForGenerator): BeforeRequestHook =>
+  setRequestHeader(
+    'x-xp-forwarded-for',
+    generator.generate().then((output) => output.str),
+  );
+
+export { signTransactionId, setupSession, addForwardedFor };

@@ -3,8 +3,9 @@ import { debug } from '@social-sdk/core/hooks';
 import { createCookieHttpClient, type HttpClient } from '@social-sdk/core/client';
 import { TransactionIdSigner } from '@/security/sign/signer.js';
 import { type XCookieSession } from '@/auth/session.js';
-import { setupSession, signTransactionId } from '@/hooks/request.js';
+import { addForwardedFor, setupSession, signTransactionId } from '@/hooks/request.js';
 import { retryOnUnauthorized } from '@/hooks/response.js';
+import { XPFwdForGenerator } from '@/security/fingerprint/generator.js';
 
 /**
  * Represents a function that performs a GraphQL request, either a query or mutation.
@@ -113,6 +114,7 @@ function useGraphQLHttpClient(base: HttpClient): GraphQLHttpClient {
 const createXHttpClient = (session: XCookieSession): HttpClient => {
   const http = createCookieHttpClient(session);
   const signer = new TransactionIdSigner();
+  const generator = new XPFwdForGenerator(session);
 
   return http.extend({
     headers: {
@@ -129,7 +131,7 @@ const createXHttpClient = (session: XCookieSession): HttpClient => {
       auth_token: session.get('auth_token'),
     },
     hooks: {
-      beforeRequest: [setupSession(session), signTransactionId(signer), debug],
+      beforeRequest: [setupSession(session), signTransactionId(signer), addForwardedFor(generator), debug],
       afterResponse: [retryOnUnauthorized(session), debug],
     },
   });
