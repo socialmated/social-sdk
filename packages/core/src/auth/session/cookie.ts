@@ -62,7 +62,7 @@ export class CookieSession implements Session {
         value: cookie.value,
         domain: canonicalDomain(cookie.domain), // Normalize domain
         path: cookie.path,
-        expires: cookie.expires ? new Date(cookie.expires * 1000) : undefined,
+        expires: cookie.expires >= 0 ? new Date(cookie.expires * 1000) : undefined,
         httpOnly: cookie.httpOnly,
         secure: cookie.secure,
         sameSite: cookie.sameSite,
