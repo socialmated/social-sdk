@@ -2,7 +2,7 @@ import { Options } from 'got';
 import { XhsSigner } from './signer.js';
 import { RednoteCookieSession } from '@/auth/session.js';
 
-describe('XhsSigner', () => {
+describe(XhsSigner, () => {
   const a1 = '1972697fa3d2ly0o5nfy1iqg0ra0w56q79gz2gm0450000417121';
 
   let session: RednoteCookieSession;
@@ -16,7 +16,7 @@ describe('XhsSigner', () => {
     signer = new XhsSigner(session);
   });
 
-  describe('sign', () => {
+  describe(XhsSigner.prototype.sign, () => {
     it('should sign POST request with body and return signature', () => {
       const req = new Options({
         method: 'POST',
