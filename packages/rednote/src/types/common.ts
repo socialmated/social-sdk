@@ -12,4 +12,20 @@ interface ApiErrorResponse {
   msg: string;
 }
 
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+const isApiResponse = <T>(body: unknown): body is ApiResponse<T> => {
+  if (typeof body !== 'object' || body === null) {
+    return false;
+  }
+  const response = body as ApiResponse<T>;
+  return (
+    typeof response.code === 'number' &&
+    typeof response.success === 'boolean' &&
+    typeof response.data === 'object' &&
+    typeof response.msg === 'string'
+  );
+};
+
+export { isApiResponse };
+export type { ApiResponse, ApiSuccessResponse, ApiErrorResponse };

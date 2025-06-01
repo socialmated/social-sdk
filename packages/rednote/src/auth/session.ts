@@ -1,5 +1,5 @@
 import { WebStoreCookieSession } from '@social-sdk/core/auth/session';
-import { Cookie, type CookieJar } from 'tough-cookie';
+import { type CookieJar } from 'tough-cookie';
 import { type LocalStorage, type SessionStorage } from '@denostack/shim-webstore';
 import { addYear } from '@formkit/tempo';
 import { generateLocalId, generateWebId } from '@/security/token/token.js';
@@ -37,17 +37,14 @@ export class RednoteCookieSession extends WebStoreCookieSession {
    * @param key - The session key to refresh ('a1', 'webId', 'loadts', or 'xsecappid')
    * @returns Promise resolving to the refreshed key value
    */
-  public override async refresh(key: 'a1' | 'webId' | 'loadts' | 'xsecappid'): Promise<string> {
+  public override refresh(key: 'a1' | 'webId' | 'loadts' | 'xsecappid'): string {
     if (key === 'a1') {
       const localId = generateLocalId('Mac OS');
-      const a1 = new Cookie({
-        key: 'a1',
-        value: localId,
+      this.set('a1', localId, {
         expires: addYear(new Date(), 1),
         path: '/',
         domain: '.xiaohongshu.com',
       });
-      await this.cookieJar.setCookie(a1, this.issuer.toString());
       return localId;
     }
     if (key === 'loadts') {

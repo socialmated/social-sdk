@@ -4,6 +4,7 @@ import { type RednoteCookieSession } from '@/auth/session.js';
 import { XSCommonGenerator } from '@/security/fingerprint/generator.js';
 import { XhsSigner } from '@/security/sign/signer.js';
 import { addFingerprint, setupTracing, signRequest } from '@/hooks/request.js';
+import { retryOnUnauthorized } from '@/hooks/response.js';
 
 /**
  * Creates an HTTP client configured for making requests to Rednote (Xiaohongshu) API endpoints.
@@ -13,7 +14,7 @@ import { addFingerprint, setupTracing, signRequest } from '@/hooks/request.js';
  */
 function createRednoteHttpClient(session: RednoteCookieSession): HttpClient {
   const http = createCookieHttpClient(session);
-  const signer = XhsSigner.fromSession(session);
+  const signer = new XhsSigner(session);
   const generator = new XSCommonGenerator(session);
 
   return http.extend({
@@ -30,7 +31,7 @@ function createRednoteHttpClient(session: RednoteCookieSession): HttpClient {
     },
     hooks: {
       beforeRequest: [signRequest(signer), addFingerprint(generator), setupTracing, debug],
-      afterResponse: [debug],
+      afterResponse: [retryOnUnauthorized(session), debug],
     },
   });
 }

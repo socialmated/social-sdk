@@ -13,8 +13,8 @@ import { b3TraceId, xrayTraceId } from '@/security/instrument/trace.js';
  */
 const signRequest =
   (signer: XhsSigner): BeforeRequestHook =>
-  async (options) => {
-    const sig = await signer.sign(options);
+  (options) => {
+    const sig = signer.sign(options);
     options.headers['X-s'] = sig['X-s'];
     options.headers['X-t'] = sig['X-t'];
     options.headers['X-Mns'] = sig['X-Mns'];
