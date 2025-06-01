@@ -1,9 +1,7 @@
-import { type CookieSession } from '@social-sdk/core/auth/session';
 import { type Options } from 'got';
 import { type Signer } from '@social-sdk/core/security';
-import { generateLocalId } from '../token/token.js';
 import { signOld, signNew, generateMns, type XhsSignOutput } from './sign.js';
-import { defaultConfig } from '@/client/config.js';
+import { type RednoteCookieSession } from '@/auth/session.js';
 
 /**
  * The output type for the XHS signing process.
@@ -31,33 +29,10 @@ interface XhsSignerOptions {
  */
 class XhsSigner implements Signer<{ 'X-s': string; 'X-t': string; 'X-Mns': string }> {
   /**
-   * The `a1` cookie value.
-   */
-  private a1: string;
-
-  /**
    * Creates an instance of `XhsSigner`.
-   * @param a1 - The `a1` cookie value used for signing requests.
+   * @param session - The `RednoteCookieSession` object containing authentication cookies.
    */
-  constructor(a1?: string) {
-    this.a1 = a1 ?? generateLocalId(defaultConfig.platform);
-  }
-
-  /**
-   * Creates an instance of `XhsSigner` from a given session.
-   *
-   * @param session - The `CookieSession` object containing authentication cookies.
-   * @returns An instance of `XhsSigner` initialized with the `a1` cookie value from the session.
-   * @throws If the session does not contain an `a1` cookie.
-   */
-  public static fromSession(session: CookieSession): XhsSigner {
-    const a1 = session.get('a1');
-    if (!a1) {
-      throw new Error('Session does not contain a1 cookie');
-    }
-
-    return new XhsSigner(a1);
-  }
+  constructor(private session: RednoteCookieSession) {}
 
   /**
    * Generates a signature for the given request.
@@ -67,6 +42,7 @@ class XhsSigner implements Signer<{ 'X-s': string; 'X-t': string; 'X-Mns': strin
    * @returns An object containing the signed headers, including 'X-s', 'X-t', and 'X-Mns'.
    */
   public sign(request: Options, options?: XhsSignerOptions): XhsSignOutput {
+    const a1 = this.session.get('a1') ?? this.session.refresh('a1');
     const fullPath = request.url ? new URL(request.url).pathname + new URL(request.url).search : '';
     const body: unknown =
       !request.json && typeof request.body === 'string' ? JSON.parse(request.body) : (request.json ?? request.body);
@@ -75,7 +51,7 @@ class XhsSigner implements Signer<{ 'X-s': string; 'X-t': string; 'X-Mns': strin
     if (options?.type === 'sign_old') {
       output = signOld(fullPath, body);
     } else {
-      output = signNew(fullPath, body, this.a1);
+      output = signNew(fullPath, body, a1);
     }
 
     return {
