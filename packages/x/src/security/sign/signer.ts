@@ -27,50 +27,21 @@ class TransactionIdSigner implements Signer<string> {
   private animationKey?: string;
 
   /**
-   * Generates and signs a transaction ID for a given HTTP method and API endpoint path.
+   * Generates and signs a transaction ID for API requests.
    *
-   * @param method - The HTTP method (e.g., 'GET', 'POST').
-   * @param path - The API endpoint path (e.g., '/api/endpoint').
-   * @param options - The got Options object.
-   * @returns Promise resolving to a Base64-encoded transaction ID string.
+   * @param request - The request options.
+   * @returns A Promise that resolves to the signed transaction ID.
    * @throws Error if the signer has not been initialized.
    */
-  public async sign(method: string, path: string): Promise<string>;
-  /**
-   * Generates and signs a transaction ID for a `got` request {@link Options}.
-   *
-   * @param opts - The `got` request {@link Options} object.
-   * @returns Promise resolving to a Base64-encoded transaction ID string.
-   * @throws Error if the signer has not been initialized.
-   */
-  public async sign(opts: Options): Promise<string>;
-  /**
-   * Generates and signs a transaction ID for a `fetch` {@link Request}.
-   *
-   * @param req - The `fetch` request {@link Request} object.
-   * @returns Promise resolving to a Base64-encoded transaction ID string.
-   * @throws Error if the signer has not been initialized or if invalid arguments are provided.
-   */
-  // eslint-disable-next-line @typescript-eslint/unified-signatures -- explicitly overload
-  public async sign(req: Request): Promise<string>;
-  public async sign(arg1: string | Options | Request, arg2?: string): Promise<string> {
+  public async sign(request: Options): Promise<string> {
     if (!this.key || !this.animationKey) {
       await this.init();
     }
 
-    let method: string;
-    let requestPath: string;
-    if (typeof arg1 === 'string') {
-      method = arg1;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- expected to be defined at this point
-      requestPath = arg2!;
-    } else {
-      method = arg1.method;
-      requestPath = arg1.url ? new URL(arg1.url).pathname : '';
-    }
-
+    const method = request.method;
+    const path = request.url ? new URL(request.url).pathname : '';
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- expected to be defined at this point
-    return transactionId(method, requestPath, this.key!, this.animationKey!);
+    return transactionId(method, path, this.key!, this.animationKey!);
   }
 
   /**

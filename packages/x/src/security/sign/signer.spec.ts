@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { Options } from 'got';
 import { TransactionIdSigner } from './signer.js';
 import { HomeHtmlParser, OnDemandJsParser } from './parser.js';
 
@@ -21,7 +22,11 @@ describe('TransactionIdSigner', () => {
 
   describe('sign', () => {
     it('should sign request and return transaction ID', async () => {
-      const transactionId = await signer.sign('POST', '/i/api/1.1/some-endpoint.json');
+      const req = new Options({
+        method: 'POST',
+        url: 'https://x.com/i/api/1.1/endpoint.json',
+      });
+      const transactionId = await signer.sign(req);
 
       expect(transactionId).toMatchSnapshot();
     });
