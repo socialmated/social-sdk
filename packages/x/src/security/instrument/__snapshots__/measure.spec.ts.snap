@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ui-metrics > evaluate > should evaluate the ui metrics correctly 1`] = `
+exports[`UIMetricsMeasurer > measure > should measure the ui metrics 1`] = `
 {
   "rf": {
     "a1271ddd5495959ff47b6b0ede71053633d2d6b42ad2f5a65b35bc01a8f25ce6": -66,

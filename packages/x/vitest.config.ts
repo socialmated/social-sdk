@@ -16,6 +16,7 @@ export default defineConfig({
     },
     alias: {
       '@': path.resolve(import.meta.dirname, 'src'),
+      'golang-wasm-exec': path.resolve(import.meta.dirname, 'vendors', 'tinygo@v0.37.0', 'targets', 'wasm_exec.cjs'),
     },
   },
 });

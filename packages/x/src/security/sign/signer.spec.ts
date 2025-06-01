@@ -4,7 +4,7 @@ import { Options } from 'got';
 import { TransactionIdSigner } from './signer.js';
 import { HomeHtmlParser, OnDemandJsParser } from './parser.js';
 
-describe('TransactionIdSigner', () => {
+describe(TransactionIdSigner, () => {
   const homeHtml = readFileSync(path.join(import.meta.dirname, '__fixtures__', 'home.html'), 'utf-8');
   const onDemandFile = readFileSync(path.join(import.meta.dirname, '__fixtures__', 'ondemand.s.57b4929a.js'), 'utf-8');
 
@@ -20,7 +20,7 @@ describe('TransactionIdSigner', () => {
     signer = new TransactionIdSigner();
   });
 
-  describe('sign', () => {
+  describe(TransactionIdSigner.prototype.sign, () => {
     it('should sign request and return transaction ID', async () => {
       const req = new Options({
         method: 'POST',

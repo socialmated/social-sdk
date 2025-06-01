@@ -1,8 +1,8 @@
 import { XPFwdForGenerator } from './generator.js';
 import { XCookieSession } from '@/auth/session.js';
 
-describe('XPFwdForGenerator', () => {
-  describe('generate', () => {
+describe(XPFwdForGenerator, () => {
+  describe(XPFwdForGenerator.prototype.generate, () => {
     it('should generate a fingerprint', async () => {
       const session = new XCookieSession();
       const generator = new XPFwdForGenerator(session);

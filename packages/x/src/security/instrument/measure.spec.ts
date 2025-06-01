@@ -3,14 +3,19 @@ import path from 'node:path';
 import { UIMetricsMeasurer } from './measure.js';
 import { UIMetricsJsParser } from './parser.js';
 
-describe('ui-metrics', () => {
+describe(UIMetricsMeasurer, () => {
   const jsInstFile = readFileSync(path.join(import.meta.dirname, '__fixtures__', 'js_inst.js'), 'utf-8');
 
-  describe('evaluate', () => {
-    it('should evaluate the ui metrics correctly', async () => {
-      vi.spyOn(UIMetricsJsParser, 'create').mockResolvedValue(new UIMetricsJsParser(jsInstFile));
+  let measurer: UIMetricsMeasurer;
 
-      const measurer = new UIMetricsMeasurer();
+  beforeEach(() => {
+    vi.spyOn(UIMetricsJsParser, 'create').mockResolvedValue(new UIMetricsJsParser(jsInstFile));
+
+    measurer = new UIMetricsMeasurer();
+  });
+
+  describe(UIMetricsMeasurer.prototype.measure, () => {
+    it('should measure the ui metrics', async () => {
       const result = await measurer.measure();
 
       expect(result).toMatchSnapshot();
