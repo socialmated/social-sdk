@@ -98,19 +98,20 @@
       "PKCE",
       "Promisable",
       "rednote",
+      "Rednote",
       "retweeters",
       "rweb",
       "sonarjs",
       "svgs",
       "tipjar",
       "traceid",
+      "uncollect",
       "webmsxyw",
       "XAPI",
-      "xsec",
-      "Rednote"
+      "xsec"
     ],
     "git.openRepositoryInParentFolders": "always",
-    "vitest.workspaceConfig": "${workspaceFolder}/vitest.config.ts",
     "javascript.validate.enable": false,
+    "vitest.disableWorkspaceWarning": true
   }
 }

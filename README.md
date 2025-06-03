@@ -59,15 +59,17 @@ npm install @social-sdk/x
 
 ... And many more!
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-
 ## Disclaimer
 
 - This SDK is not affiliated with or endorsed by any of the social media platforms it supports.
-- Ensure you comply with the terms of service of each platform when using this SDK.
-- You acknowledge the responsibility and risk for any actions taken using this SDK, including but not limited to API usage, data retrieval, and content posting.
+- The use of this SDK is subject to the terms and conditions of the respective social media platforms.
+- You acknowledge the responsibility and consequences of using this SDK, including but not limited to API usage, data retrieval, and content posting.
+- This SDK is intended for educational and demo purposes. Use it at your own risk.
+- We condemn the use of this SDK for any illegal or unethical activities, including but not limited to spamming, harassment, or any form of abuse and violation on social media platforms.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ## Contributing
 
