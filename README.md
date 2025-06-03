@@ -11,7 +11,7 @@
 
 ## Introduction
 
-Social SDK is a unified SDK designed to simplify interactions with various social media platforms.
+Social SDK is a unified Node.js SDK designed to simplify interactions with various social media platforms.
 It provides a consistent interface for developers to integrate social media functionalities into their applications, making it easier to manage user authentication, post content, and retrieve data across different platforms.
 
 ## Features
@@ -50,9 +50,10 @@ npm install @social-sdk/x
 
 - [ ] X (Twitter) :construction:
 - [ ] Rednote (Xiaohongshu) :construction:
-- [ ] Facebook
+- [ ] Facebook :construction:
 - [ ] Instagram
 - [ ] TikTok
+- [ ] YouTube
 - [ ] Telegram
 - [ ] Discord
 
@@ -61,6 +62,12 @@ npm install @social-sdk/x
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+## Disclaimer
+
+- This SDK is not affiliated with or endorsed by any of the social media platforms it supports.
+- Ensure you comply with the terms of service of each platform when using this SDK.
+- You acknowledge the responsibility and risk for any actions taken using this SDK, including but not limited to API usage, data retrieval, and content posting.
 
 ## Contributing
 

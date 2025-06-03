@@ -1,4 +1,4 @@
-import { type Session } from '../session/index.js';
+import { type ReadonlySession } from '../session/index.js';
 
 /**
  * Represents an authentication mechanism that validates credentials and returns a session.
@@ -6,14 +6,14 @@ import { type Session } from '../session/index.js';
  * @typeParam TCred - The type of credential used for authentication.
  * @typeParam TSsn - The type of session returned upon successful authentication.
  */
-export interface AuthFlow<TCred extends object, TSsn extends Session> {
+export interface AuthFlow<TCred extends object, TSsn extends ReadonlySession> {
   authenticate: (credential: TCred) => Promise<TSsn>;
 }
 
 /**
  * Interface for controlling the display of a consent prompt.
  */
-export interface ConsentPromptOpener {
+export interface ConsentPrompt {
   /**
    * Opens the consent prompt.
    *

@@ -13,7 +13,7 @@ import {
  *
  * @see {@link https://developer.x.com/en/docs/authentication/oauth-2-0 | X OAuth 2.0 Documentation}
  */
-const oauth2Server: ServerMetadata = {
+const server: ServerMetadata = {
   issuer: 'https://x.com',
   authorization_endpoint: 'https://x.com/i/oauth2/authorize',
   token_endpoint: 'https://api.x.com/2/oauth2/token',
@@ -194,10 +194,10 @@ function createAuthFlow(
     | CreateBasicAuthFlowArgs,
 ): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow {
   if (args.type === 'oauth2:pkce') {
-    return new OAuth2AuthorizationCodePKCEFlow(oauth2Server, args.clientId, args.clientSecret, clientAuth);
+    return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret, clientAuth);
   }
   if (args.type === 'oauth2:client_credentials') {
-    return new OAuth2ClientCredentialFlow(oauth2Server, args.consumerKey, args.consumerSecret, clientAuth);
+    return new OAuth2ClientCredentialFlow(server, args.consumerKey, args.consumerSecret, clientAuth);
   }
 
   throw new Error(`Unsupported auth method: ${args.type}`);

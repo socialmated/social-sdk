@@ -3,6 +3,9 @@ import { type CookieJar } from 'tough-cookie';
 import { addHour, addYear } from '@formkit/tempo';
 import { fetchGuestToken, generateCsrfToken } from '../security/token/index.js';
 
+/**
+ * Represents a session for the X platform (formerly Twitter) using cookies.
+ */
 export class XCookieSession extends CookieSession {
   /**
    * Creates an instance of the session class.

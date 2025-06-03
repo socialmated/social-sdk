@@ -18,7 +18,7 @@ import { Hono } from 'hono';
 import { type ServerType, serve } from '@hono/node-server';
 import { OAuthSession } from '../session/oauth.js';
 import { type OAuth2Credential } from '../credential/index.js';
-import { type AuthFlow, type ConsentPromptOpener } from './flow.js';
+import { type ConsentPrompt, type AuthFlow } from './flow.js';
 
 /**
  * Options for configuring the OAuth 2.0 Authorization Code flow.
@@ -41,7 +41,7 @@ interface OAuth2AuthorizationCodeOptions<TScp> {
  *
  * @example
  * ```typescript
- * const flow = new OAuth2AuthorizationCodePKCEFlow(metadata, clientId, clientSecret);
+ * const flow = new OAuth2AuthorizationCodePKCEFlow(server, clientId, clientSecret);
  * const authUrl = await flow.initiate(['openid', 'profile']);
  * const redirectUrl = await flow.consent(authUrl);
  * const tokens = await flow.token(redirectUrl);
@@ -62,14 +62,14 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
   /**
    * Constructs an instance of the OAuth2 Authorization Code Flow with PKCE authenticator.
    *
-   * @param metadata - The server metadata containing OAuth endpoints and configuration.
+   * @param server - The server metadata containing OAuth endpoints and configuration.
    * @param clientId - Optional client identifier for the OAuth application.
    * @param clientSecret - Optional client secret for the OAuth application.
    * @param clientAuth - Optional client authentication method for the OAuth flow.
    */
   constructor(
-    private metadata: ServerMetadata,
-    private clientId?: string,
+    private server: ServerMetadata,
+    private clientId: string,
     private clientSecret?: string,
     private clientAuth?: ClientAuth,
   ) {
@@ -113,7 +113,7 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
     params.set('code_challenge_method', 's256');
 
     // Build the full authorization URL using the configuration and parameters
-    const config = new Configuration(this.metadata, this.clientId, this.clientSecret, this.clientAuth);
+    const config = new Configuration(this.server, this.clientId, this.clientSecret, this.clientAuth);
     return buildAuthorizationUrl(config, params);
   }
 
@@ -130,7 +130,11 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
       throw new Error('Redirect URI is required for consent');
     }
 
-    return LocalConsentPromptOpener.consent(authorizationUrl, new URL(redirectUri));
+    const { promise, resolve, reject } = Promise.withResolvers<URL>();
+    const prompt = new LocalConsentPrompt(authorizationUrl, redirectUri, resolve, reject);
+    void prompt.open();
+
+    return promise;
   }
 
   /**
@@ -151,7 +155,7 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
     this.clientId = credential.clientId;
     this.clientSecret = credential.clientSecret;
 
-    const config = new Configuration(this.metadata, this.clientId, this.clientSecret, this.clientAuth);
+    const config = new Configuration(this.server, this.clientId, this.clientSecret, this.clientAuth);
     const grant = await this.authorize(options?.scope ?? []);
     const tokens = await this.token(grant);
 
@@ -193,7 +197,7 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
     }
 
     // Exchange the authorization code for tokens using the PKCE flow and verify the state and code verifier.
-    const config = new Configuration(this.metadata, this.clientId, this.clientSecret, this.clientAuth);
+    const config = new Configuration(this.server, this.clientId, this.clientSecret, this.clientAuth);
     return authorizationCodeGrant(
       config,
       grant,
@@ -215,7 +219,7 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
  *
  * @example
  * ```typescript
- * const flow = new OAuth2ClientCredentialFlow(metadata, clientId, clientSecret);
+ * const flow = new OAuth2ClientCredentialFlow(server, clientId, clientSecret);
  * const tokens = await flow.token();
  * ```
  *
@@ -225,14 +229,14 @@ class OAuth2ClientCredentialFlow implements AuthFlow<OAuth2Credential, OAuthSess
   /**
    * Creates a new instance of the class with the specified OAuth2 configuration.
    *
-   * @param metadata - The server metadata containing OAuth2 endpoints and related information.
+   * @param server - The server metadata containing OAuth2 endpoints and related information.
    * @param clientId - (Optional) The client identifier issued to the client during the registration process.
    * @param clientSecret - (Optional) The client secret issued to the client during the registration process.
    * @param clientAuth - (Optional) The client authentication method to use when authenticating with the OAuth2 server.
    */
   constructor(
-    private metadata: ServerMetadata,
-    private clientId?: string,
+    private server: ServerMetadata,
+    private clientId: string,
     private clientSecret?: string,
     private clientAuth?: ClientAuth,
   ) {}
@@ -248,7 +252,7 @@ class OAuth2ClientCredentialFlow implements AuthFlow<OAuth2Credential, OAuthSess
       throw new Error('Client ID is required for token exchange');
     }
 
-    const config = new Configuration(this.metadata, this.clientId, this.clientSecret, this.clientAuth);
+    const config = new Configuration(this.server, this.clientId, this.clientSecret, this.clientAuth);
     const params = new URLSearchParams({
       grant_type: 'client_credentials',
     });
@@ -267,7 +271,7 @@ class OAuth2ClientCredentialFlow implements AuthFlow<OAuth2Credential, OAuthSess
     this.clientId = credential.clientId;
     this.clientSecret = credential.clientSecret;
 
-    const config = new Configuration(this.metadata, this.clientId, this.clientSecret, this.clientAuth);
+    const config = new Configuration(this.server, this.clientId, this.clientSecret, this.clientAuth);
     const tokens = await this.token();
 
     return new OAuthSession(config, tokens);
@@ -284,11 +288,16 @@ class OAuth2ClientCredentialFlow implements AuthFlow<OAuth2Credential, OAuthSess
  *
  * @example
  * ```typescript
- * const redirectUrl = await LocalConsentPromptOpener.consent(authUrl, redirectUri);
- * // Extract authorization code from redirectUrl
+ * const prompt = new LocalConsentPrompt(
+ *   authUrl,
+ *   'http://localhost:3000/callback',
+ *   (redirectUrl) => console.log('Authorization received:', redirectUrl),
+ *   (error) => console.error('Authorization failed:', error)
+ * );
+ * await prompt.open();
  * ```
  */
-class LocalConsentPromptOpener implements ConsentPromptOpener {
+class LocalConsentPrompt implements ConsentPrompt {
   /**
    * The Hono app instance used to handle incoming requests.
    */
@@ -314,14 +323,14 @@ class LocalConsentPromptOpener implements ConsentPromptOpener {
    * @param onReceive - Callback function to handle the received authorization code.
    * @param onError - Callback function to handle errors during the authorization process.
    */
-  private constructor(
-    private authorizationUrl: URL,
-    private redirectUri: URL,
+  constructor(
+    private authorizationUrl: URL | string,
+    private redirectUri: URL | string,
     private onReceive: (callback: URL) => void,
     private onError: (err: Error) => void,
   ) {
     this.app = new Hono().get(
-      this.redirectUri.pathname,
+      new URL(this.redirectUri).pathname,
       async (_, next) => {
         await next();
         void this.close();
@@ -333,24 +342,9 @@ class LocalConsentPromptOpener implements ConsentPromptOpener {
       },
     );
     this.server = serve({
-      port: parseInt(this.redirectUri.port),
+      port: parseInt(new URL(this.redirectUri).port),
       fetch: this.app.fetch,
     });
-  }
-
-  /**
-   * Initiates the OAuth consent flow by opening a local prompt for user authorization.
-   *
-   * @param authorizationUrl - The URL to which the user should be directed to grant consent.
-   * @param redirectUri - The URI to which the authorization server will redirect after consent.
-   * @returns A promise that resolves with the redirect URL containing the authorization response.
-   */
-  public static async consent(authorizationUrl: URL, redirectUri: URL): Promise<URL> {
-    const { promise, resolve, reject } = Promise.withResolvers<URL>();
-    const opener = new LocalConsentPromptOpener(authorizationUrl, redirectUri, resolve, reject);
-    void opener.open();
-
-    return promise;
   }
 
   /**
