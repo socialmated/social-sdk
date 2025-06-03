@@ -4,13 +4,9 @@ import { type CookieSession } from '@/auth/session/cookie.js';
 import { type OAuthSession } from '@/auth/session/oauth.js';
 import { setAuthorization } from '@/hooks/index.js';
 
-/**
- * Represents the HTTP client interface
- *
- * @see Got
- * @see GotScraping
- */
-export type HttpClient = Got | GotScraping;
+type HttpClient = Got;
+
+type PrivateHttpClient = GotScraping;
 
 /**
  * Creates an OAuth-enabled API client with automatic token refresh.
@@ -18,7 +14,7 @@ export type HttpClient = Got | GotScraping;
  * @param session - The OAuth session object containing access and refresh tokens.
  * @returns An API client instance configured with OAuth authentication and automatic token refresh.
  */
-export function createOAuthHttpClient(session: OAuthSession): HttpClient {
+function createOAuthHttpClient(session: OAuthSession): HttpClient {
   return got.extend({
     headers: {
       'user-agent': 'social-sdk/0.1.0',
@@ -37,7 +33,7 @@ export function createOAuthHttpClient(session: OAuthSession): HttpClient {
  * @param session - The cookie session object containing the cookie jar.
  * @returns An API client instance with cookie session capabilities.
  */
-export function createCookieHttpClient(session: CookieSession): HttpClient {
+function createCookieHttpClient(session: CookieSession): PrivateHttpClient {
   const client = gotScraping.extend({
     cookieJar: session.cookieJar,
     headerGeneratorOptions: {
@@ -55,3 +51,6 @@ export function createCookieHttpClient(session: CookieSession): HttpClient {
   });
   return client;
 }
+
+export { createOAuthHttpClient, createCookieHttpClient };
+export type { HttpClient, PrivateHttpClient };
