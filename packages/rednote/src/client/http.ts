@@ -1,4 +1,4 @@
-import { createCookieHttpClient, type HttpClient } from '@social-sdk/core/client';
+import { createCookieHttpClient, type PrivateHttpClient } from '@social-sdk/core/client';
 import { debug } from '@social-sdk/core/hooks';
 import { defaultCommonPatterns } from './config.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
@@ -13,7 +13,7 @@ import { retryOnUnauthorized } from '@/hooks/response.js';
  * @param session - The authenticated cookie session containing user credentials and tokens.
  * @returns A configured HttpClient instance ready for making authenticated requests to Rednote API.
  */
-function createRednoteHttpClient(session: RednoteCookieSession): HttpClient {
+function createRednoteHttpClient(session: RednoteCookieSession): PrivateHttpClient {
   const http = createCookieHttpClient(session);
   const signer = new XhsSigner(session);
   const generator = new XSCommonGenerator(session, defaultCommonPatterns);
@@ -53,6 +53,10 @@ enum RednoteAPIEndpoints {
    * The base URL for Rednote's SNS Web V2 API endpoints.
    */
   SnsWebV2 = 'https://edith.xiaohongshu.com/api/sns/web/v2/',
+  /**
+   * The base URL for Rednote's IM API endpoints.
+   */
+  IM = 'https://edith.xiaohongshu.com/api/im/',
 }
 
 export { createRednoteHttpClient, RednoteAPIEndpoints };
