@@ -27,6 +27,12 @@ const setupSession = (session: XCookieSession): BeforeRequestHook =>
     authorization: `Bearer ${getBearerToken()}`,
   });
 
+/**
+ * Creates a before-request hook that adds the 'x-xp-forwarded-for' header.
+ *
+ * @param generator - Generator for the forwarded-for value
+ * @returns Before-request hook that sets the header
+ */
 const addForwardedFor = (generator: XPFwdForGenerator): BeforeRequestHook =>
   setRequestHeader(
     'x-xp-forwarded-for',
