@@ -1,5 +1,12 @@
-import { type HttpClient } from '@social-sdk/core/client';
-import { XAPIEndpoints, createXHttpClient, useGraphQLHttpClient, type GraphQLHttpClient } from './http.js';
+import { type PrivateHttpClient } from '@social-sdk/core/client';
+import { type PaginateData } from 'got';
+import {
+  type GraphQLOptionsInit,
+  XAPIEndpoints,
+  createXHttpClient,
+  useGraphQLHttpClient,
+  type GraphQLHttpClient,
+} from './http.js';
 import { defaultTweetFeatures } from '@/constants/features.js';
 import { type XCookieSession } from '@/auth/session.js';
 import {
@@ -25,6 +32,7 @@ import {
   type UserResponse,
   type UsersResponse,
 } from '@/types/response.js';
+import { type TimelineAddEntry, type TimelineTimelineCursor } from '@/types/timeline.js';
 
 /**
  * A client for accessing X (Twitter) private API endpoints.
@@ -45,12 +53,12 @@ class XPrivateAPIClient {
   /**
    * The http client for the v1.1 API endpoint.
    */
-  private v11: HttpClient;
+  private v11: PrivateHttpClient;
 
   /**
    * The http client for the v2 API endpoint.
    */
-  private v2: HttpClient;
+  private v2: PrivateHttpClient;
 
   /**
    * The GraphQL http client for the GraphQL API endpoint.
@@ -147,7 +155,9 @@ class XPrivateAPIClient {
       withAuxiliaryUserLabels: true,
     };
 
-    return this.graphql.query('1VOOyvKkiI3FMmkeDNxM9A', 'UserByScreenName', variables, features, fieldToggles).json();
+    return this.graphql
+      .query('1VOOyvKkiI3FMmkeDNxM9A', 'UserByScreenName', { variables, features, fieldToggles })
+      .json();
   }
 
   /**
@@ -184,7 +194,7 @@ class XPrivateAPIClient {
       responsive_web_graphql_timeline_navigation_enabled: true,
     };
 
-    return this.graphql.query('tD8zKvQzwY3kdx5yz6YmOw', 'UserByRestId', variables, features).json();
+    return this.graphql.query('tD8zKvQzwY3kdx5yz6YmOw', 'UserByRestId', { variables, features }).json();
   }
 
   /**
@@ -213,7 +223,7 @@ class XPrivateAPIClient {
       responsive_web_graphql_timeline_navigation_enabled: true,
     };
 
-    return this.graphql.query('XArUHrueMW0KQdZUdqidrA', 'UsersByRestIds', variables, features).json();
+    return this.graphql.query('XArUHrueMW0KQdZUdqidrA', 'UsersByRestIds', { variables, features }).json();
   }
 
   /**
@@ -234,7 +244,11 @@ class XPrivateAPIClient {
    *
    * @see {@link homeLatestTimeline} for fetching the "Following" timeline.
    */
-  public async homeTimeline(count: number, cursor?: string, seenTweetIds: string[] = []): Promise<TimelineResponse> {
+  public homeTimeline(
+    count: number,
+    cursor?: string,
+    seenTweetIds: string[] = [],
+  ): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       count,
       includePromotedContent: true,
@@ -246,8 +260,58 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    // TODO: use paginate
-    return this.graphql.query('c-CzHF1LboFilMpsx4ZCrQ', 'HomeTimeline', variables, features).json();
+    const extractTimelineEntries = (resp: TimelineResponse): TimelineAddEntry[] => {
+      const instructions = resp.data.home.home_timeline_urt.instructions;
+      return instructions.flatMap((e) => {
+        if (e.type === 'TimelineAddEntries') {
+          return e.entries;
+        } else if (e.type === 'TimelineReplaceEntry') {
+          return [e.entry];
+        }
+        return [];
+      });
+    };
+
+    const extractCursor = (entries: TimelineAddEntry[]): [string | undefined, string | undefined] => {
+      const cursors = entries
+        .map((e) => {
+          if (e.content.entryType === 'TimelineTimelineCursor') {
+            return e.content;
+          } else if (e.content.entryType === 'TimelineTimelineItem') {
+            const item = e.content;
+            if (item.itemContent.itemType === 'TimelineTimelineCursor') {
+              return item.itemContent as TimelineTimelineCursor;
+            }
+          }
+          return null;
+        })
+        .filter((c): c is TimelineTimelineCursor => c !== null);
+      const cursorTop = cursors.find((c) => c.cursorType === 'Top');
+      const cursorBottom = cursors.find((c) => c.cursorType === 'Bottom');
+
+      return [cursorTop?.value, cursorBottom?.value];
+    };
+
+    return this.graphql.paginate('c-CzHF1LboFilMpsx4ZCrQ', 'HomeTimeline', {
+      variables,
+      features,
+      pagination: {
+        transform: (resp) => {
+          return extractTimelineEntries(JSON.parse(resp.body) as TimelineResponse);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const [, bottom] = extractCursor(currentItems);
+          if (!bottom) {
+            return false;
+          }
+          return {
+            variables: {
+              cursor: bottom,
+            },
+          };
+        },
+      },
+    });
   }
 
   /**
@@ -284,7 +348,7 @@ class XPrivateAPIClient {
     const features = defaultTweetFeatures;
 
     // TODO: use paginate
-    return this.graphql.query('BKB7oi212Fi7kQtCBGE4zA', 'HomeLatestTimeline', variables, features).json();
+    return this.graphql.query('BKB7oi212Fi7kQtCBGE4zA', 'HomeLatestTimeline', { variables, features }).json();
   }
 
   public async listLatestTweetsTimeline(
@@ -299,7 +363,7 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    return this.graphql.query('RlZzktZY_9wJynoepm8ZsA', 'ListLatestTweetsTimeline', variables, features).json();
+    return this.graphql.query('RlZzktZY_9wJynoepm8ZsA', 'ListLatestTweetsTimeline', { variables, features }).json();
   }
 
   public async searchTimeline(
@@ -315,7 +379,7 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    return this.graphql.query('VhUd6vHVmLBcw0uX-6jMLA', 'SearchTimeline', variables, features).json();
+    return this.graphql.query('VhUd6vHVmLBcw0uX-6jMLA', 'SearchTimeline', { variables, features }).json();
   }
 
   public async userTweets(userId: string, count: number, cursor?: string): Promise<UserTweetsResponse> {
@@ -329,7 +393,7 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    return this.graphql.query('q6xj5bs0hapm9309hexA_g', 'UserTweets', variables, features).json();
+    return this.graphql.query('q6xj5bs0hapm9309hexA_g', 'UserTweets', { variables, features }).json();
   }
 
   public async userTweetsAndReplies(userId: string, count: number, cursor?: string): Promise<UserTweetsResponse> {
@@ -347,7 +411,7 @@ class XPrivateAPIClient {
     };
 
     return this.graphql
-      .query('6hvhmQQ9zPIR8RZWHFAm4w', 'UserTweetsAndReplies', variables, features, fieldToggles)
+      .query('6hvhmQQ9zPIR8RZWHFAm4w', 'UserTweetsAndReplies', { variables, features, fieldToggles })
       .json();
   }
 
@@ -369,7 +433,7 @@ class XPrivateAPIClient {
     };
 
     return this.graphql
-      .query('70Yf8aSyhGOXaKRLJdVA2A', 'UserHighlightsTweets', variables, features, fieldToggles)
+      .query('70Yf8aSyhGOXaKRLJdVA2A', 'UserHighlightsTweets', { variables, features, fieldToggles })
       .json();
   }
 
@@ -426,38 +490,31 @@ class XPrivateAPIClient {
   }
 
   public async bookmarks(): Promise<BookmarksResponse> {
-    const queryId = '2neUNDqrrFzbLui8yallcQ';
-    return this.graphql.get(`${queryId}/Bookmarks`).json();
+    return this.graphql.query('2neUNDqrrFzbLui8yallcQ', 'Bookmarks').json();
   }
 
   public async createBookmark(): Promise<CreateBookmarkResponse> {
-    const queryId = 'aoDbu3RHznuiSkQ9aNM67Q';
-    return this.graphql.post(`${queryId}/CreateBookmark`).json();
+    return this.graphql.mutation('aoDbu3RHznuiSkQ9aNM67Q', 'CreateBookmark').json();
   }
 
   public async deleteBookmark(): Promise<DeleteBookmarkResponse> {
-    const queryId = 'Wlmlj2-xzyS1GN3a6cj-mQ';
-    return this.graphql.post(`${queryId}/DeleteBookmark`).json();
+    return this.graphql.mutation('Wlmlj2-xzyS1GN3a6cj-mQ', 'DeleteBookmark').json();
   }
 
   public async following(): Promise<FollowResponse> {
-    const queryId = 'zx6e-TLzRkeDO_a7p4b3JQ';
-    return this.graphql.get(`${queryId}/Following`).json();
+    return this.graphql.query('zx6e-TLzRkeDO_a7p4b3JQ', 'Following').json();
   }
 
   public async followers(): Promise<FollowResponse> {
-    const queryId = 'GQ1yZjbfSiPfi_5gznKMPw';
-    return this.graphql.get(`${queryId}/Followers`).json();
+    return this.graphql.query('GQ1yZjbfSiPfi_5gznKMPw', 'Followers').json();
   }
 
   public async followersYouKnow(): Promise<FollowResponse> {
-    const queryId = 'pNK460VRQKGuLfDcesjNEQ';
-    return this.graphql.get(`${queryId}/FollowersYouKnow`).json();
+    return this.graphql.query('pNK460VRQKGuLfDcesjNEQ', 'FollowersYouKnow').json();
   }
 
   public async blueVerifiedFollowers(): Promise<FollowResponse> {
-    const queryId = 'GQ1yZjbfSiPfi_5gznKMPw';
-    return this.graphql.get(`${queryId}/BlueVerifiedFollowers`).json();
+    return this.graphql.query('GQ1yZjbfSiPfi_5gznKMPw', 'BlueVerifiedFollowers').json();
   }
 }
 
