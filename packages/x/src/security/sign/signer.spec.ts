@@ -1,13 +1,10 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { Options } from 'got';
 import { TransactionIdSigner } from './signer.js';
 import { HomeHtmlParser, OnDemandJsParser } from './parser.js';
+import homeHtml from './__fixtures__/home.html.js';
+import onDemandFile from './__fixtures__/ondemand.s.57b4929a.js.js';
 
 describe(TransactionIdSigner, () => {
-  const homeHtml = readFileSync(path.join(import.meta.dirname, '__fixtures__', 'home.html'), 'utf-8');
-  const onDemandFile = readFileSync(path.join(import.meta.dirname, '__fixtures__', 'ondemand.s.57b4929a.js'), 'utf-8');
-
   let signer: TransactionIdSigner;
 
   beforeEach(() => {

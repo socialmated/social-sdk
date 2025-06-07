@@ -1,7 +1,7 @@
 import 'golang-wasm-exec';
 
 import { HeaderGenerator } from 'header-generator';
-import { loadWasmModule } from './utils.js';
+import { loadWasmModule } from './wasm.js';
 import { type XCookieSession } from '@/auth/session.js';
 
 declare global {

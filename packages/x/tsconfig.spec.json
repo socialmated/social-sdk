@@ -24,6 +24,7 @@
   "include": [
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
+    "src/**/__fixtures__/**/*",
     "vendors/tinygo@v0.37.0/targets/wasm_exec.cjs"
   ],
   "exclude": [

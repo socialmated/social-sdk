@@ -1,11 +1,8 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { UIMetricsMeasurer } from './measure.js';
 import { UIMetricsJsParser } from './parser.js';
+import jsInstFile from './__fixtures__/js_inst.js.js';
 
 describe(UIMetricsMeasurer, () => {
-  const jsInstFile = readFileSync(path.join(import.meta.dirname, '__fixtures__', 'js_inst.js'), 'utf-8');
-
   let measurer: UIMetricsMeasurer;
 
   beforeEach(() => {
