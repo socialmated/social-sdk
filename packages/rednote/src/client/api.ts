@@ -259,4 +259,84 @@ export class RednotePrivateAPIClient {
     }
     return resp.data;
   }
+
+  public async redmojiVersion(): Promise<unknown> {
+    const resp = await this.im.get('redmoji/version').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch redmoji version: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async redmojiDetail(): Promise<unknown> {
+    const resp = await this.im.get('redmoji/detail').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch redmoji detail: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async deleteComment(): Promise<unknown> {
+    const resp = await this.v1.post('comment/delete').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to delete comment: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async postComment(): Promise<unknown> {
+    const resp = await this.v1.post('comment/post').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to post comment: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async likeComment(): Promise<unknown> {
+    const resp = await this.v1.post('comment/like').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to like comment: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async dislikeComment(): Promise<unknown> {
+    const resp = await this.v1.post('comment/dislike').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to dislike comment: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async intimacyList(): Promise<unknown> {
+    const resp = await this.v1.get('intimacy/intimacy_list').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch intimacy list: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async searchIntimacyList(): Promise<unknown> {
+    const resp = await this.v1.get('intimacy/intimacy_list/search').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to search intimacy list: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async followUser(): Promise<unknown> {
+    const resp = await this.v1.post('user/follow').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to follow user: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async unfollowUser(): Promise<unknown> {
+    const resp = await this.v1.post('user/unfollow').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to unfollow user: ${resp.msg}`);
+    }
+    return resp.data;
+  }
 }
