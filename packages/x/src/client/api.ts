@@ -124,8 +124,8 @@ class XPrivateAPIClient {
   /**
    * Fetches user information from the X (Twitter) API based on the provided screen name.
    *
-   * @param screenName - The screen name (username) of the user to retrieve information for.
-   * @returns A promise that resolves to a `UserResponse` object containing the user's details.
+   * @param screenName - The screen name (username) of the user to retrieve information for
+   * @returns A promise that resolves to a `UserUnion` object containing the user's details
    *
    * @example
    * ```typescript
@@ -133,7 +133,7 @@ class XPrivateAPIClient {
    * console.log(user);
    * ```
    *
-   * @see {@link userByRestId} for fetching user information by REST ID (User ID).
+   * @see {@link userByRestId} for fetching user information by REST ID (User ID)
    */
   public async userByScreenName(screenName: string): Promise<UserUnion> {
     const variables = {
@@ -172,8 +172,8 @@ class XPrivateAPIClient {
    *
    * REST ID is a unique identifier for a user on the X platform.
    *
-   * @param restId - The REST ID of the user to retrieve information for.
-   * @returns A promise that resolves to a `UserResponse` object containing the user's details.
+   * @param restId - The REST ID of the user to retrieve information for
+   * @returns A promise that resolves to a `UserUnion` object containing the user's details
    *
    * @example
    * ```typescript
@@ -181,8 +181,8 @@ class XPrivateAPIClient {
    * console.log(user);
    * ```
    *
-   * @see {@link usersByRestIds} for batch fetching of user information.
-   * @see {@link userByScreenName} for fetching user information by screen name.
+   * @see {@link usersByRestIds} for batch fetching of user information
+   * @see {@link userByScreenName} for fetching user information by screen name
    */
   public async userByRestId(restId: string): Promise<UserUnion> {
     const variables = {
@@ -214,8 +214,8 @@ class XPrivateAPIClient {
   /**
    * Fetches user information from the X (Twitter) API based on the provided REST IDs.
    *
-   * @param restIds - An array of REST IDs of the users to retrieve information for.
-   * @returns A promise that resolves to a `UsersResponse` object containing the users' details.
+   * @param restIds - An array of REST IDs of the users to retrieve information for
+   * @returns A promise that resolves to a list of `UserUnion` objects containing the users' details
    *
    * @example
    * ```typescript
@@ -223,7 +223,7 @@ class XPrivateAPIClient {
    * console.log(users);
    * ```
    *
-   * @see {@link userByRestId} for fetching user information by a single REST ID.
+   * @see {@link userByRestId} for fetching user information by a single REST ID
    */
   public async usersByRestIds(restIds: string[]): Promise<UserUnion[]> {
     const variables = {
@@ -248,27 +248,28 @@ class XPrivateAPIClient {
   }
 
   /**
-   * Retrieves the curated "For You" timeline feed from Twitter.
+   * Retrieves the curated "For You" timeline.
    *
-   * This feed suggests tweets based on the user's individual interactions and preferences.
+   * This method fetches the user's personalized timeline based on their interests and interactions.
    *
-   * @param count - The number of tweets to retrieve. Defaults to 20.
-   * @param cursor - (Optional) A pagination cursor to fetch the next set of tweets.
-   * @param seenTweetIds - (Optional) An array of tweet IDs that have already been seen by the user.
-   * @returns A promise that resolves to the response containing the timeline feed data.
+   * @param count - The number of tweets to retrieve (default: 20)
+   * @param seenTweetIds - An array of tweet IDs that have already been seen by the user
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entry objects containing tweet data
    *
    * @example
    * ```typescript
-   * const timeline = await client.homeTimeline(20);
-   * console.log(timeline);
+   * for await (const entry of client.homeTimeline(20)) {
+   *   console.log(entry);
+   * }
    * ```
    *
-   * @see {@link homeLatestTimeline} for fetching the "Following" timeline.
+   * @see {@link homeLatestTimeline} for fetching the "Following" timeline
    */
   public homeTimeline(
     count = 20,
-    cursor?: string,
     seenTweetIds: string[] = [],
+    cursor?: string,
   ): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       count,
@@ -296,7 +297,7 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
@@ -304,19 +305,20 @@ class XPrivateAPIClient {
   }
 
   /**
-   * Fetches the latest tweets for the "Following" feed on Twitter.
+   * Fetches the latest tweets for the "Following" timeline.
    *
    * This method retrieves a timeline of tweets from accounts the user follows.
    *
-   * @param count - The number of tweets to retrieve. Defaults to 20.
-   * @param seenTweetIds - (Optional) An array of tweet IDs that have already been seen.
-   * @param cursor - (Optional) A pagination cursor to fetch the next set of tweets.
-   * @returns A promise that resolves to the fetched timeline data.
+   * @param count - The number of tweets to retrieve (default: 20)
+   * @param seenTweetIds - An array of tweet IDs that have already been seen by the user
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entry objects containing tweet data
    *
    * @example
    * ```typescript
-   * const latestTimeline = await client.homeLatestTimeline(20);
-   * console.log(latestTimeline);
+   * for await (const entry of client.homeLatestTimeline(20)) {
+   *   console.log(entry);
+   * }
    * ```
    *
    * @see {@link homeTimeline} for fetching the "For You" timeline.
@@ -351,13 +353,29 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
+  /**
+   * Retrieves the latest tweets from a specified list.
+   *
+   * @param listId - The ID of the list to fetch tweets from
+   * @param count - The number of tweets to retrieve (default: 20)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entry objects containing tweet data
+   *
+   * @example
+   * ```typescript
+   * const listId = "123456789";
+   * for await (const entry of client.listLatestTweetsTimeline(listId, 10)) {
+   *   console.log(entry);
+   * }
+   * ```
+   */
   public listLatestTweetsTimeline(
     listId: string,
     count = 20,
@@ -385,21 +403,42 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
+  /**
+   * Searches the Twitter timeline for tweets matching the specified query.
+   *
+   * @param rawQuery - The search query string to find matching tweets
+   * @param product - The type of search results to return (default: 'Top')
+   * @param count - The number of results to return per request (default: 20)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   *
+   * @returns An async iterable iterator that yields timeline entries matching the search criteria
+   *
+   * @example
+   * ```typescript
+   * // Search for latest tweets containing "javascript"
+   * const results = client.searchTimeline("javascript", 10, "Latest");
+   * for await (const entry of results) {
+   *   console.log(entry);
+   * }
+   * ```
+   */
   public searchTimeline(
     rawQuery: string,
+    product: 'Top' | 'Latest' | 'People' | 'Photos' | 'Videos' = 'Top',
     count = 20,
-    product?: 'Top' | 'Latest' | 'People' | 'Photos' | 'Videos',
+    cursor?: string,
   ): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       rawQuery,
       count,
+      cursor,
       querySource: 'typed_query',
       product,
     };
@@ -420,13 +459,29 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
+  /**
+   * Retrieves tweets from a specific user's timeline.
+   *
+   * @param userId - The unique identifier of the user whose tweets to retrieve
+   * @param count - The number of tweets to fetch per request (default: 40)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entry objects containing tweet data
+   *
+   * @example
+   * ```typescript
+   * // Get the first 20 tweets from a user
+   * for await (const tweet of client.userTweets('123456789', 20)) {
+   *   console.log(tweet);
+   * }
+   * ```
+   */
   public userTweets(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
@@ -453,13 +508,28 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
+  /**
+   * Retrieves tweets and replies from a specific user's timeline.
+   *
+   * @param userId - The unique identifier of the user whose tweets and replies to fetch
+   * @param count - The number of tweets to retrieve per page (default: 40)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entries containing tweets and replies
+   *
+   * @example
+   * ```typescript
+   * for await (const entry of client.userTweetsAndReplies('123456789')) {
+   *   console.log(entry);
+   * }
+   * ```
+   */
   public userTweetsAndReplies(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
@@ -490,13 +560,29 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
+  /**
+   * Retrieves highlighted tweets from a specific user's timeline.
+   *
+   * @param userId - The unique identifier of the user whose highlighted tweets to fetch
+   * @param count - The number of tweets to retrieve per page (default: 40)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entries containing highlighted tweets
+   *
+   * @example
+   * ```typescript
+   * // Get first page of highlighted tweets
+   * for await (const tweet of client.userHighlightsTweets('123456789')) {
+   *   console.log(tweet);
+   * }
+   * ```
+   */
   public userHighlightsTweets(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
@@ -526,13 +612,29 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
+  /**
+   * Retrieves media posts from a specific user's timeline.
+   *
+   * @param userId - The unique identifier of the user whose media to retrieve
+   * @param count - The number of media items to fetch per request (default: 40)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entries containing media posts
+   *
+   * @example
+   * ```typescript
+   * const mediaIterator = client.userMedia('123456789', 20);
+   * for await (const mediaPost of mediaIterator) {
+   *   console.log(mediaPost);
+   * }
+   * ```
+   */
   public userMedia(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
@@ -564,19 +666,113 @@ class XPrivateAPIClient {
             return false;
           }
           return {
-            variables: { nextCursor },
+            variables: { cursor: nextCursor },
           };
         },
       },
     });
   }
 
-  public async likes(): Promise<UserTweetsResponse> {
-    return this.graphql.query('lIDpu_NWL7_VhimGGt0o6A', 'Likes').json();
+  /**
+   * Retrieves the likes (favorites) of a specific user.
+   *
+   * @param userId - The unique identifier of the user whose likes to retrieve
+   * @param count - The number of likes to fetch per request (default: 20)
+   * @param cursor - Optional cursor for pagination to continue from a specific point
+   * @returns An async iterable iterator that yields timeline entries containing liked tweets
+   *
+   * @example
+   * ```typescript
+   * const likesIterator = client.likes('123456789', 20);
+   * for await (const like of likesIterator) {
+   *   console.log(like);
+   * }
+   * ```
+   */
+  public likes(userId: string, count = 20, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
+    const variables = {
+      userId,
+      count,
+      cursor,
+      includePromotedContent: false,
+      withClientEventToken: false,
+      withBirdwatchNotes: false,
+      withVoice: true,
+    };
+    const features = defaultTweetFeatures;
+    const fieldToggles = {
+      withArticlePlainText: false,
+    };
+
+    return this.graphql.paginate('lIDpu_NWL7_VhimGGt0o6A', 'Likes', {
+      variables,
+      features,
+      fieldToggles,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as UserTweetsResponse;
+          const instructions = json.data.user?.result.timeline.timeline?.instructions ?? [];
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { cursor: nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async tweetDetail(): Promise<TweetDetailResponse> {
-    return this.graphql.query('xd_EMdYvB9hfZsZ6Idri0w', 'TweetDetail').json();
+  /**
+   * Retrieves detailed information about a specific tweet and its thread.
+   *
+   * @param tweetId - The unique identifier of the tweet to fetch details for
+   * @param cursor - Optional pagination cursor for loading additional replies or thread content
+   * @returns Promise that resolves to an array of timeline entries containing tweet details
+   *
+   * @example
+   * ```typescript
+   * const tweetDetails = await client.tweetDetail('1234567890');
+   * console.log(tweetDetails);
+   * ```
+   */
+  public async tweetDetail(tweetId: string, cursor?: string): Promise<TimelineAddEntry[]> {
+    const variables = {
+      focalTweetId: tweetId,
+      cursor,
+      referrer: 'home',
+      with_rux_injections: false,
+      rankingMode: 'Relevance',
+      includePromotedContent: true,
+      withCommunity: true,
+      withQuickPromoteEligibilityTweetFields: true,
+      withBirdwatchNotes: true,
+      withVoice: true,
+    };
+    const features = defaultTweetFeatures;
+    const fieldToggles = {
+      withArticleRichContentState: true,
+      withArticlePlainText: false,
+      withGrokAnalyze: false,
+      withDisallowedReplyControls: false,
+    };
+
+    const resp = await this.graphql
+      .query('xd_EMdYvB9hfZsZ6Idri0w', 'TweetDetail', {
+        variables,
+        features,
+        fieldToggles,
+      })
+      .json<TweetDetailResponse>();
+
+    if (!resp.data.threaded_conversation_with_injections_v2) {
+      throw new Error(`Tweet with ID "${tweetId}" not found.`);
+    }
+    return resp.data.threaded_conversation_with_injections_v2.instructions.flatMap(getEntries);
   }
 
   public async tweetResultByRestId(): Promise<TweetResultByRestIdResponse> {
