@@ -32,7 +32,9 @@ import {
   type UserResponse,
   type UsersResponse,
 } from '@/types/response.js';
-import { type TimelineAddEntry, type TimelineTimelineCursor } from '@/types/timeline.js';
+import { type TimelineAddEntry } from '@/types/timeline.js';
+import { type UserUnion } from '@/types/user.js';
+import { getCursor, getEntries } from '@/model/timeline.js';
 
 /**
  * A client for accessing X (Twitter) private API endpoints.
@@ -133,7 +135,7 @@ class XPrivateAPIClient {
    *
    * @see {@link userByRestId} for fetching user information by REST ID (User ID).
    */
-  public async userByScreenName(screenName: string): Promise<UserResponse> {
+  public async userByScreenName(screenName: string): Promise<UserUnion> {
     const variables = {
       screen_name: screenName,
     };
@@ -155,9 +157,14 @@ class XPrivateAPIClient {
       withAuxiliaryUserLabels: true,
     };
 
-    return this.graphql
+    const resp = await this.graphql
       .query('1VOOyvKkiI3FMmkeDNxM9A', 'UserByScreenName', { variables, features, fieldToggles })
-      .json();
+      .json<UserResponse>();
+
+    if (!resp.data.user) {
+      throw new Error(`User with screen name "${screenName}" not found.`);
+    }
+    return resp.data.user.result;
   }
 
   /**
@@ -177,7 +184,7 @@ class XPrivateAPIClient {
    * @see {@link usersByRestIds} for batch fetching of user information.
    * @see {@link userByScreenName} for fetching user information by screen name.
    */
-  public async userByRestId(restId: string): Promise<UserResponse> {
+  public async userByRestId(restId: string): Promise<UserUnion> {
     const variables = {
       userId: restId,
       withSafetyModeUserFields: true,
@@ -194,7 +201,14 @@ class XPrivateAPIClient {
       responsive_web_graphql_timeline_navigation_enabled: true,
     };
 
-    return this.graphql.query('tD8zKvQzwY3kdx5yz6YmOw', 'UserByRestId', { variables, features }).json();
+    const resp = await this.graphql
+      .query('tD8zKvQzwY3kdx5yz6YmOw', 'UserByRestId', { variables, features })
+      .json<UserResponse>();
+
+    if (!resp.data.user) {
+      throw new Error(`User with REST ID "${restId}" not found.`);
+    }
+    return resp.data.user.result;
   }
 
   /**
@@ -211,7 +225,7 @@ class XPrivateAPIClient {
    *
    * @see {@link userByRestId} for fetching user information by a single REST ID.
    */
-  public async usersByRestIds(restIds: string[]): Promise<UsersResponse> {
+  public async usersByRestIds(restIds: string[]): Promise<UserUnion[]> {
     const variables = {
       userIds: restIds,
     };
@@ -223,7 +237,14 @@ class XPrivateAPIClient {
       responsive_web_graphql_timeline_navigation_enabled: true,
     };
 
-    return this.graphql.query('XArUHrueMW0KQdZUdqidrA', 'UsersByRestIds', { variables, features }).json();
+    const resp = await this.graphql
+      .query('XArUHrueMW0KQdZUdqidrA', 'UsersByRestIds', { variables, features })
+      .json<UsersResponse>();
+
+    if (!resp.data.users) {
+      throw new Error(`Users with REST IDs "${restIds.join(', ')}" not found.`);
+    }
+    return resp.data.users.map((user) => user.result);
   }
 
   /**
@@ -231,7 +252,7 @@ class XPrivateAPIClient {
    *
    * This feed suggests tweets based on the user's individual interactions and preferences.
    *
-   * @param count - The number of tweets to retrieve.
+   * @param count - The number of tweets to retrieve. Defaults to 20.
    * @param cursor - (Optional) A pagination cursor to fetch the next set of tweets.
    * @param seenTweetIds - (Optional) An array of tweet IDs that have already been seen by the user.
    * @returns A promise that resolves to the response containing the timeline feed data.
@@ -245,7 +266,7 @@ class XPrivateAPIClient {
    * @see {@link homeLatestTimeline} for fetching the "Following" timeline.
    */
   public homeTimeline(
-    count: number,
+    count = 20,
     cursor?: string,
     seenTweetIds: string[] = [],
   ): AsyncIterableIterator<TimelineAddEntry> {
@@ -260,54 +281,22 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    const extractTimelineEntries = (resp: TimelineResponse): TimelineAddEntry[] => {
-      const instructions = resp.data.home.home_timeline_urt.instructions;
-      return instructions.flatMap((e) => {
-        if (e.type === 'TimelineAddEntries') {
-          return e.entries;
-        } else if (e.type === 'TimelineReplaceEntry') {
-          return [e.entry];
-        }
-        return [];
-      });
-    };
-
-    const extractCursor = (entries: TimelineAddEntry[]): [string | undefined, string | undefined] => {
-      const cursors = entries
-        .map((e) => {
-          if (e.content.entryType === 'TimelineTimelineCursor') {
-            return e.content;
-          } else if (e.content.entryType === 'TimelineTimelineItem') {
-            const item = e.content;
-            if (item.itemContent.itemType === 'TimelineTimelineCursor') {
-              return item.itemContent as TimelineTimelineCursor;
-            }
-          }
-          return null;
-        })
-        .filter((c): c is TimelineTimelineCursor => c !== null);
-      const cursorTop = cursors.find((c) => c.cursorType === 'Top');
-      const cursorBottom = cursors.find((c) => c.cursorType === 'Bottom');
-
-      return [cursorTop?.value, cursorBottom?.value];
-    };
-
     return this.graphql.paginate('c-CzHF1LboFilMpsx4ZCrQ', 'HomeTimeline', {
       variables,
       features,
       pagination: {
         transform: (resp) => {
-          return extractTimelineEntries(JSON.parse(resp.body) as TimelineResponse);
+          const json = JSON.parse(resp.body) as TimelineResponse;
+          const instructions = json.data.home.home_timeline_urt.instructions;
+          return instructions.flatMap(getEntries);
         },
         paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
-          const [, bottom] = extractCursor(currentItems);
-          if (!bottom) {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
             return false;
           }
           return {
-            variables: {
-              cursor: bottom,
-            },
+            variables: { nextCursor },
           };
         },
       },
@@ -319,9 +308,9 @@ class XPrivateAPIClient {
    *
    * This method retrieves a timeline of tweets from accounts the user follows.
    *
-   * @param count - The number of tweets to fetch.
-   * @param cursor - (Optional) A pagination cursor to fetch the next set of tweets.
+   * @param count - The number of tweets to retrieve. Defaults to 20.
    * @param seenTweetIds - (Optional) An array of tweet IDs that have already been seen.
+   * @param cursor - (Optional) A pagination cursor to fetch the next set of tweets.
    * @returns A promise that resolves to the fetched timeline data.
    *
    * @example
@@ -332,11 +321,11 @@ class XPrivateAPIClient {
    *
    * @see {@link homeTimeline} for fetching the "For You" timeline.
    */
-  public async homeLatestTimeline(
-    count: number,
-    cursor?: string,
+  public homeLatestTimeline(
+    count = 20,
     seenTweetIds: string[] = [],
-  ): Promise<TimelineResponse> {
+    cursor?: string,
+  ): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       count,
       includePromotedContent: true,
@@ -347,15 +336,33 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    // TODO: use paginate
-    return this.graphql.query('BKB7oi212Fi7kQtCBGE4zA', 'HomeLatestTimeline', { variables, features }).json();
+    return this.graphql.paginate('BKB7oi212Fi7kQtCBGE4zA', 'HomeLatestTimeline', {
+      variables,
+      features,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as TimelineResponse;
+          const instructions = json.data.home.home_timeline_urt.instructions;
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async listLatestTweetsTimeline(
+  public listLatestTweetsTimeline(
     listId: string,
-    count: number,
+    count = 20,
     cursor?: string,
-  ): Promise<ListLatestTweetsTimelineResponse> {
+  ): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       listId,
       count,
@@ -363,14 +370,33 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    return this.graphql.query('RlZzktZY_9wJynoepm8ZsA', 'ListLatestTweetsTimeline', { variables, features }).json();
+    return this.graphql.paginate('RlZzktZY_9wJynoepm8ZsA', 'ListLatestTweetsTimeline', {
+      variables,
+      features,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as ListLatestTweetsTimelineResponse;
+          const instructions = json.data.list.tweets_timeline.timeline?.instructions ?? [];
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async searchTimeline(
+  public searchTimeline(
     rawQuery: string,
-    count: number,
+    count = 20,
     product?: 'Top' | 'Latest' | 'People' | 'Photos' | 'Videos',
-  ): Promise<SearchTimelineResponse> {
+  ): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       rawQuery,
       count,
@@ -379,10 +405,29 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    return this.graphql.query('VhUd6vHVmLBcw0uX-6jMLA', 'SearchTimeline', { variables, features }).json();
+    return this.graphql.paginate('VhUd6vHVmLBcw0uX-6jMLA', 'SearchTimeline', {
+      variables,
+      features,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as SearchTimelineResponse;
+          const instructions = json.data.search_by_raw_query.search_timeline.timeline.instructions;
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async userTweets(userId: string, count: number, cursor?: string): Promise<UserTweetsResponse> {
+  public userTweets(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
       count,
@@ -393,10 +438,29 @@ class XPrivateAPIClient {
     };
     const features = defaultTweetFeatures;
 
-    return this.graphql.query('q6xj5bs0hapm9309hexA_g', 'UserTweets', { variables, features }).json();
+    return this.graphql.paginate('q6xj5bs0hapm9309hexA_g', 'UserTweets', {
+      variables,
+      features,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as UserTweetsResponse;
+          const instructions = json.data.user?.result.timeline.timeline?.instructions ?? [];
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async userTweetsAndReplies(userId: string, count: number, cursor?: string): Promise<UserTweetsResponse> {
+  public userTweetsAndReplies(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
       count,
@@ -410,16 +474,30 @@ class XPrivateAPIClient {
       withArticlePlainText: false,
     };
 
-    return this.graphql
-      .query('6hvhmQQ9zPIR8RZWHFAm4w', 'UserTweetsAndReplies', { variables, features, fieldToggles })
-      .json();
+    return this.graphql.paginate('6hvhmQQ9zPIR8RZWHFAm4w', 'UserTweetsAndReplies', {
+      variables,
+      features,
+      fieldToggles,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as UserTweetsResponse;
+          const instructions = json.data.user?.result.timeline.timeline?.instructions ?? [];
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async userHighlightsTweets(
-    userId: string,
-    count: number,
-    cursor?: string,
-  ): Promise<UserHighlightsTweetsResponse> {
+  public userHighlightsTweets(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
     const variables = {
       userId,
       count,
@@ -432,13 +510,65 @@ class XPrivateAPIClient {
       withArticlePlainText: false,
     };
 
-    return this.graphql
-      .query('70Yf8aSyhGOXaKRLJdVA2A', 'UserHighlightsTweets', { variables, features, fieldToggles })
-      .json();
+    return this.graphql.paginate('70Yf8aSyhGOXaKRLJdVA2A', 'UserHighlightsTweets', {
+      variables,
+      features,
+      fieldToggles,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as UserHighlightsTweetsResponse;
+          const instructions = json.data.user?.result.timeline.timeline.instructions ?? [];
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
-  public async userMedia(): Promise<UserTweetsResponse> {
-    return this.graphql.query('1H9ibIdchWO0_vz3wJLDTA', 'UserMedia').json();
+  public userMedia(userId: string, count = 40, cursor?: string): AsyncIterableIterator<TimelineAddEntry> {
+    const variables = {
+      userId,
+      count,
+      cursor,
+      includePromotedContent: false,
+      withClientEventToken: false,
+      withBirdwatchNotes: false,
+      withVoice: true,
+    };
+    const features = defaultTweetFeatures;
+    const fieldToggles = {
+      withArticlePlainText: false,
+    };
+
+    return this.graphql.paginate('1H9ibIdchWO0_vz3wJLDTA', 'UserMedia', {
+      variables,
+      features,
+      fieldToggles,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as UserTweetsResponse;
+          const instructions = json.data.user?.result.timeline.timeline?.instructions ?? [];
+          return instructions.flatMap(getEntries);
+        },
+        paginate: ({ currentItems }: PaginateData<string, TimelineAddEntry>): false | GraphQLOptionsInit => {
+          const nextCursor = currentItems.map(getCursor).find((c) => c?.cursorType === 'Bottom');
+          if (!nextCursor) {
+            return false;
+          }
+          return {
+            variables: { nextCursor },
+          };
+        },
+      },
+    });
   }
 
   public async likes(): Promise<UserTweetsResponse> {
