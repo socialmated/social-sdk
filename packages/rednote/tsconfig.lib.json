@@ -4,18 +4,9 @@
     "outDir": "dist",
     "baseUrl": "src",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-  ],
-  "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.config.ts",
-    "**/__fixtures__/**"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "**/*.test.ts", "**/*.config.ts", "**/__fixtures__/**"]
 }

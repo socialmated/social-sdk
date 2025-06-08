@@ -12040,6 +12040,12 @@ new Uint8Array(bin).set([
   111, 114, 121, 45, 111, 112, 116,
 ]);
 
+/**
+ * Loads the WebAssembly module with the provided import object.
+ *
+ * @param importObject - The import object for the WebAssembly module.
+ * @returns The instantiated WebAssembly module.
+ */
 export async function loadWasmModule(
   importObject: WebAssembly.Imports = {
     global: {},

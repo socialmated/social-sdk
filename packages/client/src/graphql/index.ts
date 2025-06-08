@@ -1,6 +1,12 @@
-import { type CancelableRequest, type OptionsInit, type PaginateData, type PaginationOptions, type Response } from "got";
-import { type Merge } from "type-fest";
-import { type HttpClient } from "@/http/index.js";
+import {
+  type CancelableRequest,
+  type OptionsInit,
+  type PaginateData,
+  type PaginationOptions,
+  type Response,
+} from 'got';
+import { type Merge } from 'type-fest';
+import { type HttpClient } from '@/http/index.js';
 
 /**
  * Represents a function that performs a GraphQL request, either a query or mutation.

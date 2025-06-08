@@ -1,12 +1,18 @@
+import { gotScraping } from '@social-sdk/client/http';
 import { type AnonymousFunctionDeclaration, type FunctionDeclaration, Parser, type ReturnStatement } from 'acorn';
 import { simple } from 'acorn-walk';
-import { gotScraping } from 'got-scraping';
 
+/**
+ * Represents a parsed function containing the source code and its AST node.
+ */
 export interface ParsedFunction {
   source: string;
   node: FunctionDeclaration;
 }
 
+/**
+ * Parses the UI metrics JavaScript file to extract the target function that computes UI metrics.
+ */
 export class UIMetricsJsParser {
   /**
    * The target function that contains the UI metrics logic.

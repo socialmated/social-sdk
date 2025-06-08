@@ -1,6 +1,5 @@
+import { gotScraping } from '@social-sdk/client/http';
 import { JSDOM, type BinaryData } from 'jsdom';
-import { HeaderGenerator } from 'header-generator';
-import { gotScraping } from 'got-scraping';
 
 /**
  * Parses X (formerly Twitter) homepage HTML to extract key information required for signing transactions.
@@ -122,15 +121,9 @@ class OnDemandJsParser {
    * @throws If the fetch request fails or the response is not OK.
    */
   public static async create(chunkHash: string): Promise<OnDemandJsParser> {
-    const jsResponse = await fetch(`https://abs.twimg.com/responsive-web/client-web/ondemand.s.${chunkHash}a.js`, {
-      // Requests will be blocked if user-agent is unknown.
-      headers: new HeaderGenerator().getHeaders(),
-    });
-    if (!jsResponse.ok) {
-      throw new Error(`Failed to fetch ondemand file: ${jsResponse.statusText}`);
-    }
-
-    const jsContent = await jsResponse.text();
+    const jsContent = await gotScraping(
+      `https://abs.twimg.com/responsive-web/client-web/ondemand.s.${chunkHash}a.js`,
+    ).text();
 
     return new OnDemandJsParser(jsContent);
   }

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { gotScraping } from 'got-scraping';
+import { gotScraping } from '@social-sdk/client/http';
 
 /**
  * Bearer token for the X Web app (x.com).

@@ -1,24 +1,12 @@
 {
-  "extends": [
-    "./tsconfig.json",
-    "@social-sdk/configs/typescript/vitest.tsconfig.json"
-  ],
+  "extends": ["./tsconfig.json", "@social-sdk/configs/typescript/vitest.tsconfig.json"],
   "compilerOptions": {
-    "types": [
-      "node",
-      "vitest/globals",
-      "vitest/jsdom",
-      "@types/golang-wasm-exec"
-    ],
+    "types": ["node", "vitest/globals", "vitest/jsdom", "@types/golang-wasm-exec"],
     "outDir": "dist",
     "baseUrl": "src",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "golang-wasm-exec": [
-        "../vendors/tinygo@v0.37.0/targets/wasm_exec.cjs"
-      ]
+      "@/*": ["./*"],
+      "golang-wasm-exec": ["../vendors/tinygo@v0.37.0/targets/wasm_exec.cjs"]
     }
   },
   "include": [
@@ -27,9 +15,7 @@
     "src/**/__fixtures__/**/*",
     "vendors/tinygo@v0.37.0/targets/wasm_exec.cjs"
   ],
-  "exclude": [
-    "**/*.config.ts"
-  ],
+  "exclude": ["**/*.config.ts"],
   "references": [
     {
       "path": "./tsconfig.lib.json"

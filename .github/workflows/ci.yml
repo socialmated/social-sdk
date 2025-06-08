@@ -24,8 +24,8 @@ jobs:
               - 'packages/auth/**'
             client:
               - 'packages/client/**'
-            models:
-              - 'packages/models/**'
+            model:
+              - 'packages/model/**'
             x:
               - 'packages/x/**'
             rednote:

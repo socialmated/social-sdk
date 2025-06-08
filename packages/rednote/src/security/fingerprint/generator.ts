@@ -1,5 +1,5 @@
 import { type Options } from 'got';
-import { gotScraping } from 'got-scraping';
+import { gotScraping } from '@social-sdk/client/http';
 import { xsCommon } from './fingerprint.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 import { type ApiResponse } from '@/types/common.js';

@@ -39,8 +39,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "type-fest": "catalog:",
-    "@activity-kit/types": "0.4.57"
+    "@activity-kit/types": "0.4.57",
+    "type-fest": "catalog:"
   },
   "devDependencies": {
     "@social-sdk/configs": "workspace:*"
