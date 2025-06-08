@@ -1,7 +1,8 @@
-import { type PrivateHttpClient } from '@social-sdk/core/client';
+import { type HttpClient } from '@social-sdk/client/http';
+import { type PaginateData, type OptionsInit } from 'got-scraping';
 import { createRednoteHttpClient, RednoteAPIEndpoints } from './http.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
-import { type UserMe } from '@/types/user.js';
+import { type OtherUserInfo, type UserMe } from '@/types/user.js';
 import { type ApiResponse } from '@/types/common.js';
 import { type SearchRecommendResult } from '@/types/search.js';
 import {
@@ -10,6 +11,7 @@ import {
   type HomeFeedResult,
   type HomeFeedCategoryResult,
   type FeedRequest,
+  type HomeFeedItem,
 } from '@/types/feed.js';
 import { type CommentPageResult } from '@/types/note.js';
 import { type QRCodeStatus, type CreateLoginQRCodeRequest, type QRCode } from '@/types/login.js';
@@ -35,17 +37,17 @@ export class RednotePrivateAPIClient {
   /**
    * HTTP client instance for making requests to the v1 API endpoints.
    */
-  private v1: PrivateHttpClient;
+  private v1: HttpClient;
 
   /**
    * HTTP client instance for making requests to the v2 API endpoints.
    */
-  private v2: PrivateHttpClient;
+  private v2: HttpClient;
 
   /**
    * HTTP client instance for making requests to the IM API endpoints.
    */
-  private im: PrivateHttpClient;
+  private im: HttpClient;
 
   /**
    * Creates a new instance of the API client.
@@ -100,20 +102,21 @@ export class RednotePrivateAPIClient {
   }
 
   /**
-   * Fetches the home feed with recommended content.
+   * Fetches the home feed with recommended content as an async iterable.
    *
    * @param category - The feed category type (default: 'homefeed_recommend')
-   * @param num - Number of items to fetch (default: 35)
-   * @param cursor - Optional pagination cursor for fetching next page of results
-   * @returns Promise that resolves to the home feed result containing recommended notes
+   * @param num - Number of items to fetch per page (default: 35)
+   * @param cursor - Optional pagination cursor for starting position
+   * @returns An async iterable that yields home feed items
    *
    * @example
    * ```typescript
-   * const feed = await client.homefeed('homefeed_recommend', 20, 'cursor123');
-   * console.log(feed.notes);
+   * for await (const item of client.homefeed('homefeed_recommend', 20, 'cursor123')) {
+   *   console.log(item);
+   * }
    * ```
    */
-  public async homefeed(category = 'homefeed_recommend', num = 35, cursor = ''): Promise<HomeFeedResult> {
+  public homefeed(category = 'homefeed_recommend', num = 35, cursor = ''): AsyncIterable<HomeFeedItem> {
     const columns = 5;
     const minRenderNotes = num - 3 * columns;
     const needNum = minRenderNotes - 2 * columns;
@@ -132,13 +135,34 @@ export class RednotePrivateAPIClient {
       need_filter_image: false,
     };
 
-    // FIXME: use pagination
-    const resp = await this.v1.post('homefeed', { json: req }).json<ApiResponse<HomeFeedResult>>();
-    if (!resp.success) {
-      throw new Error(`Failed to fetch home feed: ${resp.msg}`);
-    }
-
-    return resp.data;
+    return this.v1.paginate('homefeed', {
+      method: 'POST',
+      json: req,
+      pagination: {
+        transform: (resp) => {
+          const json = JSON.parse(resp.body) as ApiResponse<HomeFeedResult>;
+          if (!json.success) {
+            throw new Error(`Failed to fetch home feed: ${json.msg}`);
+          }
+          return json.data.items;
+        },
+        paginate: ({ currentItems, response }: PaginateData<string, HomeFeedItem>): false | OptionsInit => {
+          const json = JSON.parse(response.body) as ApiResponse<HomeFeedResult>;
+          if (!json.success) {
+            throw new Error(`Failed to fetch home feed: ${json.msg}`);
+          }
+          if (currentItems.length < num) {
+            // If we have less items than requested, stop pagination
+            return false;
+          }
+          return {
+            json: {
+              cursor_score: json.data.cursor_score,
+            },
+          };
+        },
+      },
+    });
   }
 
   /**
@@ -411,7 +435,7 @@ export class RednotePrivateAPIClient {
     return resp.data;
   }
 
-  public async userSelfInfo(): Promise<unknown> {
+  public async selfUserInfo(): Promise<unknown> {
     const resp = await this.v1.get('user/selfinfo').json<ApiResponse<unknown>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch self user info: ${resp.msg}`);
@@ -419,8 +443,14 @@ export class RednotePrivateAPIClient {
     return resp.data;
   }
 
-  public async userOtherInfo(): Promise<unknown> {
-    const resp = await this.v1.get('user/otherinfo').json<ApiResponse<unknown>>();
+  public async otherUserInfo(userId: string): Promise<OtherUserInfo> {
+    const resp = await this.v1
+      .get('user/otherinfo', {
+        searchParams: {
+          target_user_id: userId,
+        },
+      })
+      .json<ApiResponse<OtherUserInfo>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch other user info: ${resp.msg}`);
     }

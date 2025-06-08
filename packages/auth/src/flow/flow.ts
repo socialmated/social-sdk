@@ -1,4 +1,4 @@
-import { type ReadonlySession } from '../session/index.js';
+import { type ReadonlySession } from '@/session/index.js';
 
 /**
  * Represents an authentication mechanism that validates credentials and returns a session.

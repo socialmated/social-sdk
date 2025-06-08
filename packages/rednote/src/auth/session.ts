@@ -1,4 +1,4 @@
-import { WebStoreCookieSession } from '@social-sdk/core/auth/session';
+import { WebStoreCookieSession } from '@social-sdk/auth/session';
 import { type CookieJar } from 'tough-cookie';
 import { type LocalStorage, type SessionStorage } from '@denostack/shim-webstore';
 import { addYear } from '@formkit/tempo';

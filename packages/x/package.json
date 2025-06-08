@@ -39,19 +39,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@formkit/tempo": "0.1.2",
+    "@formkit/tempo": "catalog:",
+    "@social-sdk/auth": "workspace:*",
+    "@social-sdk/client": "workspace:*",
     "@social-sdk/core": "workspace:*",
     "acorn": "8.14.1",
     "acorn-walk": "8.3.4",
-    "fingerprint-injector": "2.1.66",
-    "got": "14.4.7",
-    "got-scraping": "4.1.1",
-    "header-generator": "2.1.66",
-    "jsdom": "26.1.0",
-    "playwright": "1.52.0",
+    "jsdom": "catalog:",
+    "playwright": "catalog:",
     "sdp": "3.2.0",
-    "tough-cookie": "5.1.2",
-    "type-fest": "4.41.0"
+    "type-fest": "catalog:"
   },
   "devDependencies": {
     "@social-sdk/configs": "workspace:*",

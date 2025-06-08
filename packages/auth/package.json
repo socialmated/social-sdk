@@ -1,8 +1,8 @@
 {
-  "name": "@social-sdk/core",
+  "name": "@social-sdk/auth",
   "version": "0.0.0",
   "private": true,
-  "description": "Core library for the Social SDK, providing common utilities and integrations.",
+  "description": "Authentication and authorization integration for the Social SDK",
   "homepage": "https://social-sdk.js.org",
   "bugs": {
     "url": "https://github.com/socialmated/social-sdk/issues"
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/socialmated/social-sdk.git",
-    "directory": "packages/core"
+    "directory": "packages/auth"
   },
   "license": "MIT",
   "author": "SocialMated",
@@ -39,6 +39,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@denostack/shim-webstore": "0.1.1",
+    "@hono/node-server": "1.14.1",
+    "camoufox-js": "0.4.0",
+    "hono": "4.7.9",
+    "open": "10.1.2",
+    "openid-client": "6.5.0",
+    "playwright": "catalog:",
+    "tough-cookie": "5.1.2",
     "type-fest": "catalog:"
   },
   "devDependencies": {

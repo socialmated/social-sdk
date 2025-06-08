@@ -1,4 +1,4 @@
-import { CookieSession } from '@social-sdk/core/auth/session';
+import { CookieSession } from '@social-sdk/auth/session';
 import { type CookieJar } from 'tough-cookie';
 import { addHour, addYear } from '@formkit/tempo';
 import { fetchGuestToken, generateCsrfToken } from '../security/token/index.js';

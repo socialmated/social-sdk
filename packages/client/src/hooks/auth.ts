@@ -1,5 +1,5 @@
 import { type BeforeRequestHook } from 'got';
-import { type OAuthSession } from '@/auth/session/oauth.js';
+import { type OAuthSession } from '@social-sdk/auth/session';
 
 /**
  * Creates a before-request hook that handles OAuth authorization headers.

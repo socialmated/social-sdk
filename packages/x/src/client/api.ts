@@ -1,12 +1,6 @@
-import { type PrivateHttpClient } from '@social-sdk/core/client';
-import { type PaginateData } from 'got';
-import {
-  type GraphQLOptionsInit,
-  XAPIEndpoints,
-  createXHttpClient,
-  useGraphQLHttpClient,
-  type GraphQLHttpClient,
-} from './http.js';
+import { type PaginateData, type HttpClient } from '@social-sdk/client/http';
+import { type GraphQLHttpClient, useGraphQLHttpClient, type GraphQLOptionsInit } from '@social-sdk/client/graphql';
+import { createXHttpClient, XAPIEndpoints } from './http.js';
 import { defaultTweetFeatures } from '@/constants/features.js';
 import { type XCookieSession } from '@/auth/session.js';
 import {
@@ -35,6 +29,7 @@ import {
 import { type TimelineAddEntry } from '@/types/timeline.js';
 import { type UserUnion } from '@/types/user.js';
 import { getCursor, getEntries } from '@/model/timeline.js';
+import { type TweetUnion } from '@/types/tweet.js';
 
 /**
  * A client for accessing X (Twitter) private API endpoints.
@@ -55,17 +50,17 @@ class XPrivateAPIClient {
   /**
    * The http client for the v1.1 API endpoint.
    */
-  private v11: PrivateHttpClient;
+  private v11: HttpClient;
 
   /**
    * The http client for the v2 API endpoint.
    */
-  private v2: PrivateHttpClient;
+  private v2: HttpClient;
 
   /**
    * The GraphQL http client for the GraphQL API endpoint.
    */
-  private graphql: GraphQLHttpClient;
+  private graphql: GraphQLHttpClient<HttpClient>;
 
   /**
    * Creates a new instance of the API client with authenticated HTTP clients for different API versions.
@@ -79,36 +74,54 @@ class XPrivateAPIClient {
     this.graphql = useGraphQLHttpClient(http.extend({ prefixUrl: XAPIEndpoints.GraphQL }));
   }
 
-  public async listFriendsFollowing(): Promise<unknown> {
-    return this.v11.get('friends/following/list.json').json();
+  public async incomingFriendships(): Promise<unknown> {
+    return this.v11.get('friendships/incoming.json');
   }
 
-  public async typeaheadSearch(): Promise<unknown> {
-    return this.v11.get('search/typeahead.json').json();
+  public async acceptFriendships(): Promise<unknown> {
+    return this.v11.post('friendships/accept.json').json();
+  }
+
+  public async denyFriendships(): Promise<unknown> {
+    return this.v11.post('friendships/deny.json').json();
   }
 
   public async createFriendships(): Promise<unknown> {
     return this.v11.post('friendships/create.json').json();
   }
 
+  public async createAllFriendships(): Promise<unknown> {
+    return this.v11.post('friendships/create_all.json').json();
+  }
+
   public async destroyFriendships(): Promise<unknown> {
     return this.v11.post('friendships/destroy.json').json();
   }
 
-  /**
-   * Fetches hashflags data from the X (Twitter) API.
-   *
-   * Hashflags are custom emoji that appear next to specific hashtags
-   * on Twitter.
-   *
-   * @example
-   * ```typescript
-   * const hashflags = await client.hashflags();
-   * console.log(hashflags);
-   * ```
-   *
-   * @returns A promise that resolves to the hashflags data as an unknown type.
-   */
+  public async destroyAllFriendships(): Promise<unknown> {
+    return this.v11.post('friendships/destroy_all.json').json();
+  }
+
+  public async cancelFriendships(): Promise<unknown> {
+    return this.v11.post('friendships/cancel.json').json();
+  }
+
+  public async updateFriendships(): Promise<unknown> {
+    return this.v11.post('friendships/update.json').json();
+  }
+
+  public async listFriendsFollowing(): Promise<unknown> {
+    return this.v11.get('friends/following/list.json').json();
+  }
+
+  public async listFriends(): Promise<unknown> {
+    return this.v11.get('friends/list.json').json();
+  }
+
+  public async typeaheadSearch(): Promise<unknown> {
+    return this.v11.get('search/typeahead.json').json();
+  }
+
   public async hashflags(): Promise<unknown> {
     return this.v11.get('hashflags.json').json();
   }
@@ -172,7 +185,7 @@ class XPrivateAPIClient {
    *
    * REST ID is a unique identifier for a user on the X platform.
    *
-   * @param restId - The REST ID of the user to retrieve information for
+   * @param userId - The REST ID of the user to retrieve information for
    * @returns A promise that resolves to a `UserUnion` object containing the user's details
    *
    * @example
@@ -184,9 +197,9 @@ class XPrivateAPIClient {
    * @see {@link usersByRestIds} for batch fetching of user information
    * @see {@link userByScreenName} for fetching user information by screen name
    */
-  public async userByRestId(restId: string): Promise<UserUnion> {
+  public async userByRestId(userId: string): Promise<UserUnion> {
     const variables = {
-      userId: restId,
+      userId,
       withSafetyModeUserFields: true,
     };
     const features = {
@@ -206,7 +219,7 @@ class XPrivateAPIClient {
       .json<UserResponse>();
 
     if (!resp.data.user) {
-      throw new Error(`User with REST ID "${restId}" not found.`);
+      throw new Error(`User with REST ID "${userId}" not found.`);
     }
     return resp.data.user.result;
   }
@@ -214,7 +227,7 @@ class XPrivateAPIClient {
   /**
    * Fetches user information from the X (Twitter) API based on the provided REST IDs.
    *
-   * @param restIds - An array of REST IDs of the users to retrieve information for
+   * @param userIds - An array of REST IDs of the users to retrieve information for
    * @returns A promise that resolves to a list of `UserUnion` objects containing the users' details
    *
    * @example
@@ -225,9 +238,9 @@ class XPrivateAPIClient {
    *
    * @see {@link userByRestId} for fetching user information by a single REST ID
    */
-  public async usersByRestIds(restIds: string[]): Promise<UserUnion[]> {
+  public async usersByRestIds(userIds: string[]): Promise<UserUnion[]> {
     const variables = {
-      userIds: restIds,
+      userIds,
     };
     const features = {
       profile_label_improvements_pcf_label_in_post_enabled: true,
@@ -242,7 +255,7 @@ class XPrivateAPIClient {
       .json<UsersResponse>();
 
     if (!resp.data.users) {
-      throw new Error(`Users with REST IDs "${restIds.join(', ')}" not found.`);
+      throw new Error(`Users with REST IDs "${userIds.join(', ')}" not found.`);
     }
     return resp.data.users.map((user) => user.result);
   }
@@ -775,12 +788,61 @@ class XPrivateAPIClient {
     return resp.data.threaded_conversation_with_injections_v2.instructions.flatMap(getEntries);
   }
 
-  public async tweetResultByRestId(): Promise<TweetResultByRestIdResponse> {
-    return this.graphql.query('7xflPyRiUxGVbJd4uWmbfg', 'TweetResultByRestId').json();
+  /**
+   * Retrieves a tweet by its REST ID.
+   *
+   * @param tweetId - The unique identifier of the tweet to retrieve
+   * @returns A promise that resolves to the tweet result object
+   *
+   * @example
+   * ```typescript
+   * const tweet = await client.tweetResultByRestId('1234567890');
+   * console.log(tweet);
+   * ```
+   */
+  public async tweetResultByRestId(tweetId: string): Promise<TweetUnion> {
+    const variables = {
+      tweetId,
+      withCommunity: false,
+      includePromotedContent: false,
+      withVoice: false,
+    };
+    const features = defaultTweetFeatures;
+    const fieldToggles = {
+      withArticleRichContentState: true,
+      withArticlePlainText: false,
+    };
+
+    const resp = await this.graphql
+      .query('7xflPyRiUxGVbJd4uWmbfg', 'TweetResultByRestId', {
+        variables,
+        features,
+        fieldToggles,
+      })
+      .json<TweetResultByRestIdResponse>();
+
+    if (!resp.data.tweetResult?.result) {
+      throw new Error(`Tweet with ID "${tweetId}" not found.`);
+    }
+    return resp.data.tweetResult.result;
   }
 
-  public async favoriters(): Promise<TweetFavoritersResponse> {
-    return this.graphql.query('G27_CXbgIP3G9Fod_2RMUA', 'Favoriters').json();
+  public async favoriters(tweetId: string, count = 20, cursor?: string): Promise<TweetFavoritersResponse> {
+    const variables = {
+      tweetId,
+      count,
+      cursor,
+      includePromotedContent: true,
+    };
+    const features = defaultTweetFeatures;
+    const resp = await this.graphql
+      .query('G27_CXbgIP3G9Fod_2RMUA', 'Favoriters', {
+        variables,
+        features,
+      })
+      .json<TweetFavoritersResponse>();
+
+    return resp;
   }
 
   public async retweeters(): Promise<TweetRetweetersResponse> {

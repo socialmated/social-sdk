@@ -1,3 +1,9 @@
 packages:
   - "docs"
   - "packages/*"
+
+catalog:
+  "@formkit/tempo": 0.1.2
+  playwright: 1.52.0
+  jsdom: 26.1.0
+  type-fest: 4.41.0

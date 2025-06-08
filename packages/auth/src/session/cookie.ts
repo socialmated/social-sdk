@@ -366,3 +366,5 @@ class WebStoreCookieSession extends CookieSession {
 
 export { CookieSession, WebStoreCookieSession };
 export type { StorageType };
+export type * from 'tough-cookie';
+export type * from '@denostack/shim-webstore';

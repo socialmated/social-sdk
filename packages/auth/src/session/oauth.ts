@@ -171,3 +171,4 @@ class OAuthSession implements ReadonlySession {
 
 export { OAuthSession };
 export type { MetadataType };
+export type * from 'openid-client';

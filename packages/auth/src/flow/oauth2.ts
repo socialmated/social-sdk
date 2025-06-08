@@ -16,9 +16,9 @@ import { type LiteralStringUnion } from 'type-fest/source/literal-union.js';
 import open from 'open';
 import { Hono } from 'hono';
 import { type ServerType, serve } from '@hono/node-server';
-import { OAuthSession } from '../session/oauth.js';
-import { type OAuth2Credential } from '../credential/index.js';
 import { type ConsentPrompt, type AuthFlow } from './flow.js';
+import { OAuthSession } from '@/session/oauth.js';
+import { type OAuth2Credential } from '@/credential/index.js';
 
 /**
  * Options for configuring the OAuth 2.0 Authorization Code flow.

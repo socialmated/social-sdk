@@ -1,4 +1,4 @@
-import { type AfterResponseHook } from 'got';
+import { type AfterResponseHook } from '@social-sdk/client/http';
 import { type XCookieSession } from '@/auth/session.js';
 
 /**

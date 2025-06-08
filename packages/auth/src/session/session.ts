@@ -56,7 +56,7 @@ export interface ReadonlySession {
   issuer: URL | string;
 }
 
-export interface WritableSession {
+export interface WritableSession extends ReadonlySession {
   /**
    * Sets a value in the session for the specified key.
    *

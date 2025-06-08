@@ -1,8 +1,8 @@
 {
-  "name": "@social-sdk/core",
+  "name": "@social-sdk/client",
   "version": "0.0.0",
   "private": true,
-  "description": "Core library for the Social SDK, providing common utilities and integrations.",
+  "description": "API client helpers for the Social SDK",
   "homepage": "https://social-sdk.js.org",
   "bugs": {
     "url": "https://github.com/socialmated/social-sdk/issues"
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/socialmated/social-sdk.git",
-    "directory": "packages/core"
+    "directory": "packages/client"
   },
   "license": "MIT",
   "author": "SocialMated",
@@ -39,6 +39,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@social-sdk/auth": "workspace:*",
+    "got": "14.4.7",
+    "got-scraping": "4.1.1",
     "type-fest": "catalog:"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
-import { type BeforeRequestHook } from 'got';
-import { setRequestHeader, setRequestHeaders } from '@social-sdk/core/hooks';
+import { setRequestHeader, setRequestHeaders } from '@social-sdk/client/hooks';
+import { type BeforeRequestHook } from '@social-sdk/client/http';
 import { type TransactionIdSigner } from '@/security/sign/signer.js';
 import { type XCookieSession } from '@/auth/session.js';
 import { getBearerToken } from '@/security/token/index.js';

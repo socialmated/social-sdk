@@ -1,5 +1,5 @@
 import { type BeforeRequestHook } from 'got';
-import { setRequestHeaders } from '@social-sdk/core/hooks';
+import { setRequestHeaders } from '@social-sdk/client/hooks';
 import { type XhsSigner } from '@/security/sign/signer.js';
 import { type XSCommonGenerator } from '@/security/fingerprint/generator.js';
 import { defaultConfig } from '@/client/config.js';

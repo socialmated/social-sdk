@@ -1,5 +1,5 @@
 import { type Options } from 'got';
-import { type Signer } from '@social-sdk/core/security';
+import { type Signer } from '@social-sdk/client/security';
 import { signOld, signNew, generateMns, type XhsSignOutput } from './sign.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 

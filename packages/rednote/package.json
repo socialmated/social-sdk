@@ -42,14 +42,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@denostack/shim-webstore": "0.1.1",
-    "@formkit/tempo": "0.1.2",
+    "@formkit/tempo": "catalog:",
+    "@social-sdk/auth": "workspace:*",
+    "@social-sdk/client": "workspace:*",
     "@social-sdk/core": "workspace:*",
-    "crypto-js": "4.2.0",
-    "got": "14.4.7",
-    "got-scraping": "4.1.1",
-    "long": "5.3.2",
-    "tough-cookie": "5.1.2"
+    "long": "5.3.2"
   },
   "devDependencies": {
     "@social-sdk/configs": "workspace:*"

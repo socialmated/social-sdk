@@ -4,6 +4,21 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@formkit/tempo':
+      specifier: 0.1.2
+      version: 0.1.2
+    jsdom:
+      specifier: 26.1.0
+      version: 26.1.0
+    playwright:
+      specifier: 1.52.0
+      version: 1.52.0
+    type-fest:
+      specifier: 4.41.0
+      version: 4.41.0
+
 importers:
 
   .:
@@ -114,6 +129,59 @@ importers:
       typescript:
         specifier: 5.8.3
         version: 5.8.3
+
+  packages/auth:
+    dependencies:
+      '@denostack/shim-webstore':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@hono/node-server':
+        specifier: 1.14.1
+        version: 1.14.1(hono@4.7.9)
+      camoufox-js:
+        specifier: 0.4.0
+        version: 0.4.0(encoding@0.1.13)
+      hono:
+        specifier: 4.7.9
+        version: 4.7.9
+      open:
+        specifier: 10.1.2
+        version: 10.1.2
+      openid-client:
+        specifier: 6.5.0
+        version: 6.5.0
+      playwright:
+        specifier: 'catalog:'
+        version: 1.52.0
+      tough-cookie:
+        specifier: 5.1.2
+        version: 5.1.2
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.41.0
+    devDependencies:
+      '@social-sdk/configs':
+        specifier: workspace:*
+        version: link:../configs
+
+  packages/client:
+    dependencies:
+      '@social-sdk/auth':
+        specifier: workspace:*
+        version: link:../auth
+      got:
+        specifier: 14.4.7
+        version: 14.4.7
+      got-scraping:
+        specifier: 4.1.1
+        version: 4.1.1
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.41.0
+    devDependencies:
+      '@social-sdk/configs':
+        specifier: workspace:*
+        version: link:../configs
 
   packages/configs:
     devDependencies:
@@ -321,44 +389,8 @@ importers:
 
   packages/core:
     dependencies:
-      '@denostack/shim-webstore':
-        specifier: 0.1.1
-        version: 0.1.1
-      '@hono/node-server':
-        specifier: 1.14.1
-        version: 1.14.1(hono@4.7.9)
-      camoufox-js:
-        specifier: 0.3.5
-        version: 0.3.5(encoding@0.1.13)
-      got:
-        specifier: 14.4.7
-        version: 14.4.7
-      got-scraping:
-        specifier: 4.1.1
-        version: 4.1.1
-      header-generator:
-        specifier: 2.1.66
-        version: 2.1.66
-      hono:
-        specifier: 4.7.9
-        version: 4.7.9
-      jose:
-        specifier: 6.0.11
-        version: 6.0.11
-      open:
-        specifier: 10.1.2
-        version: 10.1.2
-      openid-client:
-        specifier: 6.5.0
-        version: 6.5.0
-      playwright:
-        specifier: 1.52.0
-        version: 1.52.0
-      tough-cookie:
-        specifier: 5.1.2
-        version: 5.1.2
       type-fest:
-        specifier: 4.41.0
+        specifier: 'catalog:'
         version: 4.41.0
     devDependencies:
       '@social-sdk/configs':
@@ -371,32 +403,36 @@ importers:
         specifier: workspace:*
         version: link:../configs
 
+  packages/model:
+    dependencies:
+      '@activity-kit/types':
+        specifier: 0.4.57
+        version: 0.4.57
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.41.0
+    devDependencies:
+      '@social-sdk/configs':
+        specifier: workspace:*
+        version: link:../configs
+
   packages/rednote:
     dependencies:
-      '@denostack/shim-webstore':
-        specifier: 0.1.1
-        version: 0.1.1
       '@formkit/tempo':
-        specifier: 0.1.2
+        specifier: 'catalog:'
         version: 0.1.2
+      '@social-sdk/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@social-sdk/client':
+        specifier: workspace:*
+        version: link:../client
       '@social-sdk/core':
         specifier: workspace:*
         version: link:../core
-      crypto-js:
-        specifier: 4.2.0
-        version: 4.2.0
-      got:
-        specifier: 14.4.7
-        version: 14.4.7
-      got-scraping:
-        specifier: 4.1.1
-        version: 4.1.1
       long:
         specifier: 5.3.2
         version: 5.3.2
-      tough-cookie:
-        specifier: 5.1.2
-        version: 5.1.2
     devDependencies:
       '@social-sdk/configs':
         specifier: workspace:*
@@ -405,8 +441,14 @@ importers:
   packages/x:
     dependencies:
       '@formkit/tempo':
-        specifier: 0.1.2
+        specifier: 'catalog:'
         version: 0.1.2
+      '@social-sdk/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@social-sdk/client':
+        specifier: workspace:*
+        version: link:../client
       '@social-sdk/core':
         specifier: workspace:*
         version: link:../core
@@ -416,32 +458,17 @@ importers:
       acorn-walk:
         specifier: 8.3.4
         version: 8.3.4
-      fingerprint-injector:
-        specifier: 2.1.66
-        version: 2.1.66(playwright@1.52.0)
-      got:
-        specifier: 14.4.7
-        version: 14.4.7
-      got-scraping:
-        specifier: 4.1.1
-        version: 4.1.1
-      header-generator:
-        specifier: 2.1.66
-        version: 2.1.66
       jsdom:
-        specifier: 26.1.0
+        specifier: 'catalog:'
         version: 26.1.0
       playwright:
-        specifier: 1.52.0
+        specifier: 'catalog:'
         version: 1.52.0
       sdp:
         specifier: 3.2.0
         version: 3.2.0
-      tough-cookie:
-        specifier: 5.1.2
-        version: 5.1.2
       type-fest:
-        specifier: 4.41.0
+        specifier: 'catalog:'
         version: 4.41.0
     devDependencies:
       '@social-sdk/configs':
@@ -455,6 +482,9 @@ importers:
         version: 21.1.7
 
 packages:
+
+  '@activity-kit/types@0.4.57':
+    resolution: {integrity: sha512-1WAc1K0UttIGRTLdYIAhMBMAfSyFMfhOhb2XVdq/nR8zVOumgaY5it8HzemJV6Hs+xg8DUb8XFKFSYl+XfnJPg==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -3022,8 +3052,8 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  camoufox-js@0.3.5:
-    resolution: {integrity: sha512-CxxjDjKNq4fgIGzURt/VUBz+j2Y18FFfQxvwpJmAdFvitIXoCYLU98AQhldbhvAQt3OoJZM9fitVo5bmhURKwA==}
+  camoufox-js@0.4.0:
+    resolution: {integrity: sha512-5AGJpFCRcvsApI6J8MV3dRVX/y4s2fQPr8ks6WT/e9WOd5h/FDuY1VK2mRoVCQx/lgQB5qW81QtFFCmeG2Xl3g==}
     hasBin: true
 
   caniuse-lite@1.0.30001717:
@@ -3256,9 +3286,6 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
-
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
@@ -4110,18 +4137,6 @@ packages:
     resolution: {integrity: sha512-2CvoY+OPcCOWkoIMQim80uNH+ED1+2rM9QXIcSih7ovBMLOmyr3Sp9IOtfccd05QlGDzulU2M9Oav8jOgTlCBA==}
     engines: {node: '>=16.0.0'}
 
-  fingerprint-injector@2.1.66:
-    resolution: {integrity: sha512-h5llsoG0xoDeEo2czjzvo1niEU0xgCMwhs5/jtAxiBf7IiP/wW1Is3DJMEB+4V4PwIvqNQqLlnD07X23D7tErA==}
-    engines: {node: '>=16.0.0'}
-    peerDependencies:
-      playwright: ^1.22.2
-      puppeteer: '>= 9.x'
-    peerDependenciesMeta:
-      playwright:
-        optional: true
-      puppeteer:
-        optional: true
-
   flat-cache@4.0.1:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
     engines: {node: '>=16'}
@@ -4514,44 +4529,56 @@ packages:
     engines: {node: '>=16.x'}
     hasBin: true
 
-  impit-darwin-arm64@0.2.5:
-    resolution: {integrity: sha512-QictYPl+K3vtQzORod8JWZKBUSZRmAcw07bGyf49rTOCouKGOT57bzDl/MZB7B461XjGPiIaB/lS36u449obKA==}
+  impit-darwin-arm64@0.5.0:
+    resolution: {integrity: sha512-4uXgPgp8sPyXA4bozvpz5nxRvt+P0W5uRIoviOLmfskEAopnfACFxRh6GgPoQBA6n1xNH2UEBDQR9TxZSEXj2w==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
 
-  impit-darwin-x64@0.2.5:
-    resolution: {integrity: sha512-5OaIPbzPG//f4ZhTjZ8SAfMdTvvUZ6zl3csOX4ND/7d3aNci9AqYrj0rpKf3LovBmJPwwdTNh8w6KedeboBWCQ==}
+  impit-darwin-x64@0.5.0:
+    resolution: {integrity: sha512-pkAJHIEQSt4eqcyh5zVQcdWz0xa+8sayBDAs2C4R8nT0rw0+3KWrDXrMTni680zx/+lW4IJH0sDrhfkU10oDEw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
 
-  impit-linux-x64-gnu@0.2.5:
-    resolution: {integrity: sha512-fyqYPK/iSpGC8Iz7JhE7IWVqtVhqJnGQ6P6az1i/Q/01KiYae4zosNn326DVUQ/zgPLaumHRwlPvuaaHEVyvmQ==}
+  impit-linux-arm64-gnu@0.5.0:
+    resolution: {integrity: sha512-CNQwFQmKjcg4eb/weoIVrF9oEfmL6e920UkqMJ/ajdWIxxgZf6Oz0p1WI2La+xJX5vJNmkP62qu1SS+3d8E07Q==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  impit-linux-arm64-musl@0.5.0:
+    resolution: {integrity: sha512-y+nombVj4fZU90keHMEXUiv0XJjQSCr9qN10txsFIsTgvO1u5oJKm7+CPSuvbe+XtR3GhdvlBQpzkeqD4AG/lg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  impit-linux-x64-gnu@0.5.0:
+    resolution: {integrity: sha512-K4eoXSiGQPZjirkxjUW7MILB2zLQ2TqvUqZKfpIgZ3nNK686106v/ZJhBBU5pFAZk7R+4wHLsY+kEa9RWb0V9A==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  impit-linux-x64-musl@0.2.5:
-    resolution: {integrity: sha512-ypHUPbqkdRS1rYFCtxGkt+kkZ/sRQQcMQkWUbWr8LJPJdn8T0YuukwNr6xVcpA3GSlBXnOZ05H1Yiflv1Iyihg==}
+  impit-linux-x64-musl@0.5.0:
+    resolution: {integrity: sha512-yVtNNIAPfqCK2K1yZUWjRgBdvfCeSWFCCiUTq9qBT6AaJ4+85S8cuZ86e0eUJNMbBs7ruLVrs2adtQxBZC3qwg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
 
-  impit-win32-arm64-msvc@0.2.5:
-    resolution: {integrity: sha512-h2mNhIxNVzHAidFJuVzWDLqqU3ty5JkoTi2g+dRBQKj91SUJDh41wySSd9vzJL1ZPLlRfC80mRIjZVxMX+1hew==}
+  impit-win32-arm64-msvc@0.5.0:
+    resolution: {integrity: sha512-iL8/hfVLF8ciZkgAyJsLeY+TkuLAZneJGZcgh1BadgKnxNjsgUt6RBEGJ8APGgJi8niJpCh27vmWJ6Hs59zIRw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
 
-  impit-win32-x64-msvc@0.2.5:
-    resolution: {integrity: sha512-9REm5Q26vK5Sbf/zDfBKEud7FuyfbRHisc3rCHf0dOza6iZUvb1aK73AvMi1wABz57At6lH9AETlNmKn7savTQ==}
+  impit-win32-x64-msvc@0.5.0:
+    resolution: {integrity: sha512-eHxOf1tR/vgw9tiFoI0ZwylDOUB/WF8F4tg/FhItCAG1XfjgfyuhQnObZ+vSM94djbl32XnE1PMYjgn9r6QuTg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
 
-  impit@0.2.5:
-    resolution: {integrity: sha512-zi+It+ky5ER1M0TkO0a6n4cV2s6kDtbfbfY0k/nVeTYkauwdDyk1Gdve2vwV1wkXSMwAtAt56yHI/hI1lWZbQw==}
+  impit@0.5.0:
+    resolution: {integrity: sha512-snBO6yefx2dDHyxT8VC3hr1N4Xm9Qwkar7JOqZYak3zjPkxBa8fcw2ORl0hJ0SW4Tz4GR4BeZ7JAPNuHY7DC1A==}
     engines: {node: '>= 20'}
 
   import-fresh@3.3.1:
@@ -7572,6 +7599,8 @@ packages:
 
 snapshots:
 
+  '@activity-kit/types@0.4.57': {}
+
   '@alloc/quick-lru@5.2.0': {}
 
   '@ampproject/remapping@2.3.0':
@@ -10548,12 +10577,12 @@ snapshots:
   camelcase@6.3.0:
     optional: true
 
-  camoufox-js@0.3.5(encoding@0.1.13):
+  camoufox-js@0.4.0(encoding@0.1.13):
     dependencies:
       adm-zip: 0.5.16
       commander: 13.1.0
       fingerprint-generator: 2.1.66
-      impit: 0.2.5
+      impit: 0.5.0
       js-yaml: 4.1.0
       language-tags: 2.0.1
       maxmind: 4.3.25
@@ -10781,8 +10810,6 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  crypto-js@4.2.0: {}
 
   cssesc@3.0.0: {}
 
@@ -11833,13 +11860,6 @@ snapshots:
       header-generator: 2.1.66
       tslib: 2.8.1
 
-  fingerprint-injector@2.1.66(playwright@1.52.0):
-    dependencies:
-      fingerprint-generator: 2.1.66
-      tslib: 2.8.1
-    optionalDependencies:
-      playwright: 1.52.0
-
   flat-cache@4.0.1:
     dependencies:
       flatted: 3.3.3
@@ -12353,32 +12373,40 @@ snapshots:
 
   image-size@2.0.2: {}
 
-  impit-darwin-arm64@0.2.5:
+  impit-darwin-arm64@0.5.0:
     optional: true
 
-  impit-darwin-x64@0.2.5:
+  impit-darwin-x64@0.5.0:
     optional: true
 
-  impit-linux-x64-gnu@0.2.5:
+  impit-linux-arm64-gnu@0.5.0:
     optional: true
 
-  impit-linux-x64-musl@0.2.5:
+  impit-linux-arm64-musl@0.5.0:
     optional: true
 
-  impit-win32-arm64-msvc@0.2.5:
+  impit-linux-x64-gnu@0.5.0:
     optional: true
 
-  impit-win32-x64-msvc@0.2.5:
+  impit-linux-x64-musl@0.5.0:
     optional: true
 
-  impit@0.2.5:
+  impit-win32-arm64-msvc@0.5.0:
+    optional: true
+
+  impit-win32-x64-msvc@0.5.0:
+    optional: true
+
+  impit@0.5.0:
     optionalDependencies:
-      impit-darwin-arm64: 0.2.5
-      impit-darwin-x64: 0.2.5
-      impit-linux-x64-gnu: 0.2.5
-      impit-linux-x64-musl: 0.2.5
-      impit-win32-arm64-msvc: 0.2.5
-      impit-win32-x64-msvc: 0.2.5
+      impit-darwin-arm64: 0.5.0
+      impit-darwin-x64: 0.5.0
+      impit-linux-arm64-gnu: 0.5.0
+      impit-linux-arm64-musl: 0.5.0
+      impit-linux-x64-gnu: 0.5.0
+      impit-linux-x64-musl: 0.5.0
+      impit-win32-arm64-msvc: 0.5.0
+      impit-win32-x64-msvc: 0.5.0
 
   import-fresh@3.3.1:
     dependencies:

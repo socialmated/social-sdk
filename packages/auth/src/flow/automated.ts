@@ -1,7 +1,7 @@
 import { type Page } from 'playwright';
-import { type WebLoginCredential } from '../credential/index.js';
-import { CookieSession } from '../session/cookie.js';
 import { type AuthFlow } from './flow.js';
+import { type WebLoginCredential } from '@/credential/index.js';
+import { CookieSession } from '@/session/cookie.js';
 
 /**
  * Abstract base class for implementing automated web-based authentication flows using web login credentials.

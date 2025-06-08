@@ -13,6 +13,18 @@
       "path": "packages/core"
     },
     {
+      "name": "model",
+      "path": "packages/model"
+    },
+    {
+      "name": "auth",
+      "path": "packages/auth"
+    },
+    {
+      "name": "client",
+      "path": "packages/client"
+    },
+    {
       "name": "x",
       "path": "packages/x"
     },
@@ -23,7 +35,7 @@
     {
       "name": "rednote",
       "path": "packages/rednote"
-    },
+    }
   ],
   "settings": {
     "eslint.workingDirectories": [

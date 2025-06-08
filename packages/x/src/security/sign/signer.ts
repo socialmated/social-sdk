@@ -1,5 +1,5 @@
-import { type Options } from 'got';
-import { type Signer } from '@social-sdk/core/security';
+import { type Signer } from '@social-sdk/client/security';
+import { type Options } from '@social-sdk/client/http';
 import { HomeHtmlParser, OnDemandJsParser } from './parser.js';
 import { transactionId, deriveAnimationKey, decodeVerificationKey } from './sign.js';
 

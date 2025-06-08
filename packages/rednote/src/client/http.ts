@@ -1,5 +1,5 @@
-import { createCookieHttpClient, type PrivateHttpClient } from '@social-sdk/core/client';
-import { debug } from '@social-sdk/core/hooks';
+import { createHttpClient, type HttpClient } from '@social-sdk/client/http';
+import { debug } from '@social-sdk/client/hooks';
 import { defaultCommonPatterns } from './config.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 import { XSCommonGenerator } from '@/security/fingerprint/generator.js';
@@ -13,8 +13,8 @@ import { retryOnUnauthorized } from '@/hooks/response.js';
  * @param session - The authenticated cookie session containing user credentials and tokens.
  * @returns A configured HttpClient instance ready for making authenticated requests to Rednote API.
  */
-function createRednoteHttpClient(session: RednoteCookieSession): PrivateHttpClient {
-  const http = createCookieHttpClient(session);
+function createRednoteHttpClient(session: RednoteCookieSession): HttpClient {
+  const http = createHttpClient(session);
   const signer = new XhsSigner(session);
   const generator = new XSCommonGenerator(session, defaultCommonPatterns);
 
