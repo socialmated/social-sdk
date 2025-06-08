@@ -59,6 +59,17 @@ export class RednotePrivateAPIClient {
     this.im = http.extend({ prefixUrl: RednoteAPIEndpoints.IM });
   }
 
+  /**
+   * Retrieves the current authenticated user's information.
+   *
+   * @returns A promise that resolves to the current user's data
+   *
+   * @example
+   * ```typescript
+   * const user = await client.userMe();
+   * console.log(user);
+   * ```
+   */
   public async userMe(): Promise<UserMe> {
     const resp = await this.v2.get('user/me').json<ApiResponse<UserMe>>();
     if (!resp.success) {
@@ -68,6 +79,17 @@ export class RednotePrivateAPIClient {
     return resp.data;
   }
 
+  /**
+   * Retrieves the available categories for the home feed.
+   *
+   * @returns A promise that resolves to the home feed category data
+   *
+   * @example
+   * ```typescript
+   * const categories = await client.homefeedCategory();
+   * console.log(categories);
+   * ```
+   */
   public async homefeedCategory(): Promise<HomeFeedCategoryResult> {
     const resp = await this.v1.get('homefeed/category').json<ApiResponse<HomeFeedCategoryResult>>();
     if (!resp.success) {
@@ -77,6 +99,20 @@ export class RednotePrivateAPIClient {
     return resp.data;
   }
 
+  /**
+   * Fetches the home feed with recommended content.
+   *
+   * @param category - The feed category type (default: 'homefeed_recommend')
+   * @param num - Number of items to fetch (default: 35)
+   * @param cursor - Optional pagination cursor for fetching next page of results
+   * @returns Promise that resolves to the home feed result containing recommended notes
+   *
+   * @example
+   * ```typescript
+   * const feed = await client.homefeed('homefeed_recommend', 20, 'cursor123');
+   * console.log(feed.notes);
+   * ```
+   */
   public async homefeed(category = 'homefeed_recommend', num = 35, cursor = ''): Promise<HomeFeedResult> {
     const columns = 5;
     const minRenderNotes = num - 3 * columns;
@@ -105,6 +141,19 @@ export class RednotePrivateAPIClient {
     return resp.data;
   }
 
+  /**
+   * Fetches feed data for a specific note.
+   *
+   * @param noteId - The unique identifier of the source note
+   * @param xsecToken - Security token for authentication
+   * @returns A promise that resolves to the feed result data
+   *
+   * @example
+   * ```typescript
+   * const feedData = await client.feed('note123', 'xsec_token_value');
+   * console.log(feedData);
+   * ```
+   */
   public async feed(noteId: string, xsecToken: string): Promise<FeedResult> {
     const req: FeedRequest = {
       source_note_id: noteId,
@@ -124,9 +173,23 @@ export class RednotePrivateAPIClient {
     return resp.data;
   }
 
-  public async commentPage(nodeId: string, xsecToken: string, cursor = ''): Promise<CommentPageResult> {
+  /**
+   * Retrieves a paginated list of comments for a specific note.
+   *
+   * @param noteId - The unique identifier of the note to fetch comments for
+   * @param xsecToken - Security token required for authentication
+   * @param cursor - Optional pagination cursor for fetching next page of comments
+   * @returns Promise that resolves to the comment page result containing comments and pagination info
+   *
+   * @example
+   * ```typescript
+   * const comments = await client.commentPage('note123', 'xsec_token_value', 'cursor123');
+   * console.log(comments);
+   * ```
+   */
+  public async commentPage(noteId: string, xsecToken: string, cursor = ''): Promise<CommentPageResult> {
     const params = new URLSearchParams();
-    params.set('node_id', nodeId);
+    params.set('note_id', noteId);
     params.set('cursor', cursor);
     params.set('top_comment_id', '');
     params.set('image_formats', 'jpg,webp,avif');
@@ -137,6 +200,14 @@ export class RednotePrivateAPIClient {
       throw new Error(`Failed to fetch comment page: ${resp.msg}`);
     }
 
+    return resp.data;
+  }
+
+  public async subCommentPage(): Promise<unknown> {
+    const resp = await this.v2.get('comment/sub/page').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch comment sub page: ${resp.msg}`);
+    }
     return resp.data;
   }
 
@@ -336,6 +407,54 @@ export class RednotePrivateAPIClient {
     const resp = await this.v1.post('user/unfollow').json<ApiResponse<unknown>>();
     if (!resp.success) {
       throw new Error(`Failed to unfollow user: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async userSelfInfo(): Promise<unknown> {
+    const resp = await this.v1.get('user/selfinfo').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch self user info: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async userOtherInfo(): Promise<unknown> {
+    const resp = await this.v1.get('user/otherinfo').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch other user info: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async noteCollectPage(): Promise<unknown> {
+    const resp = await this.v2.get('note/collect/page').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch note collect page: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async noteLikePage(): Promise<unknown> {
+    const resp = await this.v1.get('note/like/page').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch note like page: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async searchNotes(): Promise<unknown> {
+    const resp = await this.v1.get('search/notes').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to search notes: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async searchQueryTrending(): Promise<unknown> {
+    const resp = await this.v1.get('search/querytrending').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch search query trending: ${resp.msg}`);
     }
     return resp.data;
   }
