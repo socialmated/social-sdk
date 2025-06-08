@@ -20,6 +20,12 @@ jobs:
               - 'packages/configs/**'
             core:
               - 'packages/core/**'
+            auth:
+              - 'packages/auth/**'
+            client:
+              - 'packages/client/**'
+            models:
+              - 'packages/models/**'
             x:
               - 'packages/x/**'
             rednote:
