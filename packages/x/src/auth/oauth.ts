@@ -4,19 +4,55 @@ import {
   OAuth2AuthorizationCodePKCEFlow,
   OAuth2ClientCredentialFlow,
 } from '@social-sdk/auth/flow';
+import { type TupleToUnion } from 'type-fest';
+
+/**
+ * OAuth 2.0 scopes available for X (formerly Twitter) API.
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code#scopes | X OAuth 2.0 Scopes Documentation}
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/guides/v2-authentication-mapping | X OAuth 2.0 Scopes Mapping Documentation}
+ */
+const scopes = [
+  'tweet.read',
+  'tweet.write',
+  'tweet.moderate.write',
+  'users.read',
+  'follows.read',
+  'follows.write',
+  'offline.access',
+  'space.read',
+  'mute.read',
+  'mute.write',
+  'like.read',
+  'like.write',
+  'list.read',
+  'list.write',
+  'block.read',
+  'block.write',
+  'bookmark.read',
+  'bookmark.write',
+  'dm.read',
+  'dm.write',
+] as const;
+
+/**
+ * Type representing the union of all OAuth 2.0 scopes available for X (formerly Twitter) API.
+ */
+type OAuth2Scopes = TupleToUnion<typeof scopes>;
 
 /**
  * OAuth 2.0 server metadata configuration for X (formerly Twitter) API.
- *
- * Contains the necessary endpoints and issuer information required for
- * OAuth 2.0 authentication flows with the X platform.
- *
- * @see {@link https://developer.x.com/en/docs/authentication/oauth-2-0 | X OAuth 2.0 Documentation}
+ * @see {@link https://docs.x.com/resources/fundamentals/authentication/api-reference | X OAuth API Reference}
  */
 const server: ServerMetadata = {
-  issuer: 'https://x.com',
+  issuer: 'https://api.x.com',
+  service_documentation: 'https://docs.x.com/resources/fundamentals/authentication/overview',
   authorization_endpoint: 'https://x.com/i/oauth2/authorize',
   token_endpoint: 'https://api.x.com/2/oauth2/token',
+  revocation_endpoint: 'https://api.x.com/2/oauth2/invalidate_token',
+  userinfo_endpoint: 'https://api.x.com/2/users/me',
+  response_types_supported: ['code'],
+  grant_types_supported: ['authorization_code', 'client_credentials', 'refresh_token'],
+  scopes_supported: [...scopes],
 };
 
 /**
@@ -35,42 +71,13 @@ const clientAuth: ClientAuth = (_as, client, _body, headers) => {
 };
 
 /**
- * OAuth 2.0 scopes available for Twitter API authentication.
- *
- * These scopes define the permissions that can be requested when authenticating
- * with the Twitter API using OAuth 2.0. Each scope grants access to specific
- * API endpoints and operations.
+ * Configuration arguments for creating an OAuth 2.0 Authorization Code with PKCE authentication flow.
  */
-type OAuth2Scopes =
-  | 'tweet.read'
-  | 'tweet.write'
-  | 'tweet.moderate.write'
-  | 'users.read'
-  | 'follows.read'
-  | 'follows.write'
-  | 'offline.access'
-  | 'space.read'
-  | 'mute.read'
-  | 'mute.write'
-  | 'like.read'
-  | 'like.write'
-  | 'list.read'
-  | 'list.write'
-  | 'block.read'
-  | 'block.write'
-  | 'bookmark.read'
-  | 'bookmark.write'
-  | 'dm.read'
-  | 'dm.write';
-
-/**
- * Configuration arguments for creating an OAuth 2.0 PKCE (Proof Key for Code Exchange) authentication flow.
- */
-interface CreateOAuth2PKCEFlowArgs {
+interface CreateOAuth2AuthorizationCodePKCEFlowArgs {
   /**
    * The type of authentication flow to create.
    */
-  type: 'oauth2:pkce';
+  type: 'oauth2:authorization_code:pkce';
   /**
    * The client ID for the OAuth 2.0 application.
    */
@@ -136,10 +143,10 @@ interface CreateBasicAuthFlowArgs {
 }
 
 /**
- * Creates an OAuth 2.0 PKCE (Proof Key for Code Exchange) authentication flow for X (formerly Twitter) API.
+ * Creates an OAuth 2.0 Authorization Code with PKCE authentication flow for X (formerly Twitter) API.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code | X OAuth 2.0 Authorization Code with PKCE Documentation}
  *
- * @param args - Configuration object for OAuth 2.0 PKCE flow
+ * @param args - Configuration arguments for OAuth 2.0 Authorization Code PKCE flow
  * @returns An OAuth 2.0 Authorization Code PKCE flow instance configured for X API
  *
  * @example
@@ -151,12 +158,12 @@ interface CreateBasicAuthFlowArgs {
  * });
  * ```
  */
-function createAuthFlow(args: CreateOAuth2PKCEFlowArgs): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
+function createAuthFlow(args: CreateOAuth2AuthorizationCodePKCEFlowArgs): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
 /**
  * Creates an OAuth 2.0 Client Credentials authentication flow for X (formerly Twitter) API.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/application-only | X OAuth 2.0 Application-only Documentation}
  *
- * @param args - Configuration object for OAuth 2.0 Client Credentials flow
+ * @param args - Configuration arguments for OAuth 2.0 Client Credentials flow
  * @returns An OAuth 2.0 Client Credential flow instance configured for X API
  *
  * @example
@@ -173,7 +180,7 @@ function createAuthFlow(args: CreateOAuth2ClientCredentialsFlowArgs): OAuth2Clie
  * OAuth 1a authentication flow creation - currently not supported.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-1-0a/obtaining-user-access-tokens | X OAuth 1.0a User Access Tokens (3-legged OAuth) Documentation}
  *
- * @param args - Configuration object for OAuth 1a flow
+ * @param args - Configuration arguments for OAuth 1a flow
  * @returns Never returns - always throws an error
  */
 function createAuthFlow(args: CreateOAuth1aFlowArgs): never;
@@ -181,19 +188,19 @@ function createAuthFlow(args: CreateOAuth1aFlowArgs): never;
  * HTTP Basic authentication flow creation - currently not supported.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/basic-auth | X Basic Auth Documentation}
  *
- * @param args - Configuration object for HTTP Basic Authentication flow
+ * @param args - Configuration arguments for HTTP Basic Authentication flow
  * @returns Never returns - always throws an error
  */
 // eslint-disable-next-line @typescript-eslint/unified-signatures -- explicit overload
 function createAuthFlow(args: CreateBasicAuthFlowArgs): never;
 function createAuthFlow(
   args:
-    | CreateOAuth2PKCEFlowArgs
+    | CreateOAuth2AuthorizationCodePKCEFlowArgs
     | CreateOAuth2ClientCredentialsFlowArgs
     | CreateOAuth1aFlowArgs
     | CreateBasicAuthFlowArgs,
 ): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow {
-  if (args.type === 'oauth2:pkce') {
+  if (args.type === 'oauth2:authorization_code:pkce') {
     return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret, clientAuth);
   }
   if (args.type === 'oauth2:client_credentials') {
@@ -206,7 +213,7 @@ function createAuthFlow(
 export { createAuthFlow };
 export type {
   OAuth2Scopes,
-  CreateOAuth2PKCEFlowArgs,
+  CreateOAuth2AuthorizationCodePKCEFlowArgs,
   CreateOAuth2ClientCredentialsFlowArgs,
   CreateOAuth1aFlowArgs,
   CreateBasicAuthFlowArgs,
