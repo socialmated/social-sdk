@@ -41,7 +41,12 @@
     "test:watch": "vitest watch",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@social-sdk/auth": "workspace:*",
+    "@social-sdk/client": "workspace:*",
+    "@social-sdk/core": "workspace:*",
+    "type-fest": "catalog:"
+  },
   "devDependencies": {
     "@social-sdk/configs": "workspace:*"
   }

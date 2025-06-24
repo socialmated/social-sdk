@@ -398,6 +398,19 @@ importers:
         version: link:../configs
 
   packages/facebook:
+    dependencies:
+      '@social-sdk/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@social-sdk/client':
+        specifier: workspace:*
+        version: link:../client
+      '@social-sdk/core':
+        specifier: workspace:*
+        version: link:../core
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.41.0
     devDependencies:
       '@social-sdk/configs':
         specifier: workspace:*
