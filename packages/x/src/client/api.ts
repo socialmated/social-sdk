@@ -1,5 +1,6 @@
 import { type PaginateData, type HttpClient } from '@social-sdk/client/http';
 import { type GraphQLHttpClient, useGraphQLHttpClient, type GraphQLOptionsInit } from '@social-sdk/client/graphql';
+import { PrivateAPIClient } from '@social-sdk/client/api';
 import { createXHttpClient, XAPIEndpoints } from './http.js';
 import { defaultTweetFeatures } from '@/constants/features.js';
 import { type XCookieSession } from '@/auth/session.js';
@@ -46,7 +47,7 @@ import { type TweetUnion } from '@/types/tweet.js';
  * console.log(user);
  * ```
  */
-class XPrivateAPIClient {
+class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
   /**
    * The http client for the v1.1 API endpoint.
    */
@@ -68,6 +69,8 @@ class XPrivateAPIClient {
    * @param session - The X (Twitter) cookie session used for authentication across all API endpoints
    */
   constructor(session: XCookieSession) {
+    super(session);
+
     const http = createXHttpClient(session);
     this.v11 = http.extend({ prefixUrl: XAPIEndpoints.V11 });
     this.v2 = http.extend({ prefixUrl: XAPIEndpoints.V2 });
