@@ -1,5 +1,5 @@
-import { type HttpClient } from '@social-sdk/client/http';
-import { type PaginateData, type OptionsInit } from 'got-scraping';
+import { type OptionsInit, type PaginateData, type HttpClient } from '@social-sdk/client/http';
+import { PrivateAPIClient } from '@social-sdk/client/api';
 import { createRednoteHttpClient, RednoteAPIEndpoints } from './http.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 import { type OtherUserInfo, type UserMe } from '@/types/user.js';
@@ -33,7 +33,7 @@ import { type QRCodeStatus, type CreateLoginQRCodeRequest, type QRCode } from '@
  * console.log(user);
  * ```
  */
-export class RednotePrivateAPIClient {
+export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSession> {
   /**
    * HTTP client instance for making requests to the v1 API endpoints.
    */
@@ -55,6 +55,8 @@ export class RednotePrivateAPIClient {
    * @param session - The Rednote cookie session used for authentication and request handling
    */
   constructor(session: RednoteCookieSession) {
+    super(session);
+
     const http = createRednoteHttpClient(session);
     this.v1 = http.extend({ prefixUrl: RednoteAPIEndpoints.SnsWebV1 });
     this.v2 = http.extend({ prefixUrl: RednoteAPIEndpoints.SnsWebV2 });

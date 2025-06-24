@@ -1,6 +1,9 @@
-import { WebStoreCookieSession } from '@social-sdk/auth/session';
-import { type CookieJar } from 'tough-cookie';
-import { type LocalStorage, type SessionStorage } from '@denostack/shim-webstore';
+import {
+  type CookieJar,
+  type LocalStorage,
+  type SessionStorage,
+  WebStoreCookieSession,
+} from '@social-sdk/auth/session';
 import { addYear } from '@formkit/tempo';
 import { generateLocalId, generateWebId } from '@/security/token/token.js';
 
