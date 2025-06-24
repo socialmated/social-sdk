@@ -48,7 +48,7 @@ function createHttpClient(session: OAuthSession | CookieSession): HttpClient {
 }
 
 export { createHttpClient };
-export type { HttpClient };
-export type * from 'got';
 export { gotScraping } from 'got-scraping';
 export { got } from 'got';
+export type { HttpClient };
+export type * from 'got';

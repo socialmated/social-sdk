@@ -126,7 +126,11 @@ function useGraphQLHttpClient<T extends HttpClient>(base: T): GraphQLHttpClient<
     });
   };
 
-  const paginate = <T, R>(id: string, name: string, options?: GraphQLOptionsWithPagination<T, R>) => {
+  const paginate = <S, R>(
+    id: string,
+    name: string,
+    options?: GraphQLOptionsWithPagination<S, R>,
+  ): AsyncIterableIterator<S> => {
     const searchParams = new URLSearchParams();
     if (options?.variables) {
       searchParams.set('variables', JSON.stringify(options.variables));
@@ -138,11 +142,12 @@ function useGraphQLHttpClient<T extends HttpClient>(base: T): GraphQLHttpClient<
       searchParams.set('fieldToggles', JSON.stringify(options.fieldToggles));
     }
 
-    return base.paginate<T, R>(`${id}/${name}`, {
+    return base.paginate<S, R>(`${id}/${name}`, {
       searchParams,
       pagination: {
         ...options?.pagination,
-        paginate: (data: PaginateData<R, T>) => {
+        // eslint-disable-next-line sonarjs/function-return-type -- expected
+        paginate: (data: PaginateData<R, S>) => {
           if (options?.pagination?.paginate) {
             const paginationOptions = options.pagination.paginate(data);
             if (paginationOptions === false) return false;
