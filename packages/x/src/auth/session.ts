@@ -1,7 +1,6 @@
-import { CookieSession } from '@social-sdk/auth/session';
-import { type CookieJar } from 'tough-cookie';
+import { type CookieJar, CookieSession } from '@social-sdk/auth/session';
 import { addHour, addYear } from '@formkit/tempo';
-import { fetchGuestToken, generateCsrfToken } from '../security/token/index.js';
+import { fetchGuestToken, generateCsrfToken } from '@/security/token/index.js';
 
 /**
  * Represents a session for the X platform (formerly Twitter) using cookies.

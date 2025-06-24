@@ -3,7 +3,7 @@ import {
   type ServerMetadata,
   OAuth2AuthorizationCodePKCEFlow,
   OAuth2ClientCredentialFlow,
-} from '@social-sdk/core/auth/flow';
+} from '@social-sdk/auth/flow';
 
 /**
  * OAuth 2.0 server metadata configuration for X (formerly Twitter) API.

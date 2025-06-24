@@ -1,6 +1,6 @@
-import { type WebLoginCredential } from '@social-sdk/core/auth/credential';
-import { AutomatedWebLoginFlow } from '@social-sdk/core/auth/flow';
 import { type Browser, type BrowserContext, type Page } from 'playwright';
+import { AutomatedWebLoginFlow } from '@social-sdk/auth/flow';
+import { type WebLoginCredential } from '@social-sdk/auth/credential';
 import { XCookieSession } from './session.js';
 
 /**
