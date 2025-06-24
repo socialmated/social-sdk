@@ -102,7 +102,10 @@ class OAuthSession implements ReadonlySession {
    * @throws If no refresh token is available in the current session.
    * @returns A promise that resolves to the new access token as a string.
    */
-  public async refresh(parameters?: URLSearchParams | Record<string, string>): Promise<string> {
+  public async refresh(key?: string, parameters?: URLSearchParams | Record<string, string>): Promise<string> {
+    if (key && key !== 'access_token') {
+      throw new Error(`Unsupported key for refresh: ${key}. Only 'access_token' is supported.`);
+    }
     // Check if the refresh token is available
     if (!this.tokens.refresh_token) {
       throw new Error('No refresh token available');

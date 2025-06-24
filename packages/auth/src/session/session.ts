@@ -27,7 +27,7 @@ export interface ReadonlySession {
    *
    * @returns A promise that resolves to the refreshed value as a string.
    */
-  refresh: () => Promisable<string>;
+  refresh: (key?: string) => Promisable<string>;
 
   /**
    * Revokes the session, typically by invalidating access tokens or clearing session data.
