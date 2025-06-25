@@ -1,3 +1,4 @@
+import { type OAuth2Credential } from '@social-sdk/auth/credential';
 import {
   OAuth2AuthorizationCodePKCEFlow,
   OAuth2ClientCredentialFlow,
@@ -117,119 +118,54 @@ const server: ServerMetadata = {
   display_values_supported: ['page', 'popup'],
 };
 
-interface CreateOAuth2AuthorizationCodeFlowArgs {
-  type: 'oauth2:authorization_code';
-  appId: string;
-  appSecret?: string;
-}
-
-interface CreateOAuth2AuthorizationCodePKCEFlowArgs {
-  type: 'oauth2:authorization_code:pkce';
-  appId: string;
-  appSecret?: string;
-}
-
-interface CreateOAuth2ImplicitFlowArgs {
-  type: 'oauth2:implicit';
-  appId: string;
-  appSecret?: string;
-}
-
-interface CreateOAuth2ClientCredentialsFlowArgs {
-  type: 'oauth2:client_credentials';
-  appId: string;
-  appSecret: string;
-}
-
-interface CreatePageAuthFlowArgs {
-  type: 'page';
-  userId: string;
-  userAccessToken: string;
-}
-
-interface CreateClientAuthFlowArgs {
-  type: 'client';
-  appId: string;
-  clientToken: string;
-}
-
 /**
  * Creates an OAuth 2.0 Client Credentials authentication flow for Facebook API.
  *
  * @param args - Configuration arguments for the OAuth 2.0 Client Credentials flow.
  * @returns An OAuth 2.0 Client Credentials flow instance configured for Facebook API.
  */
-function createAuthFlow(args: CreateOAuth2ClientCredentialsFlowArgs): OAuth2ClientCredentialFlow;
+function createAuthFlow(args: { type: 'oauth2:client_credentials' } & OAuth2Credential): OAuth2ClientCredentialFlow;
 /**
  * Creates an OAuth 2.0 Authorization Code authentication flow for Facebook API.
  *
  * @param args - Configuration arguments for the OAuth 2.0 Authorization Code flow.
  * @returns An OAuth 2.0 Authorization Code flow instance configured for Facebook API.
  */
-function createAuthFlow(args: CreateOAuth2AuthorizationCodeFlowArgs): never;
+function createAuthFlow(args: { type: 'oauth2:authorization_code' } & OAuth2Credential): never;
 /**
  * Creates an OAuth 2.0 Authorization Code with PKCE authentication flow for Facebook API.
  *
  * @param args - Configuration arguments for the OAuth 2.0 Authorization Code PKCE flow.
  * @returns An OAuth 2.0 Authorization Code PKCE flow instance configured for Facebook API.
  */
-function createAuthFlow(args: CreateOAuth2AuthorizationCodePKCEFlowArgs): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
+function createAuthFlow(
+  args: { type: 'oauth2:authorization_code:pkce' } & OAuth2Credential,
+): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
 /**
  * Creates an OAuth 2.0 Implicit authentication flow for Facebook API.
  * @param args - Configuration arguments for the OAuth 2.0 Implicit flow.
  * @returns An OAuth 2.0 Implicit flow instance configured for Facebook API.
  */
 // eslint-disable-next-line @typescript-eslint/unified-signatures -- explicit overload
-function createAuthFlow(args: CreateOAuth2ImplicitFlowArgs): never;
-/**
- * Creates a Page Access Token authentication flow for Facebook API.
- *
- * @param args - Configuration arguments for the Page Access Token flow.
- * @returns A Page Access Token flow instance configured for Facebook API.
- */
-// eslint-disable-next-line @typescript-eslint/unified-signatures -- explicit overload
-function createAuthFlow(args: CreatePageAuthFlowArgs): never;
-/**
- * Creates a Client Access Token authentication flow for Facebook API.
- * @param args - Configuration arguments for the Client Access Token flow.
- * @returns A Client Access Token flow instance configured for Facebook API.
- */
-// eslint-disable-next-line @typescript-eslint/unified-signatures -- explicit overload
-function createAuthFlow(args: CreateClientAuthFlowArgs): never;
+function createAuthFlow(args: { type: 'oauth2:implicit' } & OAuth2Credential): never;
 function createAuthFlow(
   args:
-    | CreateOAuth2ClientCredentialsFlowArgs
-    | CreateOAuth2AuthorizationCodeFlowArgs
-    | CreateOAuth2AuthorizationCodePKCEFlowArgs
-    | CreateOAuth2ImplicitFlowArgs
-    | CreatePageAuthFlowArgs
-    | CreateClientAuthFlowArgs,
+    | ({ type: 'oauth2:client_credentials' } & OAuth2Credential)
+    | ({ type: 'oauth2:authorization_code' } & OAuth2Credential)
+    | ({ type: 'oauth2:authorization_code:pkce' } & OAuth2Credential)
+    | ({ type: 'oauth2:implicit' } & OAuth2Credential),
 ): OAuth2ClientCredentialFlow | OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> {
   switch (args.type) {
     case 'oauth2:client_credentials':
-      return new OAuth2ClientCredentialFlow(server, args.appId, args.appSecret);
+      return new OAuth2ClientCredentialFlow(server, args.clientId, args.clientSecret);
     case 'oauth2:authorization_code':
       throw new Error('OAuth 2.0 Authorization Code flow is not supported in this context.');
     case 'oauth2:authorization_code:pkce':
-      return new OAuth2AuthorizationCodePKCEFlow(server, args.appId, args.appSecret);
+      return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret);
     case 'oauth2:implicit':
       throw new Error('OAuth 2.0 Implicit flow is not supported in this context.');
-    case 'page':
-      throw new Error('Page Access Token flow is not supported in this context.');
-    case 'client':
-      throw new Error('Client Access Token flow is not supported in this context.');
   }
 }
 
 export { createAuthFlow };
-export type {
-  OAuth2Scopes,
-  CreateOAuth2AuthorizationCodeFlowArgs,
-  CreateOAuth2AuthorizationCodePKCEFlowArgs,
-  CreateOAuth2ImplicitFlowArgs,
-  CreateOAuth2ClientCredentialsFlowArgs,
-  CreatePageAuthFlowArgs,
-  CreateClientAuthFlowArgs,
-  OAuth2ClientCredentialFlow,
-  OAuth2AuthorizationCodePKCEFlow,
-};
+export type { OAuth2Scopes };
