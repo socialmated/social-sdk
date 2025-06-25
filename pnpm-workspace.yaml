@@ -4,6 +4,6 @@ packages:
 
 catalog:
   "@formkit/tempo": 0.1.2
-  playwright: 1.52.0
+  playwright: 1.53.1
   jsdom: 26.1.0
   type-fest: 4.41.0

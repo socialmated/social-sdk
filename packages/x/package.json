@@ -43,11 +43,11 @@
     "@social-sdk/auth": "workspace:*",
     "@social-sdk/client": "workspace:*",
     "@social-sdk/core": "workspace:*",
-    "acorn": "8.14.1",
+    "acorn": "8.15.0",
     "acorn-walk": "8.3.4",
     "jsdom": "catalog:",
     "playwright": "catalog:",
-    "sdp": "3.2.0",
+    "sdp": "3.2.1",
     "type-fest": "catalog:"
   },
   "devDependencies": {
