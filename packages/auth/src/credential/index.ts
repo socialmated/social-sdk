@@ -34,6 +34,20 @@ export type WebLoginCredential = RequireAtLeastOne<
 >;
 
 /**
+ * Represents OAuth 1.0a credentials.
+ */
+export interface OAuth1aCredential {
+  /**
+   * The OAuth 1.0a consumer key.
+   */
+  consumerKey: string;
+  /**
+   * The optional OAuth 1.0a consumer secret.
+   */
+  consumerSecret?: string;
+}
+
+/**
  * Represents OAuth 2.0 credentials.
  */
 export interface OAuth2Credential {
