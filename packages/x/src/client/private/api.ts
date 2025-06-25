@@ -1,7 +1,7 @@
 import { type PaginateData, type HttpClient } from '@social-sdk/client/http';
 import { type GraphQLHttpClient, useGraphQLHttpClient, type GraphQLOptionsInit } from '@social-sdk/client/graphql';
 import { PrivateAPIClient } from '@social-sdk/client/api';
-import { createXHttpClient, XAPIEndpoints } from './http.js';
+import { createXHttpClient } from './http.js';
 import { defaultTweetFeatures } from '@/constants/features.js';
 import { type XCookieSession } from '@/auth/session.js';
 import {
@@ -32,6 +32,17 @@ import { type UserUnion } from '@/types/user.js';
 import { getCursor, getEntries } from '@/model/timeline.js';
 import { type TweetUnion } from '@/types/tweet.js';
 
+enum XAPIEndpoints {
+  /**
+   * The base URL for X's v1.1 API endpoints.
+   */
+  V11 = 'https://x.com/i/api/1.1/',
+  /**
+   * The base URL for X's GraphQL API endpoints.
+   */
+  GraphQL = 'https://x.com/i/api/graphql/',
+}
+
 /**
  * A client for accessing X (Twitter) private API endpoints.
  *
@@ -49,17 +60,12 @@ import { type TweetUnion } from '@/types/tweet.js';
  */
 export class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
   /**
-   * The http client for the v1.1 API endpoint.
+   * The HTTP client for the v1.1 API endpoint.
    */
   private v11: HttpClient;
 
   /**
-   * The http client for the v2 API endpoint.
-   */
-  private v2: HttpClient;
-
-  /**
-   * The GraphQL http client for the GraphQL API endpoint.
+   * The GraphQL HTTP client for the GraphQL API endpoint.
    */
   private graphql: GraphQLHttpClient<HttpClient>;
 
@@ -73,7 +79,6 @@ export class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
 
     const http = createXHttpClient(session);
     this.v11 = http.extend({ prefixUrl: XAPIEndpoints.V11 });
-    this.v2 = http.extend({ prefixUrl: XAPIEndpoints.V2 });
     this.graphql = useGraphQLHttpClient(http.extend({ prefixUrl: XAPIEndpoints.GraphQL }));
   }
 
@@ -127,14 +132,6 @@ export class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
 
   public async hashflags(): Promise<unknown> {
     return this.v11.get('hashflags.json').json();
-  }
-
-  public async adaptiveSearch(): Promise<unknown> {
-    return this.v2.get('search/adaptive.json').json();
-  }
-
-  public async badgeCount(): Promise<unknown> {
-    return this.v2.get('badge_count/badge_count.json').json();
   }
 
   /**

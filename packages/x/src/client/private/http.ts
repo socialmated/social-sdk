@@ -38,22 +38,4 @@ const createXHttpClient = (session: XCookieSession): HttpClient => {
   });
 };
 
-/**
- * The API endpoints of X.
- */
-enum XAPIEndpoints {
-  /**
-   * The base URL for X's v1.1 API endpoints.
-   */
-  V11 = 'https://x.com/i/api/1.1/',
-  /**
-   * The base URL for X's v2 API endpoints.
-   */
-  V2 = 'https://api.x.com/2/',
-  /**
-   * The base URL for X's GraphQL API endpoints.
-   */
-  GraphQL = 'https://x.com/i/api/graphql/',
-}
-
-export { createXHttpClient, XAPIEndpoints };
+export { createXHttpClient };
