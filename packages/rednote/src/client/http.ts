@@ -57,6 +57,10 @@ enum RednoteAPIEndpoints {
    * The base URL for Rednote's IM API endpoints.
    */
   IM = 'https://edith.xiaohongshu.com/api/im/',
+  /**
+   * The base URL for Rednote's Report API endpoints.
+   */
+  Report = 'https://edith.xiaohongshu.com/api/report/',
 }
 
 export { createRednoteHttpClient, RednoteAPIEndpoints };

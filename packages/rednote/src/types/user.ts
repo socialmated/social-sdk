@@ -1,3 +1,6 @@
+import { type Result } from './common.js';
+import { type NoteCard } from './note.js';
+
 type UserMe =
   | {
       guest: true;
@@ -17,12 +20,6 @@ type UserMe =
 interface UserExtraInfo {
   fstatus: string; // enum
   blockType: string; // enum
-}
-
-interface UserInfoResult {
-  message: string;
-  success: boolean;
-  code: number;
 }
 
 interface UserBasicInfo {
@@ -48,7 +45,7 @@ interface UserInteractions {
 interface UserTag {
   icon?: string; // optional for location tags
   name?: string; // optional for info tags
-  tagType: 'info' | 'location';
+  tagType: 'info' | 'location' | 'college';
 }
 
 interface UserTabPublic {
@@ -67,7 +64,7 @@ interface UserTabPublic {
 
 interface OtherUserInfo {
   extra_info: UserExtraInfo;
-  result: UserInfoResult;
+  result: Result;
   basic_info: UserBasicInfo;
   verify_info: UserVerifyInfo;
   interactions: UserInteractions[];
@@ -75,4 +72,39 @@ interface OtherUserInfo {
   tab_public: UserTabPublic;
 }
 
-export type { UserMe, OtherUserInfo };
+interface SelfUserInfo {
+  basic_info: UserBasicInfo;
+  interactions: UserInteractions[];
+  result: Result;
+  tab_public: UserTabPublic;
+  tag: UserTag[];
+}
+
+interface FollowUserRequest {
+  target_user_id: string;
+}
+
+interface FollowUserResult {
+  fstatus: string; // enum
+}
+
+interface UserSession {
+  user_id: string;
+  session: string;
+  secure_session: string;
+}
+
+export type {
+  UserMe,
+  OtherUserInfo,
+  SelfUserInfo,
+  UserExtraInfo,
+  UserBasicInfo,
+  UserVerifyInfo,
+  UserInteractions,
+  UserTag,
+  UserTabPublic,
+  FollowUserRequest,
+  FollowUserResult,
+  UserSession,
+};

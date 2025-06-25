@@ -1,150 +1,13 @@
-interface NoteCardUser {
-  user_id: string;
-  nickname: string;
-  xsec_token: string;
-  nick_name?: string;
-  avatar: string;
-}
-
-interface NoteCardImageInfo {
-  image_scene: string; // enum
-  url: string;
-}
-
-interface NoteCardCover {
-  url: string;
-  info_list: NoteCardImageInfo[];
-  url_pre: string;
-  url_default: string;
-  file_id: string;
-  height: number;
-  width: number;
-}
-
-interface NoteCardInteractInfo {
-  liked: boolean;
-  liked_count: string;
-  collected?: boolean;
-  collected_count?: string;
-  comment_count?: string;
-  share_count?: string;
-  followed?: boolean;
-  relation?: string; // enum
-}
-
-type NoteCardTagType = 'topic' | 'emoji' | 'mention' | 'text';
-
-interface NoteCardTag {
-  id: string;
-  name: string;
-  type: NoteCardTagType;
-}
-
-interface NoteCardIllegalInfo {
-  desc: string;
-  left_icon: string;
-}
-
-interface NoteCardShareInfo {
-  un_share: boolean;
-}
-
-interface NoteCardStreamSource {
-  master_url: string;
-  backup_urls: string[];
-}
-
-interface NoteCardStream {
-  av1?: NoteCardStreamSource[];
-  h264?: NoteCardStreamSource[];
-  h265?: NoteCardStreamSource[];
-  h266?: NoteCardStreamSource[];
-}
-
-interface NoteCardImage {
-  width: number;
-  height: number;
-  url: string;
-  url_pre: string;
-  url_default: string;
-  trace_id: string;
-  file_id: string;
-  live_photo: boolean;
-  stream: NoteCardStream;
-  info_list: NoteCardImageInfo[];
-}
-
-interface NoteCardVideoCapa {
-  duration: number;
-}
-
-interface NoteCardVideoConsumer {
-  origin_video_key: string;
-}
-
-interface NoteCardVideoImage {
-  first_frame_fileid: string;
-  thumbnail_fileid: string;
-}
-interface NoteCardMediaStreamMeta {
-  backup_urls: string[];
-  ssim: number;
-  audio_bitrate: number;
-  width: number;
-  size: number;
-  audio_codec: string;
-  audio_duration: number;
-  stream_type: number;
-  video_bitrate: number;
-  vmaf: number;
-  hdr_type: number;
-  weight: number;
-  quality_type: string;
-  default_stream: number;
-  height: number;
-  video_duration: number;
-  audio_channels: number;
-  format: string;
-  volume: number;
-  avg_bitrate: number;
-  video_codec: string;
-  master_url: string;
-  fps: number;
-  rotate: number;
-  psnr: number;
-  duration: number;
-  stream_desc: string;
-}
-
-interface NoteCardMediaStream {
-  h264?: NoteCardMediaStreamMeta[];
-  h265?: NoteCardMediaStreamMeta[];
-  h266?: NoteCardMediaStreamMeta[];
-  av1?: NoteCardMediaStreamMeta[];
-}
-
-interface NoteCardMediaVideo {
-  hdr_type: number;
-  drm_type: number;
-  stream_types: number[];
-  biz_name: number;
-  biz_id: string;
-  duration: number;
-  md5: string;
-}
-
-interface NoteCardMedia {
-  video_id: string;
-  stream: NoteCardMediaStream;
-  video: NoteCardMediaVideo;
-}
-
-interface NoteCardVideo {
-  capa: NoteCardVideoCapa;
-  consumer?: NoteCardVideoConsumer;
-  image?: NoteCardVideoImage;
-  media?: NoteCardMedia;
-}
+import {
+  type NoteCardTag,
+  type NoteCardIllegalInfo,
+  type NoteCardShareInfo,
+  type NoteCardUser,
+  type NoteCardInteractInfo,
+  type NoteCardImage,
+  type NoteCardVideo,
+  type NoteCardCover,
+} from './note.js';
 
 interface FeedNoteCard {
   note_id: string;
@@ -158,7 +21,7 @@ interface FeedNoteCard {
   video?: NoteCardVideo;
   at_user_list: string[]; // fixme
   last_update_time: number;
-  type: string; // enum
+  type: string; // enum: normal, video
   desc: string;
   time: number;
   ip_location: string;
@@ -251,23 +114,4 @@ export type {
   HomeFeedCategoryResult,
   XsecSource,
   RefreshType,
-  NoteCardUser,
-  NoteCardImageInfo,
-  NoteCardCover,
-  NoteCardInteractInfo,
-  NoteCardTag,
-  NoteCardIllegalInfo,
-  NoteCardShareInfo,
-  NoteCardStreamSource,
-  NoteCardStream,
-  NoteCardImage,
-  NoteCardVideoCapa,
-  NoteCardVideoConsumer,
-  NoteCardVideoImage,
-  NoteCardMediaStreamMeta,
-  NoteCardMediaStream,
-  NoteCardMediaVideo,
-  NoteCardMedia,
-  NoteCardVideo,
-  NoteCardTagType,
 };

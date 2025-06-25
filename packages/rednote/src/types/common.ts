@@ -27,5 +27,11 @@ const isApiResponse = <T>(body: unknown): body is ApiResponse<T> => {
   );
 };
 
+interface Result {
+  message: string;
+  success: boolean;
+  code: number;
+}
+
 export { isApiResponse };
-export type { ApiResponse, ApiSuccessResponse, ApiErrorResponse };
+export type { ApiResponse, ApiSuccessResponse, ApiErrorResponse, Result };
