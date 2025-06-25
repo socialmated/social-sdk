@@ -1,3 +1,4 @@
+import { type OAuth1aCredential, type OAuth2Credential } from '@social-sdk/auth/credential';
 import {
   type ClientAuth,
   type ServerMetadata,
@@ -71,78 +72,6 @@ const clientAuth: ClientAuth = (_as, client, _body, headers) => {
 };
 
 /**
- * Configuration arguments for creating an OAuth 2.0 Authorization Code with PKCE authentication flow.
- */
-interface CreateOAuth2AuthorizationCodePKCEFlowArgs {
-  /**
-   * The type of authentication flow to create.
-   */
-  type: 'oauth2:authorization_code:pkce';
-  /**
-   * The client ID for the OAuth 2.0 application.
-   */
-  clientId: string;
-  /**
-   * The client secret for the OAuth 2.0 application, if applicable.
-   */
-  clientSecret?: string;
-}
-
-/**
- * Configuration arguments for creating an OAuth 2.0 Client Credentials authentication flow.
- */
-interface CreateOAuth2ClientCredentialsFlowArgs {
-  /**
-   * The type of authentication flow to create.
-   */
-  type: 'oauth2:client_credentials';
-  /**
-   * The consumer key (client ID) for the OAuth 2.0 application.
-   */
-  consumerKey: string;
-  /**
-   * The consumer secret (client secret) for the OAuth 2.0 application, if applicable.
-   */
-  consumerSecret?: string;
-}
-
-/**
- * Configuration arguments for creating an OAuth 1a authentication flow.
- */
-interface CreateOAuth1aFlowArgs {
-  /**
-   * The type of authentication flow to create.
-   */
-  type: 'oauth1a';
-  /**
-   * The consumer key (client ID) for the OAuth 1a application.
-   */
-  consumerKey?: string;
-  /**
-   * The consumer secret (client secret) for the OAuth 1a application, if applicable.
-   */
-  consumerSecret?: string;
-}
-
-/**
- * Configuration arguments for creating a Basic Authentication flow.
- */
-interface CreateBasicAuthFlowArgs {
-  /**
-   * The type of authentication flow to create.
-   */
-  type: 'basic';
-  /**
-   * The username for Basic Authentication.
-   */
-  username?: string;
-  /**
-   * The password for Basic Authentication.
-   */
-  password?: string;
-}
-
-/**
  * Creates an OAuth 2.0 Authorization Code with PKCE authentication flow for X (formerly Twitter) API.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code | X OAuth 2.0 Authorization Code with PKCE Documentation}
  *
@@ -158,7 +87,9 @@ interface CreateBasicAuthFlowArgs {
  * });
  * ```
  */
-function createAuthFlow(args: CreateOAuth2AuthorizationCodePKCEFlowArgs): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
+function createAuthFlow(
+  args: { type: 'oauth2:authorization_code:pkce' } & OAuth2Credential,
+): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
 /**
  * Creates an OAuth 2.0 Client Credentials authentication flow for X (formerly Twitter) API.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/application-only | X OAuth 2.0 Application-only Documentation}
@@ -175,7 +106,7 @@ function createAuthFlow(args: CreateOAuth2AuthorizationCodePKCEFlowArgs): OAuth2
  * });
  * ```
  */
-function createAuthFlow(args: CreateOAuth2ClientCredentialsFlowArgs): OAuth2ClientCredentialFlow;
+function createAuthFlow(args: { type: 'oauth2:client_credentials' } & OAuth2Credential): OAuth2ClientCredentialFlow;
 /**
  * OAuth 1a authentication flow creation - currently not supported.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-1-0a/obtaining-user-access-tokens | X OAuth 1.0a User Access Tokens (3-legged OAuth) Documentation}
@@ -183,38 +114,22 @@ function createAuthFlow(args: CreateOAuth2ClientCredentialsFlowArgs): OAuth2Clie
  * @param args - Configuration arguments for OAuth 1a flow
  * @returns Never returns - always throws an error
  */
-function createAuthFlow(args: CreateOAuth1aFlowArgs): never;
-/**
- * HTTP Basic authentication flow creation - currently not supported.
- * @see {@link https://docs.x.com/resources/fundamentals/authentication/basic-auth | X Basic Auth Documentation}
- *
- * @param args - Configuration arguments for HTTP Basic Authentication flow
- * @returns Never returns - always throws an error
- */
-// eslint-disable-next-line @typescript-eslint/unified-signatures -- explicit overload
-function createAuthFlow(args: CreateBasicAuthFlowArgs): never;
+function createAuthFlow(args: { type: 'oauth1a' } & OAuth1aCredential): never;
 function createAuthFlow(
   args:
-    | CreateOAuth2AuthorizationCodePKCEFlowArgs
-    | CreateOAuth2ClientCredentialsFlowArgs
-    | CreateOAuth1aFlowArgs
-    | CreateBasicAuthFlowArgs,
-): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow {
-  if (args.type === 'oauth2:authorization_code:pkce') {
-    return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret, clientAuth);
+    | ({ type: 'oauth2:authorization_code:pkce' } & OAuth2Credential)
+    | ({ type: 'oauth2:client_credentials' } & OAuth2Credential)
+    | ({ type: 'oauth1a' } & OAuth1aCredential),
+): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow | never {
+  switch (args.type) {
+    case 'oauth2:authorization_code:pkce':
+      return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret, clientAuth);
+    case 'oauth2:client_credentials':
+      return new OAuth2ClientCredentialFlow(server, args.clientId, args.clientSecret, clientAuth);
+    case 'oauth1a':
+      throw new Error('OAuth 1a flow is not supported in this context.');
   }
-  if (args.type === 'oauth2:client_credentials') {
-    return new OAuth2ClientCredentialFlow(server, args.consumerKey, args.consumerSecret, clientAuth);
-  }
-
-  throw new Error(`Unsupported auth method: ${args.type}`);
 }
 
 export { createAuthFlow };
-export type {
-  OAuth2Scopes,
-  CreateOAuth2AuthorizationCodePKCEFlowArgs,
-  CreateOAuth2ClientCredentialsFlowArgs,
-  CreateOAuth1aFlowArgs,
-  CreateBasicAuthFlowArgs,
-};
+export type { OAuth2Scopes };
