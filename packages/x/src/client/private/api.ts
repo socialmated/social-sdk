@@ -47,7 +47,7 @@ import { type TweetUnion } from '@/types/tweet.js';
  * console.log(user);
  * ```
  */
-class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
+export class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
   /**
    * The http client for the v1.1 API endpoint.
    */
@@ -908,5 +908,3 @@ class XPrivateAPIClient extends PrivateAPIClient<XCookieSession> {
     return this.graphql.query('GQ1yZjbfSiPfi_5gznKMPw', 'BlueVerifiedFollowers').json();
   }
 }
-
-export { XPrivateAPIClient };
