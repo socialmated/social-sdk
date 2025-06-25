@@ -43,7 +43,7 @@ function generateCsrfToken(size = 16): string {
 // TODO: Return a cookie jar?
 async function fetchGuestToken(): Promise<string> {
   const res = await gotScraping
-    .post('https://x.com/1.1/guest/activate.json', {
+    .post('https://api.x.com/1.1/guest/activate.json', {
       headers: {
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
