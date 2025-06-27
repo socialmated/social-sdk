@@ -244,6 +244,15 @@ interface NotePageResult {
   has_more: boolean;
 }
 
+interface LikedNumResult {
+  liked_num: number;
+}
+
+interface LikeCommentRequest {
+  comment_id: string;
+  note_id: string;
+}
+
 export type {
   NoteCardCover,
   NoteCardInteractInfo,
@@ -274,7 +283,9 @@ export type {
   LikeRequest,
   LikeResult,
   DislikeResult,
+  LikedNumResult,
   CollectNoteRequest,
   UncollectNoteRequest,
   NotePageResult,
+  LikeCommentRequest,
 };

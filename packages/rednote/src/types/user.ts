@@ -1,5 +1,4 @@
 import { type Result } from './common.js';
-import { type NoteCard } from './note.js';
 
 type UserMe =
   | {

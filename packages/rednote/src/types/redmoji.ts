@@ -5,4 +5,19 @@ interface RedmojiVersion {
   version: number;
 }
 
-export type { RedmojiVersion };
+interface RedmojiTab {
+  image_name: string;
+  image: string;
+}
+
+interface RedmojiEmoji {
+  tabs: RedmojiTab[];
+}
+
+interface RedmojiDetail {
+  result: Result;
+  version: number;
+  emoji: RedmojiEmoji;
+}
+
+export type { RedmojiVersion, RedmojiDetail };

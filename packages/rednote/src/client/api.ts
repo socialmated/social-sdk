@@ -27,9 +27,11 @@ import {
   type CommentPageResult,
   type UncollectNoteRequest,
   type NotePageResult,
+  type LikedNumResult,
+  type LikeCommentRequest,
 } from '@/types/note.js';
 import { type QRCodeStatus, type CreateLoginQRCodeRequest, type QRCode } from '@/types/login.js';
-import { type RedmojiVersion } from '@/types/redmoji.js';
+import { type RedmojiDetail, type RedmojiVersion } from '@/types/redmoji.js';
 
 /**
  * A client for interacting with the Rednote Private API.
@@ -416,12 +418,16 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async getLikedNum(): Promise<number> {
-    const resp = await this.v1.get('get_liked_num').json<ApiResponse<{ liked_num: number }>>();
+  public async getLikedNum(noteIds: string[]): Promise<LikedNumResult> {
+    const query = new URLSearchParams();
+    query.set('note_ids', noteIds.join(','));
+
+    const resp = await this.v1.get('get_liked_num', { searchParams: query }).json<ApiResponse<LikedNumResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch liked number: ${resp.msg}`);
     }
-    return resp.data.liked_num;
+
+    return resp.data;
   }
 
   /**
@@ -538,19 +544,55 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async likeComment(): Promise<unknown> {
-    const resp = await this.v1.post('comment/like').json<ApiResponse<unknown>>();
+  /**
+   * Likes a comment on a specific note.
+   *
+   * @param noteId - The unique identifier of the note containing the comment
+   * @param commentId - The unique identifier of the comment to like
+   * @returns A promise that resolves when the comment is successfully liked
+   *
+   * @example
+   * ```typescript
+   * await client.likeComment('note123', 'comment456');
+   * ```
+   */
+  public async likeComment(noteId: string, commentId: string): Promise<void> {
+    const req: LikeCommentRequest = {
+      comment_id: commentId,
+      note_id: noteId,
+    };
+
+    const resp = await this.v1.post('comment/like', { json: req }).json<ApiResponse<void>>();
     if (!resp.success) {
       throw new Error(`Failed to like comment: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
-  public async dislikeComment(): Promise<unknown> {
-    const resp = await this.v1.post('comment/dislike').json<ApiResponse<unknown>>();
+  /**
+   * Dislikes a comment on a specific note.
+   *
+   * @param noteId - The unique identifier of the note containing the comment
+   * @param commentId - The unique identifier of the comment to dislike
+   * @returns A promise that resolves when the comment is successfully disliked
+   *
+   * @example
+   * ```typescript
+   * await client.dislikeComment('note123', 'comment456');
+   * ```
+   */
+  public async dislikeComment(noteId: string, commentId: string): Promise<void> {
+    const req: LikeCommentRequest = {
+      comment_id: commentId,
+      note_id: noteId,
+    };
+
+    const resp = await this.v1.post('comment/dislike', { json: req }).json<ApiResponse<void>>();
     if (!resp.success) {
       throw new Error(`Failed to dislike comment: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
@@ -884,8 +926,19 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async redmojiDetail(): Promise<unknown> {
-    const resp = await this.im.get('redmoji/detail').json<ApiResponse<unknown>>();
+  /**
+   * Retrieves Redmoji detail information.
+   *
+   * @returns A promise that resolves to the Redmoji detail information
+   *
+   * @example
+   * ```typescript
+   * const detail = await client.redmojiDetail();
+   * console.log(detail);
+   * ```
+   */
+  public async redmojiDetail(): Promise<RedmojiDetail> {
+    const resp = await this.im.get('redmoji/detail').json<ApiResponse<RedmojiDetail>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch redmoji detail: ${resp.msg}`);
     }
