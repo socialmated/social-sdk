@@ -45,7 +45,7 @@ export class User {
     this.tags = props.tags;
   }
 
-  public toAP(): Omit<Person, 'inbox' | 'outbox'> {
+  public toAP(): Person {
     return {
       type: 'Person',
       id: this.id.toAP(),
@@ -64,6 +64,12 @@ export class User {
       location: this.location?.toAP(),
       summary: this.description,
       tag: this.tags?.map((tag) => tag.toAP()),
+      inbox: {
+        type: 'OrderedCollection',
+      },
+      outbox: {
+        type: 'OrderedCollection',
+      },
     };
   }
 }
