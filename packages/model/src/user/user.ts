@@ -1,10 +1,11 @@
 import { type Person } from '@activity-kit/types';
 import { type Avatar } from './avatar.js';
+import { type UserId } from './id.js';
 import { type Location } from '@/entity/location.js';
 import { type Tag } from '@/entity/tag.js';
 
-interface BaseUserProps {
-  id: string;
+interface UserProps {
+  id: UserId;
   createdAt: Date;
   followersCount: number;
   followingCount: number;
@@ -17,8 +18,8 @@ interface BaseUserProps {
   tags?: Tag[];
 }
 
-export abstract class BaseUser {
-  public readonly id: string;
+export class User {
+  public readonly id: UserId;
   public readonly createdAt: Date;
   public readonly followersCount: number;
   public readonly followingCount: number;
@@ -30,7 +31,7 @@ export abstract class BaseUser {
   public gender?: string;
   public tags?: Tag[];
 
-  constructor(props: Readonly<BaseUserProps>) {
+  constructor(props: Readonly<UserProps>) {
     this.id = props.id;
     this.createdAt = props.createdAt;
     this.followersCount = props.followersCount;
@@ -44,12 +45,10 @@ export abstract class BaseUser {
     this.tags = props.tags;
   }
 
-  abstract get url(): URL;
-
   public toAP(): Omit<Person, 'inbox' | 'outbox'> {
     return {
       type: 'Person',
-      id: this.url,
+      id: this.id.toAP(),
       name: this.name,
       preferredUsername: this.displayName,
       icon: this.avatar.toAP(),
