@@ -46,6 +46,7 @@
     "@social-sdk/auth": "workspace:*",
     "@social-sdk/client": "workspace:*",
     "@social-sdk/core": "workspace:*",
+    "@social-sdk/model": "workspace:*",
     "long": "5.3.2"
   },
   "devDependencies": {

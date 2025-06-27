@@ -39,6 +39,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@social-sdk/model": "workspace:*",
     "type-fest": "catalog:"
   },
   "devDependencies": {

@@ -43,6 +43,7 @@
     "@social-sdk/auth": "workspace:*",
     "@social-sdk/client": "workspace:*",
     "@social-sdk/core": "workspace:*",
+    "@social-sdk/model": "workspace:*",
     "acorn": "8.15.0",
     "acorn-walk": "8.3.4",
     "jsdom": "catalog:",
