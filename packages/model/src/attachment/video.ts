@@ -7,6 +7,8 @@ export interface VideoProps {
   height?: number;
   duration?: string;
   alt?: string;
+  preview?: string;
+  mediaType?: string;
 }
 
 export class Video {
@@ -16,6 +18,8 @@ export class Video {
   public readonly height?: number;
   public readonly duration?: string;
   public readonly alt?: string;
+  public readonly preview?: string;
+  public readonly mediaType?: string;
 
   constructor(props: Readonly<VideoProps>) {
     this.url = props.url;
@@ -24,6 +28,8 @@ export class Video {
     this.height = props.height;
     this.duration = props.duration;
     this.alt = props.alt;
+    this.preview = props.preview;
+    this.mediaType = props.mediaType;
   }
 
   public toAP(): APVideo | LinkReference {
@@ -34,6 +40,8 @@ export class Video {
       height: this.height,
       duration: this.duration,
       summary: this.alt,
+      mediaType: this.mediaType,
+      preview: this.preview ? new URL(this.preview) : undefined,
     };
   }
 }
