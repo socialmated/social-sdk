@@ -29,7 +29,7 @@ import {
 } from '@/types/response.js';
 import { type TimelineAddEntry } from '@/types/timeline.js';
 import { type UserUnion } from '@/types/user.js';
-import { getCursor, getEntries } from '@/model/timeline.js';
+import { getCursor, getEntries } from '@/mappers/timeline.js';
 import { type TweetUnion } from '@/types/tweet.js';
 
 enum XAPIEndpoints {
