@@ -1,4 +1,4 @@
-import { type Person } from '@activity-kit/types';
+import { type EitherCollectionReference, type Person } from '@activity-kit/types';
 import { type UserId } from './id.js';
 import { type Location } from '@/entity/location.js';
 import { type Image } from '@/attachment/image.js';
@@ -11,6 +11,9 @@ interface UserProps {
   createdAt?: Date;
   followersCount?: number;
   followingCount?: number;
+  likesCount?: number;
+  likedCount?: number;
+  bookmarkCount?: number;
   description?: string;
   displayName?: string;
   gender?: string;
@@ -24,6 +27,9 @@ export class User {
   public readonly createdAt?: Date;
   public readonly followersCount?: number;
   public readonly followingCount?: number;
+  public readonly likesCount?: number;
+  public readonly likedCount?: number;
+  public readonly bookmarkCount?: number;
   public name: string;
   public description?: string;
   public displayName?: string;
@@ -38,6 +44,9 @@ export class User {
     this.createdAt = props.createdAt;
     this.followersCount = props.followersCount;
     this.followingCount = props.followingCount;
+    this.likesCount = props.likesCount;
+    this.likedCount = props.likedCount;
+    this.bookmarkCount = props.bookmarkCount;
     this.gender = props.gender;
     this.id = props.id;
     this.location = props.location;
@@ -45,7 +54,7 @@ export class User {
     this.tags = props.tags;
   }
 
-  public toAP(): Person {
+  public toAP(): Person & { bookmarks?: EitherCollectionReference; gender?: string } {
     return {
       type: 'Person',
       id: this.id.toAP(),
@@ -64,10 +73,29 @@ export class User {
             totalItems: this.followingCount,
           }
         : undefined,
+      likes: this.likesCount
+        ? {
+            type: 'OrderedCollection',
+            totalItems: this.likesCount,
+          }
+        : undefined,
+      liked: this.likedCount
+        ? {
+            type: 'OrderedCollection',
+            totalItems: this.likedCount,
+          }
+        : undefined,
+      bookmarks: this.bookmarkCount
+        ? {
+            type: 'OrderedCollection',
+            totalItems: this.bookmarkCount,
+          }
+        : undefined,
       published: this.createdAt,
       location: this.location?.toAP(),
       summary: this.description,
       tag: this.tags?.map((tag) => tag.toAP()),
+      gender: this.gender,
       inbox: {
         type: 'OrderedCollection',
       },
