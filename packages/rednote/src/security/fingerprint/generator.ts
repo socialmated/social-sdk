@@ -81,12 +81,12 @@ export class XSCommonGenerator {
    * @param request - The request options, including URL and headers.
    * @returns The generated fingerprint string, or `null` if the URL does not match path patterns.
    */
-  public generate(platform: string, request: Options): string | null {
+  public generate(platform: string, request: Options): string | undefined {
     const localStorage = this.session.localStorage;
 
     const url = request.url ? request.url.toString() : '';
     if (!this.commonPatterns.map((p) => new RegExp(p)).some((pattern) => pattern.test(url))) {
-      return null;
+      return undefined;
     }
 
     const xt = (request.headers['X-t'] ?? '') as string;

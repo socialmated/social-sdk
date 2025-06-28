@@ -15,9 +15,11 @@ const signRequest =
   (signer: XhsSigner): BeforeRequestHook =>
   (options) => {
     const sig = signer.sign(options);
-    options.headers['X-s'] = sig['X-s'];
-    options.headers['X-t'] = sig['X-t'];
-    options.headers['X-Mns'] = sig['X-Mns'];
+    return setRequestHeaders({
+      'X-s': sig['X-s'],
+      'X-t': sig['X-t'],
+      'X-Mns': sig['X-Mns'],
+    })(options);
   };
 
 /**
@@ -30,9 +32,9 @@ const addFingerprint =
   (generator: XSCommonGenerator): BeforeRequestHook =>
   (options) => {
     const fingerprint = generator.generate(defaultConfig.platform, options);
-    if (fingerprint) {
-      options.headers['X-S-Common'] = fingerprint;
-    }
+    return setRequestHeaders({
+      'X-S-Common': fingerprint,
+    })(options);
   };
 
 /**
