@@ -17,11 +17,11 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    "./*": {
-      "development": "./src/*/index.js",
-      "types": "./dist/*/index.d.ts",
-      "import": "./dist/*/index.js",
-      "default": "./dist/*/index.js"
+    ".": {
+      "development": "./src/index.js",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
