@@ -21,7 +21,7 @@ interface PostProps {
   tags?: Tag[];
 }
 
-export abstract class Post {
+export class Post {
   public readonly id: PostId;
   public readonly title?: string;
   public readonly content: string;
@@ -52,12 +52,10 @@ export abstract class Post {
     this.tags = props.tags;
   }
 
-  abstract get url(): URL;
-
   public toAP(): Note {
     return {
       type: 'Note',
-      id: this.url,
+      id: this.id.toAP(),
       name: this.title,
       attributedTo: this.author.toAP(),
       published: this.publishedAt,
@@ -78,7 +76,7 @@ export abstract class Post {
       },
       tag: [
         {
-          type: 'OrderedCollection',
+          type: 'Collection',
           name: 'Bookmarks',
           totalItems: this.bookmarkCount,
         },
