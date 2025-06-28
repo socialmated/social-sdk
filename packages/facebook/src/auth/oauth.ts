@@ -139,7 +139,7 @@ function createAuthFlow(args: { type: 'oauth2:authorization_code' } & OAuth2Cred
  * @returns An OAuth 2.0 Authorization Code PKCE flow instance configured for Facebook API.
  */
 function createAuthFlow(
-  args: { type: 'oauth2:authorization_code:pkce' } & OAuth2Credential,
+  args: { type: 'oauth2:authorization_code_pkce' } & OAuth2Credential,
 ): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
 /**
  * Creates an OAuth 2.0 Implicit authentication flow for Facebook API.
@@ -152,7 +152,7 @@ function createAuthFlow(
   args:
     | ({ type: 'oauth2:client_credentials' } & OAuth2Credential)
     | ({ type: 'oauth2:authorization_code' } & OAuth2Credential)
-    | ({ type: 'oauth2:authorization_code:pkce' } & OAuth2Credential)
+    | ({ type: 'oauth2:authorization_code_pkce' } & OAuth2Credential)
     | ({ type: 'oauth2:implicit' } & OAuth2Credential),
 ): OAuth2ClientCredentialFlow | OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> {
   switch (args.type) {
@@ -160,7 +160,7 @@ function createAuthFlow(
       return new OAuth2ClientCredentialFlow(server, args.clientId, args.clientSecret);
     case 'oauth2:authorization_code':
       throw new Error('OAuth 2.0 Authorization Code flow is not supported in this context.');
-    case 'oauth2:authorization_code:pkce':
+    case 'oauth2:authorization_code_pkce':
       return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret);
     case 'oauth2:implicit':
       throw new Error('OAuth 2.0 Implicit flow is not supported in this context.');

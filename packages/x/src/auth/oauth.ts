@@ -88,7 +88,7 @@ const clientAuth: ClientAuth = (_as, client, _body, headers) => {
  * ```
  */
 function createAuthFlow(
-  args: { type: 'oauth2:authorization_code:pkce' } & OAuth2Credential,
+  args: { type: 'oauth2:authorization_code_pkce' } & OAuth2Credential,
 ): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
 /**
  * Creates an OAuth 2.0 Client Credentials authentication flow for X (formerly Twitter) API.
@@ -117,12 +117,12 @@ function createAuthFlow(args: { type: 'oauth2:client_credentials' } & OAuth2Cred
 function createAuthFlow(args: { type: 'oauth1a' } & OAuth1aCredential): never;
 function createAuthFlow(
   args:
-    | ({ type: 'oauth2:authorization_code:pkce' } & OAuth2Credential)
+    | ({ type: 'oauth2:authorization_code_pkce' } & OAuth2Credential)
     | ({ type: 'oauth2:client_credentials' } & OAuth2Credential)
     | ({ type: 'oauth1a' } & OAuth1aCredential),
 ): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow | never {
   switch (args.type) {
-    case 'oauth2:authorization_code:pkce':
+    case 'oauth2:authorization_code_pkce':
       return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret, clientAuth);
     case 'oauth2:client_credentials':
       return new OAuth2ClientCredentialFlow(server, args.clientId, args.clientSecret, clientAuth);
