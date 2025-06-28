@@ -1,8 +1,8 @@
 import { type Person } from '@activity-kit/types';
-import { type Avatar } from './avatar.js';
 import { type UserId } from './id.js';
 import { type Location } from '@/entity/location.js';
 import { type Tag } from '@/entity/tag.js';
+import { type Image } from '@/attachment/image.js';
 
 interface UserProps {
   id: UserId;
@@ -11,7 +11,7 @@ interface UserProps {
   followingCount: number;
   name: string;
   displayName: string;
-  avatar: Avatar;
+  avatar: Image;
   description: string;
   location?: Location;
   gender?: string;
@@ -25,7 +25,7 @@ export class User {
   public readonly followingCount: number;
   public name: string;
   public displayName: string;
-  public avatar: Avatar;
+  public avatar: Image;
   public description: string;
   public location?: Location;
   public gender?: string;
