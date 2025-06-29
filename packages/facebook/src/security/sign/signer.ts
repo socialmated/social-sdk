@@ -2,9 +2,34 @@ import { type Signer } from '@social-sdk/client/security';
 import { type Options } from '@social-sdk/client/http';
 import { generateProof, type AppSecretProof } from './sign.js';
 
+/**
+ * Signer for Facebook's App Secret Proof.
+ * @see {@link https://developers.facebook.com/docs/facebook-login/security#proof | Facebook Login - Login Security}
+ *
+ * @example
+ * ```typescript
+ * const signer = new AppSecretProofSigner('your_app_secret');
+ * const proof = signer.sign({
+ *   url: 'https://graph.facebook.com/v12.0/me?access_token=your_access_token',
+ * });
+ * console.log(proof);
+ * ```
+ */
 export class AppSecretProofSigner implements Signer<AppSecretProof> {
+  /**
+   * Creates an instance of AppSecretProofSigner.
+   *
+   * @param appSecret - The App Secret of your Facebook application.
+   */
   constructor(private readonly appSecret: string) {}
 
+  /**
+   * Generates the App Secret Proof for a given request.
+   *
+   * @param req - The request options containing the access token.
+   * @throws Error if the access token is not provided in the request.
+   * @returns The generated App Secret Proof.
+   */
   public sign(req: Options): AppSecretProof {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- should be defined in the request
     const accessToken = new URLSearchParams(new URL(req.url!).searchParams).get('access_token');

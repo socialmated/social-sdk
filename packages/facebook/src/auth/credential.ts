@@ -1,6 +1,6 @@
 /**
  * Credential for accessing Facebook Pages
- * @see {@link https://developers.facebook.com/docs/facebook-login/access-tokens#pagetokens}
+ * @see {@link https://developers.facebook.com/docs/facebook-login/access-tokens#pagetokens | Facebook Login - Page Access Tokens}
  */
 interface PageCredential {
   /**
@@ -15,7 +15,7 @@ interface PageCredential {
 
 /**
  * Credential for accessing on behalf of a Facebook App
- * @see {@link https://developers.facebook.com/docs/facebook-login/access-tokens#clienttokens}
+ * @see {@link https://developers.facebook.com/docs/facebook-login/access-tokens#clienttokens | Facebook Login - Client Token}
  */
 interface ClientCredential {
   /**
