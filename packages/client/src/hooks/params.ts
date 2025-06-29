@@ -16,27 +16,34 @@ const setRequestSearchParam =
   async (options) => {
     const value = typeof valueOrGetValue === 'function' ? await valueOrGetValue(options) : await valueOrGetValue;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- should be defined in the request
-    const searchParams = new URLSearchParams(new URL(options.url!).searchParams);
+    const url = new URL(options.url!);
     if (value !== undefined) {
-      searchParams.set(key, value);
+      url.searchParams.set(key, value);
     }
-    options.searchParams = searchParams;
+    options.url = url;
   };
 
+/**
+ * Creates a BeforeRequestHook that sets multiple search parameters in the request options.
+ *
+ * @param params - An object where keys are search parameter names and values are either static values or functions
+ *                 that return values to set for those parameters.
+ * @returns A BeforeRequestHook that sets the specified search parameters in the request options.
+ */
 const setRequestSearchParams =
   (
     params: Record<string, Promisable<string | undefined> | ((options: Options) => Promisable<string | undefined>)>,
   ): BeforeRequestHook =>
   async (options) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- should be defined in the request
-    const searchParams = new URLSearchParams(new URL(options.url!).searchParams);
+    const url = new URL(options.url!);
     for (const [key, valueOrGetValue] of Object.entries(params)) {
       const value = typeof valueOrGetValue === 'function' ? await valueOrGetValue(options) : await valueOrGetValue;
       if (value !== undefined) {
-        searchParams.set(key, value);
+        url.searchParams.set(key, value);
       }
     }
-    options.searchParams = searchParams;
+    options.url = url;
   };
 
 export { setRequestSearchParam, setRequestSearchParams };
