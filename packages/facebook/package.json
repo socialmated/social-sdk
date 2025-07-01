@@ -45,6 +45,7 @@
     "@social-sdk/auth": "workspace:*",
     "@social-sdk/client": "workspace:*",
     "@social-sdk/core": "workspace:*",
+    "@social-sdk/model": "workspace:*",
     "type-fest": "catalog:"
   },
   "devDependencies": {

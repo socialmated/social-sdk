@@ -7,6 +7,7 @@ interface PageCredential {
    * The User ID of the Facebook user who has granted access to the Page.
    */
   userId: string;
+
   /**
    * The Access Token of the user who has granted access to the Page.
    */
@@ -22,6 +23,7 @@ interface ClientCredential {
    * The App ID of the Facebook App.
    */
   appId: string;
+
   /**
    * The Client Access Token for the Facebook App.
    */
