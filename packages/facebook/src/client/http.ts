@@ -3,14 +3,32 @@ import { OAuthSession } from '@social-sdk/auth/session';
 import { type ClientCredential } from '@/auth/credential.js';
 import { type Page } from '@/types/page.js';
 
+/**
+ * Type guard to check if the provided object is an instance of OAuthSession.
+ *
+ * @param auth - The object to check.
+ * @returns True if the object is an OAuthSession, false otherwise.
+ */
 const isOAuthSession = (auth: object): auth is OAuthSession => {
   return auth instanceof OAuthSession;
 };
 
+/**
+ * Type guard to check if the provided object is an instance of ClientCredential.
+ *
+ * @param auth - The object to check.
+ * @returns True if the object is a ClientCredential, false otherwise.
+ */
 const isClientCredential = (auth: object): auth is ClientCredential => {
   return 'appId' in auth && 'clientToken' in auth;
 };
 
+/**
+ * Type guard to check if the provided object is an instance of Page.
+ *
+ * @param auth - The object to check.
+ * @returns True if the object is a Page, false otherwise.
+ */
 const isPage = (auth: object): auth is Page => {
   return 'access_token' in auth && 'id' in auth && 'name' in auth && 'category' in auth;
 };
