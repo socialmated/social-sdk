@@ -14,8 +14,7 @@ type AdPromotedObject = object;
 type AdRecommendation = object;
 type RegionalRegulationIdentities = object;
 
-// eslint-disable-next-line @typescript-eslint/naming-convention -- expected
-interface IDName {
+interface IdName {
   id: string;
   name: string;
 }
@@ -37,13 +36,13 @@ interface Targeting {
   age_min: number;
   app_install_state: string;
   audience_network_positions: string[];
-  behaviors: IDName[];
+  behaviors: IdName[];
   brand_safety_content_filter_levels: string[];
   catalog_based_targeting: CatalogBasedTargeting;
-  cities: IDName[];
+  cities: IdName[];
   college_years: number[];
   connections: ConnectionsTargeting[];
-  contextual_targeting_categories: IDName[];
+  contextual_targeting_categories: IdName[];
   countries: string[];
   country: string[];
   country_groups: string[];
@@ -51,8 +50,8 @@ interface Targeting {
   device_platforms: DevicePlatforms[];
   direct_install_devices: boolean;
   dynamic_audience_ids: string[];
-  education_majors: IDName[];
-  education_schools: IDName[];
+  education_majors: IdName[];
+  education_schools: IdName[];
   education_statuses: number[];
   effective_audience_network_positions: string[];
   effective_device_platforms: EffectiveDevicePlatforms[];
@@ -61,7 +60,7 @@ interface Targeting {
   effective_messenger_positions: string[];
   effective_publisher_platforms: string[];
   engagement_specs: TargetingDynamicRule[];
-  ethnic_affinity: IDName[];
+  ethnic_affinity: IdName[];
   exclude_reached_since: string[];
   excluded_brand_safety_content_types: string[];
   excluded_connections: ConnectionsTargeting[];
@@ -76,49 +75,49 @@ interface Targeting {
   excluded_user_device: string[];
   exclusions: FlexibleTargeting;
   facebook_positions: string[];
-  family_statuses: IDName[];
+  family_statuses: IdName[];
   fb_deal_id: string;
   flexible_spec: FlexibleTargeting[];
   friends_of_connections: ConnectionsTargeting[];
   genders: number[];
-  generation: IDName[];
+  generation: IdName[];
   geo_locations: TargetingGeoLocation;
-  home_ownership: IDName[];
-  home_type: IDName[];
-  home_value: IDName[];
-  household_composition: IDName[];
-  income: IDName[];
-  industries: IDName[];
+  home_ownership: IdName[];
+  home_type: IdName[];
+  home_value: IdName[];
+  household_composition: IdName[];
+  income: IdName[];
+  industries: IdName[];
   instagram_positions: string[];
   instream_video_skippable_excluded: boolean;
   interested_in: number[];
-  interests: IDName[];
+  interests: IdName[];
   is_whatsapp_destination_ad: boolean;
   keywords: string[];
-  life_events: IDName[];
+  life_events: IdName[];
   locales: number[];
   messenger_positions: string[];
-  moms: IDName[];
-  net_worth: IDName[];
-  office_type: IDName[];
+  moms: IdName[];
+  net_worth: IdName[];
+  office_type: IdName[];
   place_page_set_ids: string[];
   political_views: number[];
-  politics: IDName[];
+  politics: IdName[];
   product_audience_specs: TargetingProductAudienceSpec[];
   prospecting_audience: TargetingProspectingAudience;
   publisher_platforms: string[];
   radius: string;
-  regions: IDName[];
+  regions: IdName[];
   relationship_statuses: number[];
   site_category: string[];
   targeting_optimization: string;
-  user_adclusters: IDName[];
+  user_adclusters: IdName[];
   user_device: string[];
   user_event: number[];
   user_os: string[];
   wireless_carrier: string[];
-  work_employers: IDName[];
-  work_positions: IDName[];
+  work_employers: IdName[];
+  work_positions: IdName[];
   zips: string[];
 }
 

@@ -34,6 +34,7 @@ interface ShadowIGComment {
    */
   username: string;
 }
+
 interface ShadowIGMedia {
   /**
    * Id
@@ -94,7 +95,6 @@ interface ShadowIGMedia {
 }
 
 /**
- * Instagram User object
  * @see {@link https://developers.facebook.com/docs/graph-api/reference/shadow-ig-user | Facebook Graph API - IGUser}
  */
 interface ShadowIGUser {

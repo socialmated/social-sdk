@@ -1,4 +1,3 @@
-// Referenced type declarations
 import type { AdSet, Targeting } from './ads.js';
 import type { ShadowIGUser, User } from './user.js';
 import type { MailingAddress, Location } from './geo.js';
