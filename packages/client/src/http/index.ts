@@ -1,7 +1,7 @@
 import got, { type Got } from 'got';
 import { gotScraping } from 'got-scraping';
 import { OAuthSession, type CookieSession } from '@social-sdk/auth/session';
-import { setAuthorization } from '../hooks/index.js';
+import { setAuthorization } from '@/hooks/index.js';
 
 /**
  * Type representing an HTTP client that can be used to make requests.
@@ -48,7 +48,8 @@ function createHttpClient(session: OAuthSession | CookieSession): HttpClient {
 }
 
 export { createHttpClient };
+export type { HttpClient };
+
 export { gotScraping } from 'got-scraping';
 export { got } from 'got';
-export type { HttpClient };
 export type * from 'got';

@@ -8,9 +8,26 @@ import {
 import { type Merge } from 'type-fest';
 import { type HttpClient } from '@/http/index.js';
 
-/**
- * Represents a function that performs a GraphQL request, either a query or mutation.
- */
+type GraphQLOptionsInit = Omit<OptionsInit, 'searchParams' | 'url'> & {
+  variables?: Record<string, unknown>;
+  features?: Record<string, boolean>;
+  fieldToggles?: Record<string, boolean>;
+};
+
+type GraphQLPaginationOptions<ElementType, BodyType> = Merge<
+  PaginationOptions<ElementType, BodyType>,
+  {
+    paginate?: (data: PaginateData<BodyType, ElementType>) => GraphQLOptionsInit | false;
+  }
+>;
+
+type GraphQLOptionsWithPagination<T, R> = Merge<
+  GraphQLOptionsInit,
+  {
+    pagination?: GraphQLPaginationOptions<T, R>;
+  }
+>;
+
 type GraphQLRequestFunction = (
   id: string,
   name: string,
@@ -62,26 +79,6 @@ type GraphQLHttpClient<T extends HttpClient> = Merge<
      * @returns An `AsyncIterableIterator` that yields elements of type `T`.
      */
     paginate: GraphQLPaginationFunction;
-  }
->;
-
-type GraphQLOptionsInit = Omit<OptionsInit, 'searchParams' | 'url'> & {
-  variables?: Record<string, unknown>;
-  features?: Record<string, boolean>;
-  fieldToggles?: Record<string, boolean>;
-};
-
-type GraphQLPaginationOptions<ElementType, BodyType> = Merge<
-  PaginationOptions<ElementType, BodyType>,
-  {
-    paginate?: (data: PaginateData<BodyType, ElementType>) => GraphQLOptionsInit | false;
-  }
->;
-
-type GraphQLOptionsWithPagination<T, R> = Merge<
-  GraphQLOptionsInit,
-  {
-    pagination?: GraphQLPaginationOptions<T, R>;
   }
 >;
 
