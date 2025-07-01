@@ -2,6 +2,7 @@ import { type PaginateData, type HttpClient } from '@social-sdk/client/http';
 import { type GraphQLHttpClient, useGraphQLHttpClient, type GraphQLOptionsInit } from '@social-sdk/client/graphql';
 import { PrivateAPIClient } from '@social-sdk/client/api';
 import { createXHttpClient } from './http.js';
+import { XAPIEndpoints } from './config.js';
 import { defaultTweetFeatures } from '@/constants/features.js';
 import { type XCookieSession } from '@/auth/session.js';
 import {
@@ -31,17 +32,6 @@ import { type TimelineAddEntry } from '@/types/timeline.js';
 import { type UserUnion } from '@/types/user.js';
 import { getCursor, getEntries } from '@/mappers/timeline.js';
 import { type TweetUnion } from '@/types/tweet.js';
-
-enum XAPIEndpoints {
-  /**
-   * The base URL for X's v1.1 API endpoints.
-   */
-  V11 = 'https://x.com/i/api/1.1/',
-  /**
-   * The base URL for X's GraphQL API endpoints.
-   */
-  GraphQL = 'https://x.com/i/api/graphql/',
-}
 
 /**
  * A client for accessing X (Twitter) private API endpoints.

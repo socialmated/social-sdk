@@ -6,7 +6,6 @@ declare global {
   /**
    * The global function that will be set by the WebAssembly module to generate the XP-Forwarded-For string.
    */
-  // eslint-disable-next-line no-var -- global variable declaration
   var getForwardedForStr: (() => Promise<{ str: string; expiryTimeMillis: string }>) | undefined;
 }
 
@@ -50,6 +49,7 @@ export class XPFwdForGenerator {
 
   /**
    * Generates a XP-Forwarded-For string using the WebAssembly module.
+   *
    * @returns A promise that resolves to an object containing the generated XP-Forwarded-For string and its expiry time in milliseconds.
    */
   public async generate(): Promise<{

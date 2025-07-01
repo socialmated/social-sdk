@@ -3,7 +3,7 @@ import {
   type ClientAuth,
   type ServerMetadata,
   OAuth2AuthorizationCodePKCEFlow,
-  OAuth2ClientCredentialFlow,
+  OAuth2ClientCredentialsFlow,
 } from '@social-sdk/auth/flow';
 import { type TupleToUnion } from 'type-fest';
 
@@ -77,36 +77,20 @@ const clientAuth: ClientAuth = (_as, client, _body, headers) => {
  *
  * @param args - Configuration arguments for OAuth 2.0 Authorization Code PKCE flow
  * @returns An OAuth 2.0 Authorization Code PKCE flow instance configured for X API
- *
- * @example
- * ```typescript
- * const pkceFlow = createAuthFlow({
- *   type: 'oauth2:pkce',
- *   clientId: 'your-client-id',
- *   clientSecret: 'optional-client-secret'
- * });
- * ```
  */
 function createAuthFlow(
   args: { type: 'oauth2:authorization_code_pkce' } & OAuth2Credential,
 ): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes>;
+
 /**
  * Creates an OAuth 2.0 Client Credentials authentication flow for X (formerly Twitter) API.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/application-only | X OAuth 2.0 Application-only Documentation}
  *
  * @param args - Configuration arguments for OAuth 2.0 Client Credentials flow
  * @returns An OAuth 2.0 Client Credential flow instance configured for X API
- *
- * @example
- * ```typescript
- * const clientFlow = createAuthFlow({
- *   type: 'oauth2:client_credentials',
- *   consumerKey: 'your-consumer-key',
- *   consumerSecret: 'your-consumer-secret'
- * });
- * ```
  */
-function createAuthFlow(args: { type: 'oauth2:client_credentials' } & OAuth2Credential): OAuth2ClientCredentialFlow;
+function createAuthFlow(args: { type: 'oauth2:client_credentials' } & OAuth2Credential): OAuth2ClientCredentialsFlow;
+
 /**
  * OAuth 1a authentication flow creation - currently not supported.
  * @see {@link https://docs.x.com/resources/fundamentals/authentication/oauth-1-0a/obtaining-user-access-tokens | X OAuth 1.0a User Access Tokens (3-legged OAuth) Documentation}
@@ -115,17 +99,18 @@ function createAuthFlow(args: { type: 'oauth2:client_credentials' } & OAuth2Cred
  * @returns Never returns - always throws an error
  */
 function createAuthFlow(args: { type: 'oauth1a' } & OAuth1aCredential): never;
+
 function createAuthFlow(
   args:
     | ({ type: 'oauth2:authorization_code_pkce' } & OAuth2Credential)
     | ({ type: 'oauth2:client_credentials' } & OAuth2Credential)
     | ({ type: 'oauth1a' } & OAuth1aCredential),
-): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialFlow | never {
+): OAuth2AuthorizationCodePKCEFlow<OAuth2Scopes> | OAuth2ClientCredentialsFlow | never {
   switch (args.type) {
     case 'oauth2:authorization_code_pkce':
       return new OAuth2AuthorizationCodePKCEFlow(server, args.clientId, args.clientSecret, clientAuth);
     case 'oauth2:client_credentials':
-      return new OAuth2ClientCredentialFlow(server, args.clientId, args.clientSecret, clientAuth);
+      return new OAuth2ClientCredentialsFlow(server, args.clientId, args.clientSecret, clientAuth);
     case 'oauth1a':
       throw new Error('OAuth 1a flow is not supported in this context.');
   }
