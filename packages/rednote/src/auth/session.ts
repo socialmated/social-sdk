@@ -7,6 +7,9 @@ import {
 import { addYear } from '@formkit/tempo';
 import { generateLocalId, generateWebId } from '@/security/token/token.js';
 
+/**
+ * Represents a session for the Rednote (Xiaohongshu) platform using cookies.
+ */
 export class RednoteCookieSession extends WebStoreCookieSession {
   /**
    * Creates an instance of the session class.

@@ -1,6 +1,7 @@
 import { type OptionsInit, type PaginateData, type HttpClient } from '@social-sdk/client/http';
 import { PrivateAPIClient } from '@social-sdk/client/api';
-import { createRednoteHttpClient, RednoteAPIEndpoints } from './http.js';
+import { createRednoteHttpClient } from './http.js';
+import { RednoteAPIEndpoints } from './config.js';
 import { type RednoteCookieSession } from '@/auth/session.js';
 import {
   type SelfUserInfo,

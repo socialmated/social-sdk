@@ -41,5 +41,35 @@ const defaultCommonPatterns = [
   '/api/store/jpd/main',
 ];
 
-export { defaultConfig, defaultCommonPatterns };
+/**
+ * The API endpoints of Rednote (Xiaohongshu).
+ */
+enum RednoteAPIEndpoints {
+  /**
+   * The base URL for Rednote's security API endpoints.
+   */
+  SecV1 = 'https://as.xiaohongshu.com/api/sec/v1/',
+
+  /**
+   * The base URL for Rednote's SNS Web V1 API endpoints.
+   */
+  SnsWebV1 = 'https://edith.xiaohongshu.com/api/sns/web/v1/',
+
+  /**
+   * The base URL for Rednote's SNS Web V2 API endpoints.
+   */
+  SnsWebV2 = 'https://edith.xiaohongshu.com/api/sns/web/v2/',
+
+  /**
+   * The base URL for Rednote's IM API endpoints.
+   */
+  IM = 'https://edith.xiaohongshu.com/api/im/',
+
+  /**
+   * The base URL for Rednote's Report API endpoints.
+   */
+  Report = 'https://edith.xiaohongshu.com/api/report/',
+}
+
+export { defaultConfig, defaultCommonPatterns, RednoteAPIEndpoints };
 export type { ClientConfig };

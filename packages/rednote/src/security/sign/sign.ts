@@ -9,10 +9,12 @@ export interface XhsSignOutput {
    * The signature string.
    */
   'X-s': string;
+
   /**
    * The timestamp of the signature.
    */
   'X-t': string;
+
   /**
    * The MNS token or 'unload' if not applicable.
    */
