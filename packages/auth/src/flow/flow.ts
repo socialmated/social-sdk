@@ -21,6 +21,7 @@ export interface ConsentPrompt {
    * @returns A Promise that resolves when the prompt is opened.
    */
   open: (timeout?: number) => Promise<void>;
+
   /**
    * Closes the consent prompt.
    *

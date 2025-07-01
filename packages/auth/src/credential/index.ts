@@ -41,6 +41,7 @@ export interface OAuth1aCredential {
    * The OAuth 1.0a consumer key.
    */
   consumerKey: string;
+
   /**
    * The optional OAuth 1.0a consumer secret.
    */
@@ -55,6 +56,7 @@ export interface OAuth2Credential {
    * The OAuth 2.0 client identifier.
    */
   clientId: string;
+
   /**
    * The optional OAuth 2.0 client secret.
    */

@@ -225,7 +225,7 @@ class OAuth2AuthorizationCodePKCEFlow<TScp> implements AuthFlow<OAuth2Credential
  *
  * @see {@link https://datatracker.ietf.org/doc/html/rfc6749#section-4.4 | OAuth 2.0 Client Credentials Grant}
  */
-class OAuth2ClientCredentialFlow implements AuthFlow<OAuth2Credential, OAuthSession> {
+class OAuth2ClientCredentialsFlow implements AuthFlow<OAuth2Credential, OAuthSession> {
   /**
    * Creates a new instance of the class with the specified OAuth2 configuration.
    *
@@ -383,5 +383,5 @@ class LocalConsentPrompt implements ConsentPrompt {
   }
 }
 
-export { OAuth2AuthorizationCodePKCEFlow, OAuth2ClientCredentialFlow };
+export { OAuth2AuthorizationCodePKCEFlow, OAuth2ClientCredentialsFlow };
 export type { ServerMetadata, ClientAuth, OAuth2AuthorizationCodeOptions };
