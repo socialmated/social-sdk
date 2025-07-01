@@ -8,6 +8,7 @@ interface AppSecretProof {
    * The generated proof string.
    */
   proof: string;
+
   /**
    * The time when the proof was generated, in milliseconds since the epoch.
    */

@@ -31,8 +31,24 @@ export class AppSecretProofSigner implements Signer<AppSecretProof> {
    * @returns The generated App Secret Proof.
    */
   public sign(req: Options): AppSecretProof {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- should be defined in the request
-    const accessToken = new URLSearchParams(new URL(req.url!).searchParams).get('access_token');
+    let accessToken: string | null = null;
+
+    if (req.url) {
+      const params = new URL(req.url).searchParams;
+      if (params.has('access_token')) {
+        accessToken = params.get('access_token');
+      }
+    }
+
+    if (typeof req.searchParams === 'string' || req.searchParams instanceof URLSearchParams) {
+      const params = new URLSearchParams(req.searchParams);
+      if (params.has('access_token')) {
+        accessToken = params.get('access_token');
+      }
+    } else if (req.searchParams && 'access_token' in req.searchParams) {
+      accessToken = (req.searchParams['access_token'] ?? null) as string | null;
+    }
+
     if (!accessToken) {
       throw new Error('Access token is required to generate App Secret Proof');
     }
