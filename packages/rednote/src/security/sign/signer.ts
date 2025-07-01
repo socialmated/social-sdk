@@ -43,16 +43,12 @@ class XhsSigner implements Signer<{ 'X-s': string; 'X-t': string; 'X-Mns': strin
    */
   public sign(request: Options, options?: XhsSignerOptions): XhsSignOutput {
     const a1 = this.session.get('a1') ?? this.session.refresh('a1');
+
     const fullPath = request.url ? new URL(request.url).pathname + new URL(request.url).search : '';
     const body: unknown =
       !request.json && typeof request.body === 'string' ? JSON.parse(request.body) : (request.json ?? request.body);
-    let output: Omit<XhsSignOutput, 'X-Mns'>;
 
-    if (options?.type === 'sign_old') {
-      output = signOld(fullPath, body);
-    } else {
-      output = signNew(fullPath, body, a1);
-    }
+    const output = options?.type === 'sign_old' ? signOld(fullPath, body) : signNew(fullPath, body, a1);
 
     return {
       ...output,

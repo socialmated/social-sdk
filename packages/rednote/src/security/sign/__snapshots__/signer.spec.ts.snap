@@ -1,5 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`XhsSigner > sign > should refresh a1 cookie if not set and sign request 1`] = `
+{
+  "X-Mns": "unload",
+  "X-s": "XYW_eyJzaWduU3ZuIjoiNTYiLCJzaWduVHlwZSI6IngyIiwiYXBwSWQiOiJ4aHMtcGMtd2ViIiwic2lnblZlcnNpb24iOiIxIiwicGF5bG9hZCI6IjBiZWU4ZWVmNTQwN2YzYjEyOTU2NDJmNThiNDMyYmI0OWRlMGQ1YjkxOGNmODYyNDc3MzA0NDlkMzEyOGQ0MDE3ZGYyNzY2ZDA0YmMyZGRlNmRkZGQzYWM4MTAyZDMzZjlhYjEzNzE3NWM2NzdlZTIxZjliNTgyNGI2NzcxZjUxZGU2ZGJhZGExOWEzMWZlZjgwNjNhNjJjYzJiY2RmODM0OWIwMGEwMjJjN2I4NmE1NmIzYmE4M2I5NGFjNWY0NTVjMTc1ODFmYzEzY2MzMmMwMDI3MzVjMmJlNzdkZTdkMGFmODFiZDI1NDJiNTI3ODhiODNiNzllODcyY2ZhN2VkNTNmNjVkMTBkNTJhYWViZjNiZDRkZmNkYTIyM2NmYjYzOGM5MDdlNGFhMjc2YjBkZmNmM2U4OTYzNzAxOTVjMDFmMTY0NTJjMTk0OGFkMjJlMzA3YTc0MWZkZTZkNTc0MWJhZjFmNTY0YjY1ZDFlYTQwYmUwMDVlMmJhZGFiNzc2NjEzNmJhYjljNmY0ZWFkYWU3Y2IzMzQyNzc3ODM2In0=",
+  "X-t": "1735657200000",
+}
+`;
+
 exports[`XhsSigner > sign > should sign GET request with query parameters and return signature 1`] = `
 {
   "X-Mns": "unload",

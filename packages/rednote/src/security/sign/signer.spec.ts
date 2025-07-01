@@ -10,14 +10,16 @@ describe(XhsSigner, () => {
 
   beforeEach(() => {
     vi.setSystemTime(new Date(2025, 0, 1));
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
 
     session = new RednoteCookieSession();
-    session.set('a1', a1);
     signer = new XhsSigner(session);
   });
 
   describe(XhsSigner.prototype.sign, () => {
     it('should sign POST request with body and return signature', () => {
+      session.set('a1', a1);
+
       const req = new Options({
         method: 'POST',
         url: 'https://edith.xiaohongshu.com/api/sns/web/v1/resource',
@@ -32,6 +34,8 @@ describe(XhsSigner, () => {
     });
 
     it('should sign GET request with query parameters and return signature', () => {
+      session.set('a1', a1);
+
       const req = new Options({
         method: 'GET',
         url: 'https://edith.xiaohongshu.com/api/sns/web/v1/resource',
@@ -43,6 +47,18 @@ describe(XhsSigner, () => {
       const sig = signer.sign(req);
 
       expect(sig).toMatchSnapshot();
+    });
+
+    it('should refresh a1 cookie if not set and sign request', () => {
+      const req = new Options({
+        method: 'GET',
+        url: 'https://edith.xiaohongshu.com/api/sns/web/v1/resource',
+      });
+
+      const sig = signer.sign(req);
+
+      expect(sig).toMatchSnapshot();
+      expect(session.get('a1')).toBeDefined();
     });
   });
 });
