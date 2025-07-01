@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AppSecretProofSigner > sign > should prioritize access token from URL over searchParams when both are present 1`] = `
+{
+  "proof": "29346adb4c7a5f3e9116208a19d2804658cd9bd3ac2f2783a7622f3970e540a0",
+  "time": 1735657200000,
+}
+`;
+
+exports[`AppSecretProofSigner > sign > should sign request with access token in URL and return app secret proof 1`] = `
+{
+  "proof": "29346adb4c7a5f3e9116208a19d2804658cd9bd3ac2f2783a7622f3970e540a0",
+  "time": 1735657200000,
+}
+`;
+
+exports[`AppSecretProofSigner > sign > should sign request with access token in searchParams URLSearchParams and return app secret proof 1`] = `
+{
+  "proof": "29346adb4c7a5f3e9116208a19d2804658cd9bd3ac2f2783a7622f3970e540a0",
+  "time": 1735657200000,
+}
+`;
+
+exports[`AppSecretProofSigner > sign > should sign request with access token in searchParams object and return app secret proof 1`] = `
+{
+  "proof": "29346adb4c7a5f3e9116208a19d2804658cd9bd3ac2f2783a7622f3970e540a0",
+  "time": 1735657200000,
+}
+`;
+
+exports[`AppSecretProofSigner > sign > should sign request with access token in searchParams string and return app secret proof 1`] = `
+{
+  "proof": "29346adb4c7a5f3e9116208a19d2804658cd9bd3ac2f2783a7622f3970e540a0",
+  "time": 1735657200000,
+}
+`;
