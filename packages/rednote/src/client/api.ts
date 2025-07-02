@@ -10,6 +10,8 @@ import {
   type OtherUserInfo,
   type UserMe,
   type UserSession,
+  type IntimacyListSearchResult,
+  type UserHoverCard,
 } from '@/types/user.js';
 import { type ApiResponse } from '@/types/common.js';
 import {
@@ -39,6 +41,8 @@ import {
   type NotePageResult,
   type LikedNumResult,
   type LikeCommentRequest,
+  type PostCommentRequest,
+  type DeleteCommentRequest,
 } from '@/types/note.js';
 import { type QRCodeStatus, type CreateLoginQRCodeRequest, type QRCode } from '@/types/login.js';
 import { type RedmojiDetail, type RedmojiVersion } from '@/types/redmoji.js';
@@ -578,16 +582,54 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async deleteComment(): Promise<unknown> {
-    const resp = await this.v1.post('comment/delete').json<ApiResponse<unknown>>();
+  public async moveNote(): Promise<unknown> {
+    const resp = await this.v1.post('note/move').json<ApiResponse<unknown>>();
     if (!resp.success) {
-      throw new Error(`Failed to delete comment: ${resp.msg}`);
+      throw new Error(`Failed to move note: ${resp.msg}`);
     }
     return resp.data;
   }
 
-  public async postComment(): Promise<unknown> {
-    const resp = await this.v1.post('comment/post').json<ApiResponse<unknown>>();
+  /**
+   * Deletes a comment from a specific note.
+   *
+   * @param commentId - The unique identifier of the comment to delete
+   * @param noteId - The unique identifier of the note containing the comment
+   * @returns A promise that resolves when the comment is successfully deleted
+   *
+   * @example
+   * ```typescript
+   * await client.deleteComment('comment123', 'note456');
+   * ```
+   */
+  public async deleteComment(commentId: string, noteId: string): Promise<void> {
+    const req: DeleteCommentRequest = {
+      comment_id: commentId,
+      note_id: noteId,
+    };
+
+    const resp = await this.v1.post('comment/delete', { json: req }).json<ApiResponse<void>>();
+    if (!resp.success) {
+      throw new Error(`Failed to delete comment: ${resp.msg}`);
+    }
+
+    return resp.data;
+  }
+
+  /**
+   * Posts a comment on a specific note.
+   *
+   * @param form - The request body containing the note ID and comment content
+   * @returns A promise that resolves to the posted comment data
+   *
+   * @example
+   * ```typescript
+   * const comment = await client.postComment({ note_id: 'note123', content: 'Great note!' });
+   * console.log(comment);
+   * ```
+   */
+  public async postComment(form: PostCommentRequest): Promise<unknown> {
+    const resp = await this.v1.post('comment/post', { json: form }).json<ApiResponse<unknown>>();
     if (!resp.success) {
       throw new Error(`Failed to post comment: ${resp.msg}`);
     }
@@ -654,11 +696,33 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async searchIntimacyList(): Promise<unknown> {
-    const resp = await this.v1.get('intimacy/intimacy_list/search').json<ApiResponse<unknown>>();
+  /**
+   * Searches for intimacy lists based on a keyword.
+   *
+   * @param keyword - The keyword to search for in intimacy lists
+   * @param page - The page number to retrieve (default: 1)
+   * @param rows - The number of results per page (default: 30)
+   * @returns A promise that resolves to the search result containing intimacy lists
+   *
+   * @example
+   * ```typescript
+   * const results = await client.searchIntimacyList('keyword');
+   * console.log(results);
+   * ```
+   */
+  public async searchIntimacyList(keyword: string, page = 1, rows = 30): Promise<IntimacyListSearchResult> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('keyword', keyword);
+    searchParams.set('page', page.toString());
+    searchParams.set('rows', rows.toString());
+
+    const resp = await this.v1
+      .get('intimacy/intimacy_list/search', { searchParams })
+      .json<ApiResponse<IntimacyListSearchResult>>();
     if (!resp.success) {
       throw new Error(`Failed to search intimacy list: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
@@ -736,6 +800,33 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     const resp = await this.v1.post('user/info').json<ApiResponse<unknown>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch user info: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  /**
+   * Fetches the hover card information for a specified user.
+   *
+   * @param userId - The unique identifier of the target user.
+   * @param xsecToken - The security token required for authentication.
+   * @returns A promise that resolves to the user hover card data.
+   *
+   * @example
+   * ```typescript
+   * const hoverCard = await client.userHoverCard('user123', 'xsec_token_value');
+   * console.log(hoverCard);
+   * ```
+   */
+  public async userHoverCard(userId: string, xsecToken: string): Promise<UserHoverCard> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('target_user_id', userId);
+    searchParams.set('image_formats', 'jpg,webp,avif');
+    searchParams.set('xsec_source', 'pc_comment'); // or 'pc_note'
+    searchParams.set('xsec_token', xsecToken);
+
+    const resp = await this.v1.get('user/hover_card').json<ApiResponse<UserHoverCard>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch user hover card: ${resp.msg}`);
     }
     return resp.data;
   }
@@ -1075,6 +1166,54 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
+  public async createBoard(): Promise<unknown> {
+    const resp = await this.v1.post('board').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to create board: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async deleteBoard(): Promise<unknown> {
+    const resp = await this.v1.delete('board').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to delete board: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async updateBoard(): Promise<unknown> {
+    const resp = await this.v1.put('board').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to update board: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async board(boardId: string): Promise<unknown> {
+    const resp = await this.v1.get(`board/${boardId}`).json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch board: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async boardUser(): Promise<unknown> {
+    const resp = await this.v1.get('board/user').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch board user: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async boardNote(): Promise<unknown> {
+    const resp = await this.v1.get('board/note').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch board note: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
   public async loginRecommendTag(): Promise<unknown> {
     const resp = await this.v1.get('tag/login_recommend').json<ApiResponse<unknown>>();
     if (!resp.success) {
@@ -1159,6 +1298,38 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     const resp = await this.im.get('redmoji/detail').json<ApiResponse<RedmojiDetail>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch redmoji detail: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async connectionsNotification(): Promise<unknown> {
+    const resp = await this.v1.get('you/connections').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch connections: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async mentionsNotification(): Promise<unknown> {
+    const resp = await this.v1.get('you/mentions').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to mark connections as read: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async likesNotification(): Promise<unknown> {
+    const resp = await this.v1.get('you/likes').json<ApiResponse<unknown>>();
+    if (!resp.success) {
+      throw new Error(`Failed to fetch likes: ${resp.msg}`);
+    }
+    return resp.data;
+  }
+
+  public async readMessage(): Promise<void> {
+    const resp = await this.v1.post('message/read').json<ApiResponse<void>>();
+    if (!resp.success) {
+      throw new Error(`Failed to mark notifications as read: ${resp.msg}`);
     }
     return resp.data;
   }

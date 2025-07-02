@@ -16,11 +16,6 @@ type UserMe =
       imageb: string;
     };
 
-interface UserExtraInfo {
-  fstatus: string; // enum
-  blockType: string; // enum
-}
-
 interface UserBasicInfo {
   nickname: string;
   images: string;
@@ -61,6 +56,8 @@ interface UserTabPublic {
   };
 }
 
+type FStatus = 'none' | 'follows' | 'fans' | 'both';
+
 interface OtherUserInfo {
   extra_info: UserExtraInfo;
   result: Result;
@@ -84,13 +81,59 @@ interface FollowUserRequest {
 }
 
 interface FollowUserResult {
-  fstatus: string; // enum
+  fstatus: FStatus;
 }
 
 interface UserSession {
   user_id: string;
   session: string;
   secure_session: string;
+}
+
+interface AtUser {
+  user_id: string;
+  nickname: string;
+}
+
+interface IntimacyListItem {
+  rid: string;
+  userid: string;
+  nickname: string;
+  images: string;
+}
+
+interface IntimacyListSearchResult {
+  items: IntimacyListItem[];
+}
+
+interface UserInteractInfo {
+  follows: string;
+  fans: string;
+  interaction: string;
+}
+
+interface UserExtraInfo {
+  fstatus: FStatus;
+  block_type: string;
+}
+
+interface NoteCover {
+  url_default: string;
+}
+
+interface UserHoverCardNote {
+  note_id: string;
+  type: string;
+  cover: NoteCover;
+  xsec_token: string;
+}
+
+interface UserHoverCard {
+  basic_info: UserBasicInfo;
+  verify_info: UserVerifyInfo;
+  interact_info: UserInteractInfo;
+  extraInfo_info: UserExtraInfo;
+  notes: UserHoverCardNote[];
 }
 
 export type {
@@ -106,4 +149,11 @@ export type {
   FollowUserRequest,
   FollowUserResult,
   UserSession,
+  AtUser,
+  IntimacyListItem,
+  IntimacyListSearchResult,
+  UserInteractInfo,
+  NoteCover,
+  UserHoverCardNote,
+  UserHoverCard,
 };

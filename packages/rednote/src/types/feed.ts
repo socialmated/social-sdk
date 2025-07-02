@@ -8,6 +8,7 @@ import {
   type NoteCardVideo,
   type NoteCardCover,
 } from './note.js';
+import { type AtUser } from './user.js';
 
 interface FeedNoteCard {
   note_id: string;
@@ -19,7 +20,7 @@ interface FeedNoteCard {
   interact_info: NoteCardInteractInfo;
   image_list: NoteCardImage[];
   video?: NoteCardVideo;
-  at_user_list: string[]; // fixme
+  at_user_list: AtUser[];
   last_update_time: number;
   type: string; // enum: normal, video
   desc: string;

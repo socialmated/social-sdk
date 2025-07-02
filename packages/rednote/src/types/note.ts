@@ -1,3 +1,5 @@
+import { type AtUser } from './user.js';
+
 interface NoteCardUser {
   user_id: string;
   nickname: string;
@@ -158,7 +160,7 @@ interface NoteCard {
 
 interface Comment {
   sub_comment_cursor: string;
-  at_users: string[]; // fixme
+  at_users: AtUser[];
   like_count: string;
   show_tags: string[];
   create_time: number;
@@ -196,7 +198,7 @@ interface SubComment {
   create_time: number;
   status: number; // enum
   content: string;
-  at_users: string[]; // fixme
+  at_users: AtUser[];
   liked: boolean;
   ip_location: string;
 }
@@ -207,14 +209,6 @@ interface CommentPageResult {
   cursor: string;
   has_more: boolean;
   time: number;
-  xsec_token: string;
-}
-
-interface CommentParams {
-  note_id: string;
-  cursor: string;
-  top_comment_id: string;
-  image_formats: string[];
   xsec_token: string;
 }
 
@@ -253,6 +247,18 @@ interface LikeCommentRequest {
   note_id: string;
 }
 
+interface PostCommentRequest {
+  note_id: string;
+  content: string;
+  at_users: AtUser[];
+  target_comment_id?: string;
+}
+
+interface DeleteCommentRequest {
+  comment_id: string;
+  note_id: string;
+}
+
 export type {
   NoteCardCover,
   NoteCardInteractInfo,
@@ -279,7 +285,8 @@ export type {
   TargetComment,
   SubComment,
   CommentPageResult,
-  CommentParams,
+  PostCommentRequest,
+  DeleteCommentRequest,
   LikeRequest,
   LikeResult,
   DislikeResult,
