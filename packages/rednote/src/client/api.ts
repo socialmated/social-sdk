@@ -12,7 +12,16 @@ import {
   type UserSession,
 } from '@/types/user.js';
 import { type ApiResponse } from '@/types/common.js';
-import { type SearchRecommendResult } from '@/types/search.js';
+import {
+  type SearchNotesRequest,
+  type SearchFiltersResult,
+  type SearchRecommendResult,
+  type SearchNotesResult,
+  type SearchOneboxRequest,
+  type UserSearchResult,
+  type SearchUserRequest,
+  type SearchQueryTrendingResult,
+} from '@/types/search.js';
 import {
   type HomeFeedRequest,
   type FeedResult,
@@ -33,6 +42,8 @@ import {
 } from '@/types/note.js';
 import { type QRCodeStatus, type CreateLoginQRCodeRequest, type QRCode } from '@/types/login.js';
 import { type RedmojiDetail, type RedmojiVersion } from '@/types/redmoji.js';
+import { type SubmitReportRequest, type ListReportRequest, type ListReportResult } from '@/types/report.js';
+import { createRequestId, createSearchId } from '@/security/token/token.js';
 
 /**
  * A client for interacting with the Rednote Private API.
@@ -238,14 +249,14 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * ```
    */
   public async commentPage(noteId: string, xsecToken: string, cursor = ''): Promise<CommentPageResult> {
-    const params = new URLSearchParams();
-    params.set('note_id', noteId);
-    params.set('cursor', cursor);
-    params.set('top_comment_id', '');
-    params.set('image_formats', 'jpg,webp,avif');
-    params.set('xsec_token', xsecToken);
+    const searchParams = new URLSearchParams();
+    searchParams.set('note_id', noteId);
+    searchParams.set('cursor', cursor);
+    searchParams.set('top_comment_id', '');
+    searchParams.set('image_formats', 'jpg,webp,avif');
+    searchParams.set('xsec_token', xsecToken);
 
-    const resp = await this.v2.get('comment/page', { searchParams: params }).json<ApiResponse<CommentPageResult>>();
+    const resp = await this.v2.get('comment/page', { searchParams }).json<ApiResponse<CommentPageResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch comment page: ${resp.msg}`);
     }
@@ -276,16 +287,16 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     num = 10,
     cursor = '',
   ): Promise<CommentPageResult> {
-    const params = new URLSearchParams();
-    params.set('note_id', noteId);
-    params.set('root_comment_id', rootCommentId);
-    params.set('num', num.toString());
-    params.set('cursor', cursor);
-    params.set('image_formats', 'jpg,webp,avif');
-    params.set('top_comment_id', '');
-    params.set('xsec_token', xsecToken);
+    const searchParams = new URLSearchParams();
+    searchParams.set('note_id', noteId);
+    searchParams.set('root_comment_id', rootCommentId);
+    searchParams.set('num', num.toString());
+    searchParams.set('cursor', cursor);
+    searchParams.set('image_formats', 'jpg,webp,avif');
+    searchParams.set('top_comment_id', '');
+    searchParams.set('xsec_token', xsecToken);
 
-    const resp = await this.v2.get('comment/sub/page').json<ApiResponse<CommentPageResult>>();
+    const resp = await this.v2.get('comment/sub/page', { searchParams }).json<ApiResponse<CommentPageResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch comment sub page: ${resp.msg}`);
     }
@@ -298,6 +309,12 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    *
    * @param qrType - The type of QR code to create (default: 1)
    * @returns A promise that resolves to the created QR code data
+   *
+   * @example
+   * ```typescript
+   * const qrCode = await client.createLoginQRCode();
+   * console.log(qrCode);
+   * ```
    */
   public async createLoginQRCode(qrType = 1): Promise<QRCode> {
     const req: CreateLoginQRCodeRequest = {
@@ -318,13 +335,19 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * @param qrId - The unique identifier of the QR code
    * @param code - The code associated with the QR code
    * @returns A promise that resolves to the QR code status
+   *
+   * @example
+   * ```typescript
+   * const status = await client.QRCodeStatus('qr123', 'code456');
+   * console.log(status);
+   * ```
    */
   public async QRCodeStatus(qrId: string, code: string): Promise<QRCodeStatus> {
-    const params = new URLSearchParams();
-    params.set('qr_id', qrId);
-    params.set('code', code);
+    const searchParams = new URLSearchParams();
+    searchParams.set('qr_id', qrId);
+    searchParams.set('code', code);
 
-    const resp = await this.v1.get('login/qrcode/status', { searchParams: params }).json<ApiResponse<QRCodeStatus>>();
+    const resp = await this.v1.get('login/qrcode/status', { searchParams }).json<ApiResponse<QRCodeStatus>>();
     if (!resp.success) {
       throw new Error(`Failed to get QR code status: ${resp.msg}`);
     }
@@ -371,13 +394,27 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async checkLoginCode(phone: string, zone: string, code: string): Promise<unknown> {
-    const params = new URLSearchParams();
-    params.set('phone', phone);
-    params.set('zone', zone);
-    params.set('code', code);
+  /**
+   * Checks the login code for a specific phone number and zone.
+   *
+   * @param code - The login code to verify
+   * @param phone - The phone number to check the login code for
+   * @param zone - The country code or zone for the phone number (default: '86')
+   * @returns A promise that resolves to the result of the login code check
+   *
+   * @example
+   * ```typescript
+   * const result = await client.checkLoginCode('123456', '1234567890', '86');
+   * console.log(result);
+   * ```
+   */
+  public async checkLoginCode(code: string, phone: string, zone = '86'): Promise<unknown> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('phone', phone);
+    searchParams.set('zone', zone);
+    searchParams.set('code', code);
 
-    const resp = await this.v1.get('login/check_code').json<ApiResponse<unknown>>();
+    const resp = await this.v1.get('login/check_code', { searchParams }).json<ApiResponse<unknown>>();
     if (!resp.success) {
       throw new Error(`Failed to check login code: ${resp.msg}`);
     }
@@ -389,21 +426,21 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * Sends a login code to the specified phone number.
    *
    * @param phone - The phone number to send the login code to
-   * @param zone - The country code or zone for the phone number
+   * @param zone - The country code or zone for the phone number (default: '86')
    * @returns A promise that resolves when the code is sent successfully
    *
    * @example
    * ```typescript
-   * await client.sendLoginCode('1234567890', '1');
+   * await client.sendLoginCode('1234567890', '86');
    * ```
    */
-  public async sendLoginCode(phone: string, zone: string): Promise<void> {
-    const params = new URLSearchParams();
-    params.set('phone', phone);
-    params.set('zone', zone);
-    params.set('type', 'login');
+  public async sendLoginCode(phone: string, zone = '86'): Promise<void> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('phone', phone);
+    searchParams.set('zone', zone);
+    searchParams.set('type', 'login');
 
-    const resp = await this.v2.post('login/send_code').json<ApiResponse<void>>();
+    const resp = await this.v2.post('login/send_code', { searchParams }).json<ApiResponse<void>>();
     if (!resp.success) {
       throw new Error(`Failed to send login code: ${resp.msg}`);
     }
@@ -419,11 +456,23 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
+  /**
+   * Retrieves the number of likes for the specified notes.
+   *
+   * @param noteIds - Array of note IDs to get like counts for
+   * @returns Promise that resolves to the liked number result containing like counts for each note
+   *
+   * @example
+   * ```typescript
+   * const likedNum = await client.getLikedNum(['note123', 'note456']);
+   * console.log(likedNum);
+   * ```
+   */
   public async getLikedNum(noteIds: string[]): Promise<LikedNumResult> {
-    const query = new URLSearchParams();
-    query.set('note_ids', noteIds.join(','));
+    const searchParams = new URLSearchParams();
+    searchParams.set('note_ids', noteIds.join(','));
 
-    const resp = await this.v1.get('get_liked_num', { searchParams: query }).json<ApiResponse<LikedNumResult>>();
+    const resp = await this.v1.get('get_liked_num', { searchParams }).json<ApiResponse<LikedNumResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch liked number: ${resp.msg}`);
     }
@@ -704,16 +753,14 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * ```
    */
   public async otherUserInfo(userId: string): Promise<OtherUserInfo> {
-    const resp = await this.v1
-      .get('user/otherinfo', {
-        searchParams: {
-          target_user_id: userId,
-        },
-      })
-      .json<ApiResponse<OtherUserInfo>>();
+    const searchParams = new URLSearchParams();
+    searchParams.set('target_user_id', userId);
+
+    const resp = await this.v1.get('user/otherinfo', { searchParams }).json<ApiResponse<OtherUserInfo>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch other user info: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
@@ -732,15 +779,15 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * ```
    */
   public async notePostPage(userId: string, num = 30, cursor = ''): Promise<NotePageResult> {
-    const params = new URLSearchParams();
-    params.set('num', num.toString());
-    params.set('cursor', cursor);
-    params.set('user_id', userId);
-    params.set('image_formats', 'jpg,webp,avif');
-    params.set('xsec_token', '');
-    params.set('xsec_source', '');
+    const searchParams = new URLSearchParams();
+    searchParams.set('num', num.toString());
+    searchParams.set('cursor', cursor);
+    searchParams.set('user_id', userId);
+    searchParams.set('image_formats', 'jpg,webp,avif');
+    searchParams.set('xsec_token', '');
+    searchParams.set('xsec_source', '');
 
-    const resp = await this.v2.get('user_posted', { searchParams: params }).json<ApiResponse<NotePageResult>>();
+    const resp = await this.v2.get('user_posted', { searchParams }).json<ApiResponse<NotePageResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch user posted: ${resp.msg}`);
     }
@@ -763,15 +810,15 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * ```
    */
   public async noteCollectPage(userId: string, num = 30, cursor = ''): Promise<NotePageResult> {
-    const params = new URLSearchParams();
-    params.set('num', num.toString());
-    params.set('cursor', cursor);
-    params.set('user_id', userId);
-    params.set('image_formats', 'jpg,webp,avif');
-    params.set('xsec_token', '');
-    params.set('xsec_source', '');
+    const searchParams = new URLSearchParams();
+    searchParams.set('num', num.toString());
+    searchParams.set('cursor', cursor);
+    searchParams.set('user_id', userId);
+    searchParams.set('image_formats', 'jpg,webp,avif');
+    searchParams.set('xsec_token', '');
+    searchParams.set('xsec_source', '');
 
-    const resp = await this.v2.get('note/collect/page').json<ApiResponse<NotePageResult>>();
+    const resp = await this.v2.get('note/collect/page', { searchParams }).json<ApiResponse<NotePageResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch note collect page: ${resp.msg}`);
     }
@@ -794,15 +841,15 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * ```
    */
   public async noteLikePage(userId: string, num = 30, cursor = ''): Promise<NotePageResult> {
-    const params = new URLSearchParams();
-    params.set('num', num.toString());
-    params.set('cursor', cursor);
-    params.set('user_id', userId);
-    params.set('image_formats', 'jpg,webp,avif');
-    params.set('xsec_token', '');
-    params.set('xsec_source', '');
+    const searchParams = new URLSearchParams();
+    searchParams.set('num', num.toString());
+    searchParams.set('cursor', cursor);
+    searchParams.set('user_id', userId);
+    searchParams.set('image_formats', 'jpg,webp,avif');
+    searchParams.set('xsec_token', '');
+    searchParams.set('xsec_source', '');
 
-    const resp = await this.v1.get('note/like/page').json<ApiResponse<NotePageResult>>();
+    const resp = await this.v1.get('note/like/page', { searchParams }).json<ApiResponse<NotePageResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch note like page: ${resp.msg}`);
     }
@@ -823,12 +870,10 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
    * ```
    */
   public async searchRecommend(keyword: string): Promise<SearchRecommendResult> {
-    const params = new URLSearchParams();
-    params.set('keyword', keyword);
+    const searchParams = new URLSearchParams();
+    searchParams.set('keyword', keyword);
 
-    const resp = await this.v1
-      .get('search/recommend', { searchParams: params })
-      .json<ApiResponse<SearchRecommendResult>>();
+    const resp = await this.v1.get('search/recommend', { searchParams }).json<ApiResponse<SearchRecommendResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch search recommendations: ${resp.msg}`);
     }
@@ -836,43 +881,197 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async searchNotes(): Promise<unknown> {
-    const resp = await this.v1.get('search/notes').json<ApiResponse<unknown>>();
+  /**
+   * Searches for notes based on a keyword and optional filters.
+   *
+   * @param searchId - The unique identifier for the search session
+   * @param keyword - The keyword to search for notes
+   * @param noteType - The type of notes to filter by (default: 0)
+   * @param sort - The sorting method for results (default: 'general')
+   * @param page - The page number for pagination (default: 1)
+   * @param pageSize - The number of results per page (default: 20)
+   * @returns A promise that resolves to the search notes result
+   *
+   * @example
+   * ```typescript
+   * const notes = await client.searchNotes('example keyword');
+   * console.log(notes);
+   * ```
+   */
+  public async searchNotes(
+    searchId: string,
+    keyword: string,
+    noteType = 0,
+    sort: 'general' | 'time_descending' | 'popularity_descending' = 'general',
+    page = 1,
+    pageSize = 20,
+  ): Promise<SearchNotesResult> {
+    const req: SearchNotesRequest = {
+      keyword,
+      page,
+      page_size: pageSize,
+      search_id: page === 1 ? searchId : `${searchId}@${createSearchId()}`,
+      sort,
+      note_type: noteType,
+      ext_flags: [],
+      geo: '',
+      image_formats: ['jpg', 'webp', 'avif'],
+      filters: [
+        {
+          tags: ['general'],
+          type: 'sort_type',
+        },
+        {
+          tags: ['不限'],
+          type: 'filter_note_type',
+        },
+        {
+          tags: ['不限'],
+          type: 'filter_note_time',
+        },
+        {
+          tags: ['不限'],
+          type: 'filter_note_range',
+        },
+        {
+          tags: ['不限'],
+          type: 'filter_pos_distance',
+        },
+      ],
+    };
+
+    const resp = await this.v1.post('search/notes', { json: req }).json<ApiResponse<SearchNotesResult>>();
     if (!resp.success) {
       throw new Error(`Failed to search notes: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
-  public async searchQueryTrending(): Promise<unknown> {
-    const resp = await this.v1.get('search/querytrending').json<ApiResponse<unknown>>();
+  /**
+   * Searches for trending queries based on a keyword.
+   *
+   * @param keyword - The keyword to search for trending queries
+   * @returns A promise that resolves to the trending query result
+   *
+   * @example
+   * ```typescript
+   * const trendingQueries = await client.searchQueryTrending('example keyword');
+   * console.log(trendingQueries);
+   * ```
+   */
+  public async searchQueryTrending(
+    keyword: string,
+    situation: 'FIRST_ENTER' | 'BACK_WITH_DEL_WORD' = 'FIRST_ENTER',
+    hintWordType = '',
+    hintWordRequestId = '',
+  ): Promise<SearchQueryTrendingResult> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('source', 'Explore');
+    searchParams.set('search_type', 'trend');
+    searchParams.set('last_query', '');
+    searchParams.set('last_query_time', '0');
+    searchParams.set('word_request_situation', situation);
+    searchParams.set('hint_word', keyword);
+    searchParams.set('hint_word_type', hintWordType);
+    searchParams.set('hint_word_request_id', hintWordRequestId);
+
+    const resp = await this.v1
+      .get('search/querytrending', { searchParams })
+      .json<ApiResponse<SearchQueryTrendingResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch search query trending: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
-  public async searchUserSearch(): Promise<unknown> {
-    const resp = await this.v1.post('search/usersearch').json<ApiResponse<unknown>>();
+  /**
+   * Searches for users based on a keyword and returns the results.
+   *
+   * @param searchId - The unique identifier for the search session
+   * @param keyword - The keyword to search for users
+   * @param page - The page number for pagination (default: 1)
+   * @param pageSize - The number of results per page (default: 15)
+   * @returns A promise that resolves to the user search result
+   *
+   * @example
+   * ```typescript
+   * const users = await client.searchUserSearch('search123', 'example keyword');
+   * console.log(users);
+   * ```
+   */
+  public async searchUserSearch(searchId: string, keyword: string, page = 1, pageSize = 15): Promise<UserSearchResult> {
+    const req: SearchUserRequest = {
+      search_user_request: {
+        biz_type: 'web_search_user',
+        keyword,
+        page,
+        page_size: pageSize,
+        request_id: createRequestId(),
+        search_id: searchId,
+      },
+    };
+
+    const resp = await this.v1.post('search/usersearch', { json: req }).json<ApiResponse<UserSearchResult>>();
     if (!resp.success) {
       throw new Error(`Failed to search user: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
-  public async searchOnebox(): Promise<unknown> {
-    const resp = await this.v1.post('search/onebox').json<ApiResponse<unknown>>();
+  /**
+   * Executes a search onebox for a given keyword.
+   *
+   * @param keyword - The keyword to search for onebox results
+   * @param searchId - The unique identifier for the search session (default: generated)
+   * @returns A promise that resolves when the search onebox is successfully executed
+   *
+   * @example
+   * ```typescript
+   * await client.searchOnebox('example keyword');
+   * ```
+   */
+  public async searchOnebox(keyword: string, searchId = createSearchId()): Promise<void> {
+    const req: SearchOneboxRequest = {
+      keyword,
+      search_id: searchId,
+      biz_type: 'web_search_user',
+      request_id: createRequestId(),
+    };
+
+    const resp = await this.v1.post('search/onebox', { json: req }).json<ApiResponse<void>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch search onebox: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
-  public async searchFilter(): Promise<unknown> {
-    const resp = await this.v1.get('search/filter').json<ApiResponse<unknown>>();
+  /**
+   * Get search filters based on a keyword.
+   *
+   * @param searchId - The unique identifier for the search session
+   * @param keyword - The keyword to search for filters
+   * @returns A promise that resolves to the search filters result
+   *
+   * @example
+   * ```typescript
+   * const filters = await client.searchFilter('example keyword');
+   * console.log(filters);
+   * ```
+   */
+  public async searchFilter(searchId: string, keyword: string): Promise<SearchFiltersResult> {
+    const searchParams = new URLSearchParams();
+    searchParams.set('keyword', keyword);
+    searchParams.set('search_id', searchId);
+
+    const resp = await this.v1.get('search/filter', { searchParams }).json<ApiResponse<SearchFiltersResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch search filter: ${resp.msg}`);
     }
+
     return resp.data;
   }
 
@@ -892,16 +1091,34 @@ export class RednotePrivateAPIClient extends PrivateAPIClient<RednoteCookieSessi
     return resp.data;
   }
 
-  public async listReport(): Promise<unknown> {
-    const resp = await this.report.post('list').json<ApiResponse<unknown>>();
+  /**
+   * Retrieves a list of report options for a specific target.
+   *
+   * @param targetId - The unique identifier of the target to fetch reports for
+   * @param scene - The scene code for the report
+   * @returns A promise that resolves to the list of report options
+   */
+  public async listReport(targetId: string, scene: string): Promise<ListReportResult> {
+    const req: ListReportRequest = {
+      target_id: targetId,
+      scene_code: scene,
+    };
+
+    const resp = await this.report.post('list', { json: req }).json<ApiResponse<ListReportResult>>();
     if (!resp.success) {
       throw new Error(`Failed to fetch report list: ${resp.msg}`);
     }
     return resp.data;
   }
 
-  public async submitReport(): Promise<void> {
-    const resp = await this.report.post('submit').json<ApiResponse<void>>();
+  /**
+   * Submits a report for a specific target.
+   *
+   * @param form - The report submission request containing target ID and reason
+   * @returns A promise that resolves when the report is successfully submitted
+   */
+  public async submitReport(form: SubmitReportRequest): Promise<void> {
+    const resp = await this.report.post('submit', { json: form }).json<ApiResponse<void>>();
     if (!resp.success) {
       throw new Error(`Failed to submit report: ${resp.msg}`);
     }
